@@ -1,0 +1,62 @@
+# Configuración del Supervisor Humano
+
+supervisor:
+  name: "David Maori"
+  email: "maori.david@dmaori.com"
+  timezone: "America/Bogota"
+
+  # Frecuencia de checkpoints (cada 6h)
+  scheduled_snapshots:
+    - "00:00"
+    - "06:00"
+    - "12:00"
+    - "18:00"
+
+  # Tipos de notificación
+  notifications:
+    immediate:
+      - rule_violation_critical
+      - cost_cap_breach_daily
+      - system_paused
+      - phase_gate_no_go
+      - empresa_real_falla
+      - escalation_3plus
+      - decision_requires_human_authorization
+      - cost_projected_above_50_per_day
+      - blocked_more_than_4h
+
+    in_next_snapshot:
+      - approval_rate_below_70_percent
+      - critical_task_delayed
+      - auditor_finding_medium
+      - phase_gate_go
+
+    log_only:
+      - normal_operation
+      - routine_decisions
+      - normal_snapshots
+
+  # Email service
+  email_service: resend
+  email_from: "regis-system@dmaori.com"
+
+  # Tiempo máximo de respuesta esperado
+  expected_response_time:
+    critical: "12h"
+    high: "24h"
+    medium: "48h"
+
+  # Endpoints de control que el supervisor puede invocar
+  control_endpoints:
+    pause: "/api/admin/pause"
+    resume: "/api/admin/resume"
+    dashboard: "/regis/system-health"
+    cost_dashboard: "/regis/system-health/costs"
+    audit_findings: "/regis/audit"
+
+  # Política de ausencia
+  absence_protocol:
+    enabled: false  # activar si el supervisor estará offline >24h
+    backup_contact: ""
+    auto_pause_on_critical: true
+    autonomy_level_during_absence: "conservative"  # los agentes son más restrictivos
