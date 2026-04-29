@@ -354,6 +354,16 @@
 - **criterio_qa:** Los 9 items del checklist verificados con evidencia; firma del PM presente; lecciones documentadas.
 - **done:** Gate aprobado por PM.
 
+### T-F0-037 — Construir orquestación autónoma de agentes en n8n (Camino C)
+- **tiempo:** 240 min
+- **depende_de:** T-F0-036
+- **nivel_qa:** estricto
+- **bucket:** A
+- **operador_hace:** Construir workflows en n8n self-hosted que orquesten los 4 agentes (Operador, QA, PM, Auditor) de forma autónoma a partir de Fase 1. Componentes: (1) workflow "task-dispatcher" que detecta Issues con status `Pendiente` cuyas dependencias están `Aprobada` y los asigna al Operador-Agent; (2) workflow "operador-executor" que invoca a Anthropic API con el system prompt del Operador, persiste output en GitHub Issue, y pasa control a QA; (3) workflow "qa-validator" que invoca a QA-Agent y aprueba/rechaza; (4) workflow "pm-coordinator" que se invoca en escalaciones, phase gates, y snapshots cada 6h; (5) workflow "auditor" cron cada 4h. Todos los workflows deben implementar: cost circuit breaker (`security/01_cost_circuit_breaker.md`), loop detector (`security/02_loop_detector.md`), backup automático (`security/03_backup_automatico.md`). Routing de LLMs según `governance/06_llm_routing_config.md`.
+- **entregable:** 5 workflows n8n exportados en `flows/`, documentación de cada uno en `flows/README.md`, test E2E de 1 tarea ficticia procesada autónomamente.
+- **criterio_qa:** Los 5 workflows existen y son ejecutables; test E2E corre sin error; cost circuit breaker probado; loop detector probado; orquestación toma el relevo del Camino A a partir de Fase 1.
+- **done:** El Operador-Agent ejecuta T-F1-001 sin intervención del orquestador conversacional.
+
 ---
 
 # FASE 1 — Motor de cumplimiento + audit + dashboard base
