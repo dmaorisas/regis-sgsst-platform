@@ -34,6 +34,36 @@
 
 ## Log de decisiones
 
+### D-004 — Política: funcionalidad sobre completitud de datos
+**Fecha:** 2026-04-29 16:30
+**Tomada por:** PM-Agent (siguiendo directiva del supervisor)
+**Tipo:** principio_operativo
+
+**Contexto:**
+El supervisor refuerza que el objetivo del concurso es demostrar **funcionalidad y adaptabilidad**, no completitud de datos. El sistema debe probar que funciona; los datos pueden ser sintéticos coherentes.
+
+**Decisión:**
+Adoptar como principio operativo: **datos sintéticos coherentes son suficientes** para todas las tareas que requieren datos de prueba. Solo invertir en datos reales/exhaustivos donde sean indispensables para el funcionamiento (ej: pesos Resolución 0312, sí; nombres y NITs reales de empresas, no).
+
+**Implicaciones:**
+- T-F0-022: empresas sintéticas (3 perfiles, no investigación de empresas reales)
+- T-F2-010: PDFs de prueba que diseñemos
+- T-F3-002: 3-5 CIIUs cubiertos (no 1500)
+- T-F5-001 a 005: configurar 1 de las 3 empresas sintéticas como "producción" — la diferenciación es funcional, no de datos
+- T-F5-007: discrepancy report compara contra cálculo manual nuestro siguiendo metodología 0312, no contra "número conocido por Regis"
+- T-F6-001: el wow moment del video pivota a **adaptabilidad arquitectónica** (cambiar config → recálculo en vivo)
+
+**Razón:**
+- El brief dice explícitamente que se permite construir con documentos genéricos
+- Regis nunca comparte datos reales, ni siquiera al ganador
+- El ganador alimentará sus datos reales después; nuestro trabajo es que el sistema esté listo
+- Recursos limitados: 11 días, mejor invertirlos en funcionalidad
+
+**Memoria asociada:**
+`memory/feedback_funcionalidad_sobre_datos.md`
+
+---
+
 ### D-003 — Clarificación T-F0-022: arquitectura multi-empresa adaptable
 **Fecha:** 2026-04-29 15:15
 **Tomada por:** PM-Agent (siguiendo input directo del supervisor)
