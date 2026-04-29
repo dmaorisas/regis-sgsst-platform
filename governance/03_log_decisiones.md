@@ -34,6 +34,92 @@
 
 ## Log de decisiones
 
+### D-006 — Fusionar T-F0-024 (ERD v1) con T-F1-001 (configurar migrations)
+**Fecha:** 2026-04-29 16:50
+**Tomada por:** PM-Agent (con aprobación supervisor humano)
+**Tipo:** modificacion_plan (eficiencia)
+
+**Contexto:**
+T-F0-024 era "refinar ERD a v1 incorporando aprendizajes de T-F0-038". T-F1-001 era "configurar migrations con Supabase CLI". Ambas tocan el modelo de datos: una en formato diagrama, otra en formato SQL ejecutable. Hacer ambas separadas implica diseñar el modelo dos veces.
+
+**Decisión:**
+Fusionar T-F0-024 → T-F1-001. La primera tarea de Fase 1 ahora incluye:
+1. Refinar el ERD v0 con aprendizajes de T-F0-038 (en SQL directamente, no en archivo .mmd)
+2. Crear las migrations correspondientes
+3. Actualizar el `.mmd` del ERD para que refleje el SQL final (un solo archivo `v1.mmd`)
+
+**Verificación de impacto en plan maestro:**
+- T-F0-026 (ADR-02 formalizado): NO impactada. Puede ejecutarse con ERD v0 + decisiones ya tomadas. La materialización SQL no es requisito para formalizar el ADR.
+- T-F1-002 a T-F1-010 (migrations): BENEFICIADAS. Parten de un ERD ya refinado.
+- T-F0-036 (Phase Gate F0): ajusta criterio "ERD v1 publicado" a "ERD v0 publicado + refinamiento programado para inicio F1".
+- Resto del plan: sin cambios estructurales.
+
+**Razón:**
+- Eficiencia: ahorra 60 min de trabajo redundante (el ERD se materializa en SQL = es la versión definitiva)
+- Coherencia: una sola fuente de verdad para el modelo (el SQL ejecutado, no el diagrama)
+- Calidad: refinamiento + ejecución en una pasada reduce inconsistencias entre diagrama y código real
+
+**Cambios concretos al master list:**
+- T-F0-024: marcada como FUSIONADA con T-F1-001 (no se ejecuta como tarea separada)
+- T-F1-001: spec ampliada para incluir refinamiento ERD + creación de migrations + actualización del .mmd con la versión final
+- Tiempo estimado de T-F1-001: 45 min → 90 min (absorbe los 60 min de T-F0-024 - 15 min de overhead duplicado)
+
+**Risk assessment:**
+Bajo. La fusión preserva el contrato: al final de F1-001 existe un ERD v1 commiteado + migration aplicada. Solo cambia el orden y formato de producción.
+
+---
+
+### D-005 — Política de almacenamiento, archivos basura y limpieza periódica
+**Fecha:** 2026-04-29 16:50
+**Tomada por:** PM-Agent (siguiendo pregunta directa del supervisor)
+**Tipo:** principio_operativo + adicion_plan
+
+**Contexto:**
+El supervisor pregunta si estamos contemplando eficiencia en almacenamiento, archivos basura y limpieza periódica. Respuesta honesta: NO se había contemplado explícitamente. Es un gap operativo importante que se acumula durante 11 días de operación 24/7 con 4 agentes.
+
+**Decisión:**
+Adoptar política formal de gestión de almacenamiento con 4 capas:
+
+1. **Capa 1 — Prevención (gitignore robusto):**
+   - .gitignore actualizado para excluir: `.tmp`, `*.bak`, `tmp/`, `coverage/`, `backups/`, `logs/`, `flows/*.archive.json`, PDFs/audios fuera de `docs/test-data/`
+   - Política: archivos generados por agentes durante ejecución NO van al repo
+
+2. **Capa 2 — Limpieza inmediata (manual/scripted):**
+   - `/tmp/*.md` del proyecto: limpiar después de cada ciclo de tarea (ya ejecutado hoy)
+   - Reportes de agentes: viven en GitHub Issues, no en filesystem
+   - Outputs de tests: borrados al cierre del día
+
+3. **Capa 3 — Limpieza programada (T-F0-039 a crear):**
+   - Workflow n8n diario que limpia archivos viejos
+   - Lifecycle Supabase Storage: PDFs >90 días → tier frío (cuando llegue a producción real)
+   - Particiones audit_log mensuales: archivar las de >12 meses
+   - Logs aplicación: rotación diaria + retención 30 días
+
+4. **Capa 4 — Monitoreo:**
+   - Cron en n8n revisa tamaño DB y storage cada 24h
+   - Alerta al supervisor si DB > 400MB (80% del free tier)
+   - Alerta al supervisor si storage > 800MB (80% del free tier)
+   - Reporte semanal de uso de espacio
+
+**Cambios concretos al master list:**
+- Agregar T-F0-039 — "Política y mecanismos de limpieza de almacenamiento" (45 min, nivel_qa estándar, antes de Phase Gate F0)
+
+**Razón:**
+- Supabase free tier tiene límites (500MB DB + 1GB storage)
+- 11 días × 4 agentes × N invocaciones acumulan archivos rápido
+- Una limpieza al final del proyecto es ineficiente; mejor prevenir
+- Auditoría limpia para el video del concurso (mostrar que el sistema es operativamente sólido)
+
+**Acciones inmediatas tomadas (antes de crear T-F0-039):**
+- ✅ Limpiar /tmp/*.md y /tmp/regis-clone (7 archivos)
+- ✅ Mejorar .gitignore con patrones para basura
+- ✅ Documentar D-005 (este registro)
+
+**Risk assessment:**
+Medio si NO se ejecuta. Sin política, el riesgo es: (a) chocar contra límites Supabase free tier en producción real, (b) repo inflado por backups accidentales, (c) audit_log creciendo sin control degradando performance. La inversión de 45 min en T-F0-039 elimina los 3 riesgos.
+
+---
+
 ### D-004 — Política: funcionalidad sobre completitud de datos
 **Fecha:** 2026-04-29 16:30
 **Tomada por:** PM-Agent (siguiendo directiva del supervisor)

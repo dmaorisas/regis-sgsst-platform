@@ -152,3 +152,62 @@ vite.config.ts.timestamp-*
 
 # Claude Code local
 .claude/
+
+# Archivos basura y temporales del proyecto (D-005)
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+.cache/
+tmp/
+temp/
+
+# Reportes de agentes (no se commitean, viven en GitHub Issues)
+reports/
+agent-reports/
+
+# Outputs de tests y coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+junit.xml
+
+# Backups locales (los oficiales van a Drive, los locales son temporales)
+backups/
+*.dump
+*.sql.gz
+*.tar.gz
+
+# Logs locales (los persistentes van a Supabase + Sentry)
+logs/
+*.log
+npm-debug.log*
+
+# Editores
+.idea/
+.vscode/settings.json
+*.iml
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# PDFs de prueba grandes (los de muestra van a docs/test-data/, no a raíz)
+*.pdf
+!docs/test-data/**/*.pdf
+!docs/erd/**/*.pdf
+!docs/research/**/*.pdf
+
+# Audios de prueba (igual)
+*.mp3
+*.m4a
+*.wav
+!docs/test-data/**/*.mp3
+
+# Outputs de orquestación n8n (versiones antiguas)
+flows/*.archive.json
+flows/*.bak.json

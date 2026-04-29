@@ -237,13 +237,10 @@
 - **criterio_qa:** Sesión agendada antes del 1 may 18:00; consultor sénior confirmado.
 - **done:** Confirmación recibida.
 
-### T-F0-024 — Refinar ERD a v1 con base en llamada Regis
-- **tiempo:** 90 min
-- **depende_de:** T-F0-018, T-F0-021
-- **nivel_qa:** estricto
-- **operador_hace:** Actualizar ERD aplicando aprendizajes de la llamada. Casos típicos: ajustar entidades, agregar campos faltantes, refinar relaciones. Documentar cambios respecto a v0.
-- **entregable:** ERD v1 + changelog en `docs/erd/changelog.md`.
-- **criterio_qa:** Cambios documentados con razón; ERD v1 publicado; v0 archivado para referencia.
+### T-F0-024 — [FUSIONADA con T-F1-001 por D-006]
+**Estado:** FUSIONADA — no se ejecuta como tarea separada.
+**Razón:** El refinamiento del ERD se materializa directamente en las migrations SQL de T-F1-001. Una sola fuente de verdad. Ahorro de 60 min de trabajo redundante.
+**Ver:** `governance/03_log_decisiones.md` D-006 para detalles. T-F1-001 absorbe el alcance completo.
 - **done:** v1 compartida en canal.
 
 ### T-F0-025 — Escribir ADR-01: Lovable vs Next.js
@@ -353,6 +350,22 @@
 - **entregable:** `phases/fase_0_gate.md` firmado.
 - **criterio_qa:** Los 9 items del checklist verificados con evidencia; firma del PM presente; lecciones documentadas.
 - **done:** Gate aprobado por PM.
+
+### T-F0-039 — Política y mecanismos de limpieza de almacenamiento
+- **tiempo:** 45 min
+- **depende_de:** T-F0-036 (Phase Gate F0)
+- **nivel_qa:** estándar
+- **bucket:** A
+- **operador_hace:** Implementar las 4 capas de la política de almacenamiento definida en D-005:
+  (1) Documento `governance/08_storage_policy.md` con política formal
+  (2) Workflow n8n cron diario que limpia /tmp del proyecto, archivos viejos del worker, logs >30 días
+  (3) Configuración lifecycle Supabase Storage (cold tier para PDFs >90 días — preparado, no activado hasta producción real)
+  (4) Tabla `storage_metrics` en Supabase para tracking de uso + workflow n8n cron 24h que mide DB size + Storage size + alerta si >80% free tier
+- **entregable:** `governance/08_storage_policy.md` + 2 workflows n8n exportados en `flows/cleanup-daily.json` y `flows/storage-monitor.json` + migration de tabla storage_metrics
+- **criterio_qa:** Política formal documentada; workflows ejecutables; alerta de prueba dispara correctamente; primera medición de baseline registrada
+- **done:** Workflows activos en n8n autoejecutándose
+
+---
 
 ### T-F0-037 — Construir orquestación autónoma de agentes en n8n (Camino C)
 - **tiempo:** 240 min
