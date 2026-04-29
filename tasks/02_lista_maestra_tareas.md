@@ -351,19 +351,29 @@
 - **criterio_qa:** Los 9 items del checklist verificados con evidencia; firma del PM presente; lecciones documentadas.
 - **done:** Gate aprobado por PM.
 
-### T-F0-039 — Política y mecanismos de limpieza de almacenamiento
+### T-F0-039 — Política de almacenamiento (documentación)
 - **tiempo:** 45 min
-- **depende_de:** T-F0-036 (Phase Gate F0)
+- **depende_de:** ninguna (D-007 split en F0 doc + F1.5 técnico)
 - **nivel_qa:** estándar
 - **bucket:** A
-- **operador_hace:** Implementar las 4 capas de la política de almacenamiento definida en D-005:
-  (1) Documento `governance/08_storage_policy.md` con política formal
-  (2) Workflow n8n cron diario que limpia /tmp del proyecto, archivos viejos del worker, logs >30 días
-  (3) Configuración lifecycle Supabase Storage (cold tier para PDFs >90 días — preparado, no activado hasta producción real)
-  (4) Tabla `storage_metrics` en Supabase para tracking de uso + workflow n8n cron 24h que mide DB size + Storage size + alerta si >80% free tier
-- **entregable:** `governance/08_storage_policy.md` + 2 workflows n8n exportados en `flows/cleanup-daily.json` y `flows/storage-monitor.json` + migration de tabla storage_metrics
-- **criterio_qa:** Política formal documentada; workflows ejecutables; alerta de prueba dispara correctamente; primera medición de baseline registrada
-- **done:** Workflows activos en n8n autoejecutándose
+- **operador_hace:** Documentar la política formal de almacenamiento, archivos basura y limpieza definida en D-005. Cubre las 4 capas (gitignore, limpieza inmediata, limpieza programada, monitoreo) pero solo como contrato. La implementación técnica va en T-F15-014.
+- **entregable:** `governance/08_storage_policy.md` con: política completa, retention schedules por tipo de dato, alertas y umbrales, procedimientos de cleanup, responsabilidades por agente
+- **criterio_qa:** Política completa y consultable; menciona los límites Supabase free tier; define umbrales de alerta; lista de archivos/carpetas a ignorar coherente con .gitignore actualizado
+- **done:** Política commiteada y referenciable por T-F15-014
+
+### T-F15-014 — Implementación técnica de cleanup + monitoring (de D-005, agregada en D-007)
+- **tiempo:** 90 min
+- **depende_de:** T-F15-001 (pg-boss instalado), T-F1-002 (DB con tenancy), T-F0-039 (política definida)
+- **nivel_qa:** estándar
+- **bucket:** A
+- **operador_hace:** Implementar las capas técnicas de la política de almacenamiento:
+  (1) Migration `012_storage_metrics.sql` con tabla para tracking
+  (2) Workflow n8n `cleanup-daily.json` (cron 03:00 hora Colombia: limpia /tmp del worker, logs >30 días, archivos huérfanos)
+  (3) Workflow n8n `storage-monitor.json` (cron cada 24h: mide DB size + Storage size; inserta en storage_metrics; alerta a supervisor si >80% free tier)
+  (4) Lifecycle config en Supabase Storage (preparado, activado en F5 producción)
+- **entregable:** migration aplicada + 2 workflows n8n + alerta de prueba disparada
+- **criterio_qa:** Workflows ejecutables; primera medición baseline registrada; alerta de prueba llega al email del supervisor; lifecycle config documentado
+- **done:** Sistema autoejecutándose, dashboard de salud del sistema (T-F5-008) puede consultar storage_metrics
 
 ---
 

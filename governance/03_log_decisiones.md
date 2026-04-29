@@ -34,6 +34,35 @@
 
 ## Log de decisiones
 
+### D-007 — Reorganizar T-F0-039: documentación en F0, implementación en F1.5
+**Fecha:** 2026-04-29 17:15
+**Tomada por:** PM-Agent (per directiva supervisor: organizar nuevas tareas en su etapa correspondiente)
+**Tipo:** modificacion_plan (organización por fase)
+
+**Contexto:**
+T-F0-039 (creada en D-005) tenía alcance dual: documentar política + implementar workflows técnicos. La parte técnica requiere infraestructura que solo existe en F1.5 (pg-boss, Supabase tables, n8n orquestado).
+
+**Decisión:**
+Split T-F0-039 en dos:
+1. **T-F0-039 (Fase 0):** Solo documentación de la política → `governance/08_storage_policy.md`. Tiempo: ~45 min
+2. **T-F15-014 (Fase 1.5):** Implementación técnica → workflows n8n cleanup + tabla `storage_metrics` + alertas. Tiempo: ~90 min
+
+**Razón:**
+- La doc define el contrato; los agentes pueden alinearse a él durante F0
+- La implementación técnica necesita infra real (DB con migrations aplicadas, n8n con orquestación viva)
+- Ejecutar técnico en F0 sería prematuro (lo construye sobre placeholders)
+
+**Cambios al master list:**
+- T-F0-039 spec recortada a documentación
+- Nueva T-F15-014 agregada con la implementación técnica
+
+**Plan al cierre del proyecto:**
+La política se documenta ahora → los workflows se construyen en F1.5 → monitoreo activo desde F2 → habilita demo del 6 may con sistema operativamente sólido.
+
+**Risk assessment:** Bajo. Doc-first es el orden correcto.
+
+---
+
 ### D-006 — Fusionar T-F0-024 (ERD v1) con T-F1-001 (configurar migrations)
 **Fecha:** 2026-04-29 16:50
 **Tomada por:** PM-Agent (con aprobación supervisor humano)
