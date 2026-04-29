@@ -17,7 +17,7 @@ Este directorio contiene los ADRs (Architecture Decision Records) del proyecto. 
 | ADR | Título | Estado | Fecha | Tipo |
 |---|---|---|---|---|
 | [ADR-001](ADR-001-stack-frontend.md) | Stack Frontend: Next.js 14 directo | Aceptado | 2026-04-29 | Principal |
-| ADR-002 | Centros de trabajo + multi-CIIU | Pendiente — T-F0-026 (después de ERD v1, T-F0-024) | — | Principal |
+| [ADR-002](ADR-002-centros-trabajo-multi-ciiu.md) | Centros de trabajo + multi-CIIU | Aceptado | 2026-04-29 | Principal |
 | [ADR-003](ADR-003-audit-trail-fase-1.md) | Audit Trail desde Fase 1 (no Fase 5) | Aceptado | 2026-04-29 | Principal |
 | [ADR-004](ADR-004-storage-primario.md) | Storage Primario: Supabase Storage + Drive espejo | Aceptado | 2026-04-29 | Principal |
 | [ADR-005](ADR-005-job-queue-pg-boss.md) | Job Queue: pg-boss sobre Postgres | Aceptado | 2026-04-29 | Principal |
@@ -29,13 +29,12 @@ Este directorio contiene los ADRs (Architecture Decision Records) del proyecto. 
 
 ## Notas
 
-- **ADR-002** se documentará en la tarea **T-F0-026**, después de cerrar el ERD v1 (T-F0-024) con la información de la llamada con Regis. Su versión conceptual ya está aplicada en el ERD v0 (centros de trabajo como entidad de primera clase con CIIU propio, ver `docs/erd/v0.md` D-ERD-02).
-- Los ADRs principales (001, 003, 004, 005) usan el formato extenso porque su decisión condiciona la arquitectura en múltiples fases.
+- **ADR-002** fue formalizado en la tarea **T-F0-026** (2026-04-29). La decisión ya estaba aplicada en el ERD v0 (centros de trabajo como entidad de primera clase con CIIU propio, ver `docs/erd/v0.md` D-ERD-02); este ADR documenta formalmente el contexto, alternativas y consecuencias.
+- Los ADRs principales (001, 002, 003, 004, 005) usan el formato extenso porque su decisión condiciona la arquitectura en múltiples fases.
 - Los ADRs cortos (006-010) usan el formato breve porque formalizan decisiones más acotadas pero igualmente vinculantes.
 
 ## Próximos ADRs previstos (no comprometidos)
 
-- ADR-002 — Centros de trabajo + multi-CIIU (T-F0-026).
 - ADR-011 (tentativo) — Estrategia de migraciones Supabase y particionado de `audit_log`.
 - ADR-012 (tentativo) — Política de versionado de documentos en `documents`.
 
