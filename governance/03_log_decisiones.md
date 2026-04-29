@@ -34,6 +34,38 @@
 
 ## Log de decisiones
 
+### D-003 — Clarificación T-F0-022: arquitectura multi-empresa adaptable
+**Fecha:** 2026-04-29 15:15
+**Tomada por:** PM-Agent (siguiendo input directo del supervisor)
+**Tipo:** clarificacion_spec
+
+**Contexto:**
+El supervisor humano clarifica que T-F0-022 NO debe limitarse a una sola empresa real. El sistema debe ser **adaptable a N empresas** desde el día 1, soportando: (a) empresas sintéticas para testing, (b) empresas reales con datos públicos (Nike, Ferrero, PayU, Danone vía RUES), (c) cualquier empresa futura sin reescritura.
+
+**Decisión:**
+T-F0-022 (reformulada en D-002) se refina aún más: en lugar de "seleccionar UNA empresa pública", se ejecuta como "configurar 2-3 empresas representativas que prueben los 3 capítulos de Resolución 0312":
+- 1 empresa pequeña (1-10 trab, riesgo I-III) → Capítulo I (7 estándares)
+- 1 empresa mediana (11-50 trab, riesgo I-III) → Capítulo II (21 estándares)
+- 1 empresa grande o de alto riesgo → Capítulo III (60 estándares)
+
+Esto garantiza cobertura del motor de cumplimiento y demuestra adaptabilidad arquitectónica en el video.
+
+**Razón:**
+- Refuerza el principio rector ("sistema demostrablemente adaptable")
+- Cubre los 3 capítulos de la Resolución 0312 con casos reales
+- El Discrepancy Report del video (T-F5-007) puede mostrar 3 empresas distintas con sus % calculados
+- Ya está soportado arquitectónicamente (multi-tenancy con RLS desde Fase 1)
+
+**Cambios al plan:**
+- T-F0-022 reformulada: "Configurar 2-3 empresas representativas (mix sintéticas + datos públicos)"
+- T-F1-013 reforzada: seed inicial cubre 3 empresas en lugar de 1
+- T-F5-X mantiene foco en datos reales (públicos), no fictos
+
+**Risk assessment:**
+Bajo. Mejora la robustez de la demostración sin agregar complejidad técnica.
+
+---
+
 ### D-002 — Pivote estratégico: ejecución sin contacto con Regis
 **Fecha:** 2026-04-29 14:50
 **Tomada por:** PM-Agent (orquestador)
