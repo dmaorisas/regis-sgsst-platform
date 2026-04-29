@@ -19,7 +19,7 @@ La plataforma maneja documentos de SG-SST: actas, matrices de riesgo, exámenes 
 - Contras: infra adicional + IAM separado de Supabase Auth; signed URLs cuestan más boilerplate; sobreingeniería para el concurso (no hay tráfico que justifique); rompe el "stack único" del proyecto.
 
 ### Alternativa C: Supabase Storage primario + Drive espejo opcional
-- Pros: RLS nativa idéntica a la de tablas; signed URLs out-of-the-box; integrado con Supabase Auth (mismo JWT); buckets separados con políticas distintas (bucket `medical_records` privado con retención 20 años, ver D-ERD-04); Drive sigue disponible para colaboración humana del consultor cuando el cliente lo prefiera.
+- Pros: RLS nativa idéntica a la de tablas; signed URLs out-of-the-box; integrado con Supabase Auth (mismo JWT); buckets separados con políticas distintas (bucket `medical_exams_secure` privado con retención 20 años, ver D-ERD-04); Drive sigue disponible para colaboración humana del consultor cuando el cliente lo prefiera.
 - Contras: bucket histórico no nativo; hay que manejar versiones y retención manualmente (jobs pg-boss).
 
 ### Alternativa D: Supabase Storage primario sin Drive
@@ -32,7 +32,7 @@ La plataforma maneja documentos de SG-SST: actas, matrices de riesgo, exámenes 
 
 ## Razón
 
-El principio rector exige adaptabilidad a documentos reales el día 1. Supabase Storage da: (1) RLS por bucket alineada con la del resto de tablas, (2) signed URLs con expiración para datos médicos, (3) integración nativa con Supabase Auth (mismo JWT), (4) buckets separados con políticas de retención distintas (ver D-ERD-04: bucket `medical_records` con `retention_years=20`). Drive es útil para humanos pero malo como source of truth (auditoría débil, sin RLS por fila, permisos por carpeta no escalan a multi-tenant). El espejo opcional de Drive cubre el flujo de consultoría sin comprometer la integridad del modelo.
+El principio rector exige adaptabilidad a documentos reales el día 1. Supabase Storage da: (1) RLS por bucket alineada con la del resto de tablas, (2) signed URLs con expiración para datos médicos, (3) integración nativa con Supabase Auth (mismo JWT), (4) buckets separados con políticas de retención distintas (ver D-ERD-04: bucket `medical_exams_secure` con `retention_years=20`). Drive es útil para humanos pero malo como source of truth (auditoría débil, sin RLS por fila, permisos por carpeta no escalan a multi-tenant). El espejo opcional de Drive cubre el flujo de consultoría sin comprometer la integridad del modelo.
 
 ## Consecuencias
 
