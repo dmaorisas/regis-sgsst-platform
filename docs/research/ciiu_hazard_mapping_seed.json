@@ -1,0 +1,999 @@
+[
+  {
+    "ciiu_code": "7020",
+    "ciiu_description": "Actividades de consultoría de gestión",
+    "risk_class": "I",
+    "applicable_chapter": "I",
+    "applicable_chapter_note": "Capítulo I si <=10 trab; Capítulo II si 11-50 trab; Capítulo III si >50 trab. Riesgo I según Decreto 1607/2002.",
+    "hazards": [
+      {
+        "category": "fisico",
+        "name": "Iluminación deficiente o excesiva",
+        "source": "Luminarias inadecuadas, deslumbramiento por pantallas, falta de mantenimiento",
+        "possible_effects": ["Fatiga visual", "Cefaleas tensionales", "Estrés visual"],
+        "suggested_controls": ["Mediciones de luxometría", "Adecuación luminarias 500-750 lux para oficina", "Filtros antirreflejo en pantallas"],
+        "reference": "GTC-45/2012 Anexo A; Resolución 2400/1979 Art. 79-87"
+      },
+      {
+        "category": "fisico",
+        "name": "Disconfort térmico",
+        "source": "Aire acondicionado mal regulado, ventilación inadecuada",
+        "possible_effects": ["Estrés térmico", "Resfriados", "Disconfort"],
+        "suggested_controls": ["Mantenimiento HVAC", "Mediciones temperatura/humedad", "Termómetros visibles"],
+        "reference": "GTC-45/2012 Anexo A; ASHRAE 55"
+      },
+      {
+        "category": "fisico",
+        "name": "Ruido (oficina abierta)",
+        "source": "Conversaciones, equipos de oficina, llamadas telefónicas",
+        "possible_effects": ["Estrés", "Pérdida de concentración", "Cefalea"],
+        "suggested_controls": ["Cabinas acústicas", "Mediciones sonométricas", "Diseño open-space con barreras"],
+        "reference": "GTC-45/2012; Resolución 1792/1990"
+      },
+      {
+        "category": "fisico",
+        "name": "Radiaciones no ionizantes (pantallas)",
+        "source": "Monitores, dispositivos electrónicos",
+        "possible_effects": ["Fatiga visual", "Síndrome visual del computador"],
+        "suggested_controls": ["Pausas activas cada hora", "Regla 20-20-20", "Filtros de pantalla"],
+        "reference": "GTC-45/2012 Anexo A"
+      },
+      {
+        "category": "quimico",
+        "name": "Tóner y polvo de impresoras/fotocopiadoras",
+        "source": "Equipos de impresión, recargas de tóner",
+        "possible_effects": ["Irritación respiratoria", "Dermatitis"],
+        "suggested_controls": ["Ventilación zona impresoras", "Áreas separadas", "EPP en recarga"],
+        "reference": "GTC-45/2012 Anexo A"
+      },
+      {
+        "category": "quimico",
+        "name": "Productos de limpieza",
+        "source": "Limpiadores, desinfectantes utilizados en aseo",
+        "possible_effects": ["Irritación piel/ojos/respiratoria"],
+        "suggested_controls": ["Hojas SDS", "Capacitación a personal de aseo", "EPP"],
+        "reference": "GTC-45/2012; Decreto 1496/2018 (SGA)"
+      },
+      {
+        "category": "biologico",
+        "name": "Virus respiratorios (gripe, COVID-19)",
+        "source": "Espacios cerrados con muchas personas, contacto interpersonal",
+        "possible_effects": ["Infecciones respiratorias", "Brotes laborales"],
+        "suggested_controls": ["Ventilación natural", "Vacunación", "Protocolos de bioseguridad"],
+        "reference": "Resolución 666/2020; GTC-45/2012"
+      },
+      {
+        "category": "biologico",
+        "name": "Hongos y bacterias en HVAC",
+        "source": "Mantenimiento deficiente de aire acondicionado",
+        "possible_effects": ["Síndrome del edificio enfermo", "Legionelosis"],
+        "suggested_controls": ["Mantenimiento periódico HVAC", "Limpieza filtros", "Calidad aire interior"],
+        "reference": "GTC-45/2012; OMS edificio enfermo"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Postura prolongada sedente",
+        "source": "Trabajo continuo en computador >8h",
+        "possible_effects": ["Lumbalgia", "Cervicalgia", "Síndrome del túnel carpiano"],
+        "suggested_controls": ["Sillas ergonómicas", "Pausas activas", "Análisis puesto trabajo"],
+        "reference": "GTC-45/2012 Anexo A; Resolución 2844/2007 GATI-DME"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Movimientos repetitivos miembros superiores",
+        "source": "Uso continuo teclado/mouse",
+        "possible_effects": ["Tendinitis", "Epicondilitis", "STC"],
+        "suggested_controls": ["Mouse ergonómico", "Apoyabrazos", "Rotación tareas"],
+        "reference": "GATI-DME 2007; ARL Sura"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Uso prolongado pantalla",
+        "source": "Pantalla mal posicionada, distancia inadecuada",
+        "possible_effects": ["Síndrome visual computador", "Cefalea"],
+        "suggested_controls": ["Pantalla a la altura de los ojos", "Distancia 50-70cm", "Iluminación adecuada"],
+        "reference": "GTC-45/2012; ARL Positiva guía oficina"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Manipulación manual de cargas (archivo, equipos)",
+        "source": "Mover cajas de archivo, equipos de cómputo",
+        "possible_effects": ["Lumbalgia mecánica", "Hernia discal"],
+        "suggested_controls": ["Capacitación higiene postural", "Carros transporte", "Limites carga (NIOSH)"],
+        "reference": "Resolución 2400/1979; GATI-DME"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Carga mental alta",
+        "source": "Plazos cortos, alta demanda cognitiva, multitarea",
+        "possible_effects": ["Síndrome burnout", "Ansiedad", "Trastornos del sueño"],
+        "suggested_controls": ["Batería riesgo psicosocial", "Pausas activas mentales", "Programa SVE"],
+        "reference": "Resolución 2646/2008; Resolución 2764/2022"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Acoso laboral",
+        "source": "Conflictos jerárquicos, estilos de liderazgo agresivos",
+        "possible_effects": ["Estrés laboral", "Trastornos depresivos", "Disminución productividad"],
+        "suggested_controls": ["Comité de Convivencia Laboral", "Política contra acoso", "Capacitación"],
+        "reference": "Ley 1010/2006; Resolución 1356/2012"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Estrés por jornadas extendidas",
+        "source": "Horas extra frecuentes, presión de entregables",
+        "possible_effects": ["Burnout", "Síndrome agotamiento", "Trastornos cardiovasculares"],
+        "suggested_controls": ["Control jornada laboral", "Desconexión digital (Ley 2191/2022)", "EVA SVE psicosocial"],
+        "reference": "Ley 2191/2022; Resolución 2646/2008"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Conflicto trabajo-familia",
+        "source": "Trabajo remoto/híbrido, sobrecarga, ausencia limites",
+        "possible_effects": ["Estrés crónico", "Conflictos familiares"],
+        "suggested_controls": ["Política teletrabajo (Ley 2088/2021)", "Horarios flexibles", "Apoyo psicosocial"],
+        "reference": "Ley 1221/2008; Ley 2088/2021"
+      },
+      {
+        "category": "mecanico",
+        "name": "Caídas a mismo nivel (cables, pisos)",
+        "source": "Cables sueltos, pisos deslizantes, elementos en circulación",
+        "possible_effects": ["Esguinces", "Fracturas leves", "Contusiones"],
+        "suggested_controls": ["Orden y aseo (5S)", "Canaletas para cables", "Señalización"],
+        "reference": "GTC-45/2012; Resolución 2400/1979"
+      },
+      {
+        "category": "mecanico",
+        "name": "Golpes por archivadores/mobiliario",
+        "source": "Cajones abiertos, mobiliario en mal estado",
+        "possible_effects": ["Contusiones", "Heridas"],
+        "suggested_controls": ["Mantenimiento mobiliario", "Capacitación uso seguro"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "electrico",
+        "name": "Contacto indirecto baja tensión (oficina)",
+        "source": "Tomacorrientes sobrecargados, equipos sin polo a tierra",
+        "possible_effects": ["Choque eléctrico", "Quemaduras", "Incendios"],
+        "suggested_controls": ["Inspección instalación eléctrica", "RETIE", "Tomacorrientes con polo a tierra"],
+        "reference": "RETIE Resolución 90708/2013; GTC-45/2012"
+      },
+      {
+        "category": "electrico",
+        "name": "Electricidad estática",
+        "source": "Acumulación carga en equipos electrónicos",
+        "possible_effects": ["Disconfort", "Daño equipos"],
+        "suggested_controls": ["Pisos antiestáticos", "Humedad relativa controlada"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "locativo",
+        "name": "Caídas escaleras",
+        "source": "Escaleras sin pasamanos, mal iluminadas, antideslizantes deficientes",
+        "possible_effects": ["Fracturas", "Traumatismos"],
+        "suggested_controls": ["Pasamanos NSR-10", "Cintas antideslizantes", "Iluminación adecuada"],
+        "reference": "NSR-10 Título J; GTC-45/2012"
+      },
+      {
+        "category": "locativo",
+        "name": "Almacenamiento inadecuado",
+        "source": "Estanterías sobrecargadas, archivo en altura",
+        "possible_effects": ["Caída de objetos", "Lumbalgia por alcance"],
+        "suggested_controls": ["Anclaje estanterías", "Inventario altura", "Escaleras seguras"],
+        "reference": "Resolución 2400/1979"
+      }
+    ]
+  },
+  {
+    "ciiu_code": "4711",
+    "ciiu_description": "Comercio al por menor en establecimientos no especializados con surtido compuesto principalmente por alimentos, bebidas o tabaco",
+    "risk_class": "II",
+    "applicable_chapter": "II",
+    "applicable_chapter_note": "Riesgo II según Decreto 1607/2002. Capítulo I si <=10 trab; Capítulo II si 11-50 trab; Capítulo III si >50 trab.",
+    "hazards": [
+      {
+        "category": "fisico",
+        "name": "Iluminación deficiente en bodegas",
+        "source": "Áreas de almacenamiento mal iluminadas",
+        "possible_effects": ["Fatiga visual", "Caídas por tropiezos"],
+        "suggested_controls": ["Mediciones luxometría", "Mantenimiento luminarias"],
+        "reference": "GTC-45/2012; Resolución 2400/1979 Art. 79-87"
+      },
+      {
+        "category": "fisico",
+        "name": "Disconfort térmico (cuartos fríos)",
+        "source": "Cámaras frigoríficas, neveras, congeladores",
+        "possible_effects": ["Hipotermia leve", "Resfriados", "Disconfort"],
+        "suggested_controls": ["EPP térmico (chaqueta, guantes)", "Tiempos de exposición limitados", "Pausas térmicas"],
+        "reference": "GTC-45/2012; Resolución 2400/1979 Art. 64"
+      },
+      {
+        "category": "fisico",
+        "name": "Ruido (zona panadería, refrigeración)",
+        "source": "Compresores, hornos, equipos refrigeración",
+        "possible_effects": ["Hipoacusia neurosensorial", "Fatiga auditiva"],
+        "suggested_controls": ["Sonometría/dosimetría", "EPP auditivo", "Mantenimiento equipos"],
+        "reference": "Resolución 1792/1990; GATI-HNIR"
+      },
+      {
+        "category": "fisico",
+        "name": "Radiación no ionizante (UV cajas registradoras / iluminación)",
+        "source": "Lámparas fluorescentes, luz solar en zonas exteriores",
+        "possible_effects": ["Fatiga visual"],
+        "suggested_controls": ["Filtros UV", "Iluminación LED"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "quimico",
+        "name": "Productos de limpieza y desinfección",
+        "source": "Hipoclorito, amoniacales, detergentes",
+        "possible_effects": ["Dermatitis", "Irritación respiratoria/ocular"],
+        "suggested_controls": ["Hojas SDS", "EPP (guantes, gafas)", "Ventilación", "Capacitación SGA"],
+        "reference": "Decreto 1496/2018 (SGA); GTC-45/2012"
+      },
+      {
+        "category": "quimico",
+        "name": "Polvo de harinas (panadería)",
+        "source": "Manipulación de harinas en panadería interna",
+        "possible_effects": ["Asma del panadero", "Rinitis ocupacional"],
+        "suggested_controls": ["Extracción localizada", "Mascarilla N95", "Vigilancia médica respiratoria"],
+        "reference": "GATISO asma ocupacional; GTC-45/2012"
+      },
+      {
+        "category": "quimico",
+        "name": "Vapores de fumigación/control plagas",
+        "source": "Aplicación periódica de plaguicidas",
+        "possible_effects": ["Intoxicaciones", "Irritación respiratoria"],
+        "suggested_controls": ["Empresa de fumigación licenciada", "Tiempos de seguridad", "Ventilación post-aplicación"],
+        "reference": "Decreto 1843/1991; GTC-45/2012"
+      },
+      {
+        "category": "biologico",
+        "name": "Virus respiratorios (atención al público)",
+        "source": "Contacto con clientes, manipulación de billetes",
+        "possible_effects": ["Infecciones respiratorias", "Gastroenteritis"],
+        "suggested_controls": ["Lavado de manos", "Tapabocas", "Vacunación", "Plexiglás cajas"],
+        "reference": "Resolución 666/2020"
+      },
+      {
+        "category": "biologico",
+        "name": "Bacterias en alimentos (cárnicos, lácteos)",
+        "source": "Manipulación de alimentos perecederos",
+        "possible_effects": ["Gastroenteritis", "Infecciones cutáneas"],
+        "suggested_controls": ["Capacitación BPM", "Resolución 2674/2013", "EPP", "Curso manipulador alimentos"],
+        "reference": "Resolución 2674/2013; Decreto 3075/1997"
+      },
+      {
+        "category": "biologico",
+        "name": "Plagas (roedores, insectos)",
+        "source": "Alimentos, bodegas, residuos",
+        "possible_effects": ["Leptospirosis", "Salmonelosis", "Picaduras"],
+        "suggested_controls": ["Plan integral de plagas", "Almacenamiento adecuado", "Sellado de grietas"],
+        "reference": "Resolución 2674/2013"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Manipulación manual de cargas",
+        "source": "Estiba, descargue mercancía, surtido góndolas",
+        "possible_effects": ["Lumbalgia mecánica", "Hernia discal", "Lesiones hombro"],
+        "suggested_controls": ["Capacitación higiene postural", "Diábolos/carros", "Pesos máximos NIOSH (25kg hombres, 12.5kg mujeres)"],
+        "reference": "GATI-DME 2007; Resolución 2400/1979"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Bipedestación prolongada (cajeros, surtidores)",
+        "source": "Jornadas en pie sin descanso",
+        "possible_effects": ["Várices", "Fatiga muscular", "Lumbalgia"],
+        "suggested_controls": ["Tapetes anti-fatiga", "Sillas tipo silla-pie", "Pausas activas"],
+        "reference": "GATI-DME; ARL Positiva"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Movimientos repetitivos (cajeros)",
+        "source": "Escaneo de productos, digitación, manipulación de billetes",
+        "possible_effects": ["STC", "Tendinitis"],
+        "suggested_controls": ["Rotación tareas", "Diseño puesto", "Pausas activas"],
+        "reference": "GATI-DME"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Atención al cliente conflictivo",
+        "source": "Interacción con clientes molestos, reclamos",
+        "possible_effects": ["Estrés laboral", "Síndrome burnout"],
+        "suggested_controls": ["Capacitación servicio al cliente", "Apoyo supervisor", "Batería psicosocial"],
+        "reference": "Resolución 2646/2008"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Trabajo por turnos / nocturno",
+        "source": "Turnos rotativos, nocturnidad",
+        "possible_effects": ["Trastornos del sueño", "Trastornos digestivos", "Ansiedad"],
+        "suggested_controls": ["Diseño turnos ergonómico", "Vigilancia médica", "Pausas adecuadas"],
+        "reference": "Resolución 2646/2008; Convenio OIT 171"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Riesgo público (atracos)",
+        "source": "Manejo de efectivo, ubicación expuesta",
+        "possible_effects": ["Estrés postraumático", "Ansiedad"],
+        "suggested_controls": ["Protocolo atracos", "Cámaras CCTV", "Cajas fuertes", "Apoyo psicológico post-evento"],
+        "reference": "GTC-45/2012; ARL Sura riesgo público"
+      },
+      {
+        "category": "mecanico",
+        "name": "Cortes con cuchillos/elementos cortopunzantes",
+        "source": "Carnicería, panadería, manipulación cajas",
+        "possible_effects": ["Heridas cortantes", "Amputación dedos"],
+        "suggested_controls": ["Cuchillos en buen estado", "Guantes anticorte (Kevlar)", "Capacitación uso seguro"],
+        "reference": "Resolución 2400/1979 Art. 365-373"
+      },
+      {
+        "category": "mecanico",
+        "name": "Atrapamiento (montacargas, bandas)",
+        "source": "Equipos carga descarga, tajadoras",
+        "possible_effects": ["Amputaciones", "Aplastamiento"],
+        "suggested_controls": ["Guardas máquinas", "Procedimiento LOTO", "Capacitación específica"],
+        "reference": "Resolución 2400/1979; GTC-45/2012"
+      },
+      {
+        "category": "mecanico",
+        "name": "Caídas a distinto nivel (estanterías altas)",
+        "source": "Surtido en alturas con escaleras",
+        "possible_effects": ["Fracturas", "Traumatismos múltiples"],
+        "suggested_controls": ["Escaleras seguras", "Trabajo en alturas si >1.5m (Res. 4272/2021)", "Arnés si aplica"],
+        "reference": "Resolución 4272/2021"
+      },
+      {
+        "category": "electrico",
+        "name": "Contacto eléctrico (refrigeración, hornos)",
+        "source": "Equipos eléctricos en zonas húmedas",
+        "possible_effects": ["Choque eléctrico", "Electrocución"],
+        "suggested_controls": ["RETIE", "Polos a tierra", "Diferenciales", "Inspecciones"],
+        "reference": "Resolución 90708/2013 RETIE"
+      },
+      {
+        "category": "locativo",
+        "name": "Caídas a mismo nivel por pisos húmedos",
+        "source": "Líquidos derramados, lavados pisos",
+        "possible_effects": ["Esguinces", "Fracturas"],
+        "suggested_controls": ["Señalización piso húmedo", "Pisos antideslizantes", "Limpieza inmediata derrames"],
+        "reference": "GTC-45/2012; Resolución 2400/1979"
+      },
+      {
+        "category": "locativo",
+        "name": "Falta de orden y aseo en bodegas",
+        "source": "Almacenamiento inadecuado, pasillos obstruidos",
+        "possible_effects": ["Caídas", "Atrapamiento", "Incendios"],
+        "suggested_controls": ["5S", "Inspecciones planeadas", "Demarcación pasillos"],
+        "reference": "Resolución 2400/1979 Art. 4"
+      }
+    ]
+  },
+  {
+    "ciiu_code": "1410",
+    "ciiu_description": "Confección de prendas de vestir, excepto prendas de piel",
+    "risk_class": "II",
+    "applicable_chapter": "II",
+    "applicable_chapter_note": "Riesgo II-III según Decreto 1607/2002 (puede subir a III según procesos específicos). Capítulo I si <=10 trab; Capítulo II si 11-50 trab; Capítulo III si >50 trab o riesgo IV-V.",
+    "hazards": [
+      {
+        "category": "fisico",
+        "name": "Ruido por máquinas industriales",
+        "source": "Máquinas planas, fileteadoras, collarines, troqueles",
+        "possible_effects": ["Hipoacusia neurosensorial", "Trauma acústico"],
+        "suggested_controls": ["Sonometría/dosimetría anual", "EPP auditivo (NRR>=25dB)", "Mantenimiento", "GATI-HNIR"],
+        "reference": "GATI-HNIR 2006; Resolución 1792/1990"
+      },
+      {
+        "category": "fisico",
+        "name": "Iluminación insuficiente para tareas finas",
+        "source": "Costura, control de calidad, bordado",
+        "possible_effects": ["Fatiga visual", "Astigmatismo agravado"],
+        "suggested_controls": ["Iluminación localizada >=750 lux", "Mantenimiento luminarias"],
+        "reference": "Resolución 2400/1979 Art. 79-87"
+      },
+      {
+        "category": "fisico",
+        "name": "Vibración mano-brazo",
+        "source": "Máquinas de coser industrial, troqueladoras",
+        "possible_effects": ["Síndrome de Raynaud ocupacional", "Trastornos musculoesqueléticos"],
+        "suggested_controls": ["Mantenimiento máquinas", "Apoyabrazos amortiguados", "Pausas"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "fisico",
+        "name": "Estrés térmico (planchado, vaporizado)",
+        "source": "Planchas industriales, vaporizadoras",
+        "possible_effects": ["Quemaduras", "Disconfort térmico", "Deshidratación"],
+        "suggested_controls": ["Ventilación", "Hidratación", "EPP", "Pausas"],
+        "reference": "GTC-45/2012; Resolución 2400/1979"
+      },
+      {
+        "category": "quimico",
+        "name": "Polvo de fibras textiles (algodón, lino, sintéticas)",
+        "source": "Corte, bordado, manipulación de telas",
+        "possible_effects": ["Bisinosis", "Asma ocupacional", "Rinitis"],
+        "suggested_controls": ["Extracción localizada", "Mascarilla FFP2/N95", "Limpieza húmeda"],
+        "reference": "GATI asma ocupacional; GTC-45/2012"
+      },
+      {
+        "category": "quimico",
+        "name": "Vapores de tintes/colorantes",
+        "source": "Procesos de teñido, fijación de colores",
+        "possible_effects": ["Dermatitis", "Sensibilización respiratoria"],
+        "suggested_controls": ["Cabinas de extracción", "EPP respiratorio", "Hojas SDS"],
+        "reference": "Decreto 1496/2018 SGA"
+      },
+      {
+        "category": "quimico",
+        "name": "Solventes (limpieza piezas, manchas)",
+        "source": "Limpieza, lavado en seco",
+        "possible_effects": ["Neurotoxicidad", "Dermatitis", "Mareo"],
+        "suggested_controls": ["Sustitución por menos tóxicos", "Ventilación", "Guantes nitrilo"],
+        "reference": "GATI hidrocarburos; GTC-45/2012"
+      },
+      {
+        "category": "biologico",
+        "name": "Hongos en telas almacenadas",
+        "source": "Bodegas con humedad alta",
+        "possible_effects": ["Dermatitis", "Rinitis alérgica"],
+        "suggested_controls": ["Control humedad", "Ventilación", "Rotación inventarios"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "biologico",
+        "name": "Bacterias por compartir herramientas",
+        "source": "Tijeras, máquinas, herramientas de mano",
+        "possible_effects": ["Infecciones piel"],
+        "suggested_controls": ["Higiene personal", "Limpieza herramientas"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Posturas mantenidas sedentes",
+        "source": "Operación de máquina de coser por horas",
+        "possible_effects": ["Lumbalgia", "Cervicalgia", "Síndrome miofascial"],
+        "suggested_controls": ["Sillas ergonómicas regulables", "Pausas activas", "SVE DME"],
+        "reference": "GATI-DME 2007"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Movimientos repetitivos miembros superiores",
+        "source": "Costura repetitiva, alimentación máquina",
+        "possible_effects": ["Tendinitis", "STC", "Epicondilitis"],
+        "suggested_controls": ["Rotación puestos", "Ergonomía estación", "Vigilancia médica"],
+        "reference": "GATI-DME 2007"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Manipulación rollos de tela pesados",
+        "source": "Cargue tela, traslado materiales",
+        "possible_effects": ["Lumbalgia mecánica"],
+        "suggested_controls": ["Carros transporte", "Capacitación higiene postural", "Limites carga"],
+        "reference": "Resolución 2400/1979"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Carga de trabajo por metas de producción",
+        "source": "Pago por producción, metas exigentes",
+        "possible_effects": ["Estrés laboral", "Burnout", "Trastornos musculoesqueléticos"],
+        "suggested_controls": ["Batería psicosocial", "Pausas activas", "Programa SVE psicosocial"],
+        "reference": "Resolución 2646/2008"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Monotonía",
+        "source": "Tarea repetitiva, aislamiento",
+        "possible_effects": ["Desmotivación", "Ansiedad", "Disminución alerta"],
+        "suggested_controls": ["Rotación tareas", "Enriquecimiento puesto"],
+        "reference": "Resolución 2646/2008"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Estilos de liderazgo coercitivo",
+        "source": "Supervisión muy estricta",
+        "possible_effects": ["Estrés", "Conflictos laborales"],
+        "suggested_controls": ["Capacitación supervisores", "Comité Convivencia", "Encuestas clima"],
+        "reference": "Ley 1010/2006"
+      },
+      {
+        "category": "mecanico",
+        "name": "Punciones con agujas",
+        "source": "Máquina de coser, agujas manuales",
+        "possible_effects": ["Heridas punzantes", "Infecciones"],
+        "suggested_controls": ["Guardas en máquinas", "Protectores agujas", "Botiquín visible", "Procedimiento accidente con aguja"],
+        "reference": "Resolución 2400/1979"
+      },
+      {
+        "category": "mecanico",
+        "name": "Cortes con tijeras y troqueladoras",
+        "source": "Corte de tela, troquelado",
+        "possible_effects": ["Heridas cortantes", "Amputación dedos"],
+        "suggested_controls": ["Guantes anticorte", "Guardas máquinas troqueladoras", "Procedimiento LOTO"],
+        "reference": "Resolución 2400/1979 Art. 365"
+      },
+      {
+        "category": "mecanico",
+        "name": "Atrapamiento por bandas/poleas",
+        "source": "Sistemas transmisión máquinas",
+        "possible_effects": ["Amputaciones", "Aplastamiento"],
+        "suggested_controls": ["Guardas fijas", "Mantenimiento", "Procedimiento LOTO", "EPP"],
+        "reference": "Resolución 2400/1979"
+      },
+      {
+        "category": "electrico",
+        "name": "Contacto eléctrico directo/indirecto",
+        "source": "Máquinas eléctricas, planchas industriales",
+        "possible_effects": ["Choque eléctrico", "Quemaduras"],
+        "suggested_controls": ["RETIE", "Polos tierra", "Inspección anual", "Diferenciales"],
+        "reference": "Resolución 90708/2013 RETIE"
+      },
+      {
+        "category": "electrico",
+        "name": "Incendio eléctrico (sobrecarga)",
+        "source": "Múltiples equipos en un solo circuito",
+        "possible_effects": ["Quemaduras", "Pérdida vidas"],
+        "suggested_controls": ["Termografías", "Carga circuitos planificada", "Extintores"],
+        "reference": "RETIE; NFPA"
+      },
+      {
+        "category": "locativo",
+        "name": "Almacenamiento inadecuado de telas (caídas)",
+        "source": "Rollos apilados sin estabilidad",
+        "possible_effects": ["Caída materiales", "Aplastamiento"],
+        "suggested_controls": ["Estanterías ancladas", "Procedimiento almacenamiento", "Capacitación"],
+        "reference": "Resolución 2400/1979"
+      },
+      {
+        "category": "locativo",
+        "name": "Pisos resbaladizos por aceite máquinas",
+        "source": "Aceites máquina coser derramados",
+        "possible_effects": ["Caídas a mismo nivel"],
+        "suggested_controls": ["Pisos antideslizantes", "Limpieza derrames", "Demarcación"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "locativo",
+        "name": "Carga combustible alta (telas)",
+        "source": "Materia prima textil acumulada",
+        "possible_effects": ["Incendios"],
+        "suggested_controls": ["Sistema detección/extinción", "Plan emergencias", "Brigadas", "Simulacros"],
+        "reference": "NFPA 13; Decreto 1072/2015 Art. 2.2.4.6.25"
+      }
+    ]
+  },
+  {
+    "ciiu_code": "4290",
+    "ciiu_description": "Construcción de otras obras de ingeniería civil",
+    "risk_class": "V",
+    "applicable_chapter": "III",
+    "applicable_chapter_note": "Riesgo V según Decreto 1607/2002. Aplica Capítulo III sin importar número de trabajadores.",
+    "hazards": [
+      {
+        "category": "fisico",
+        "name": "Ruido por maquinaria pesada",
+        "source": "Excavadoras, retroexcavadoras, vibrocompactadoras, plantas eléctricas",
+        "possible_effects": ["Hipoacusia neurosensorial", "Trauma acústico", "Estrés"],
+        "suggested_controls": ["Sonometría/dosimetría", "EPP auditivo doble (orejera+tapón)", "GATI-HNIR", "Rotación personal"],
+        "reference": "GATI-HNIR 2006; Resolución 1792/1990"
+      },
+      {
+        "category": "fisico",
+        "name": "Vibración cuerpo entero",
+        "source": "Operación maquinaria, conducción volquetas",
+        "possible_effects": ["Lumbalgia crónica", "Trastornos columna", "Hernia discal"],
+        "suggested_controls": ["Asientos amortiguados", "Mantenimiento maquinaria", "Pausas", "Vigilancia médica"],
+        "reference": "GTC-45/2012; ISO 2631"
+      },
+      {
+        "category": "fisico",
+        "name": "Vibración mano-brazo",
+        "source": "Martillos neumáticos, taladros, vibradores concreto",
+        "possible_effects": ["Síndrome Raynaud ocupacional", "Síndrome dedo blanco"],
+        "suggested_controls": ["Herramientas amortiguadas", "Guantes anti-vibración", "Pausas", "Vigilancia médica"],
+        "reference": "GTC-45/2012; GATI vibración"
+      },
+      {
+        "category": "fisico",
+        "name": "Radiación UV solar",
+        "source": "Trabajo a la intemperie",
+        "possible_effects": ["Cáncer de piel", "Quemaduras", "Cataratas"],
+        "suggested_controls": ["Protector solar SPF 50+", "Ropa manga larga", "Gorro tipo legionario", "Hidratación"],
+        "reference": "GATISO cáncer de piel"
+      },
+      {
+        "category": "fisico",
+        "name": "Estrés térmico por calor",
+        "source": "Trabajo intemperie, trópico",
+        "possible_effects": ["Golpe de calor", "Deshidratación", "Calambres"],
+        "suggested_controls": ["Hidratación frecuente", "Pausas en sombra", "Protocolo TGBH", "Aclimatación"],
+        "reference": "ISO 7243; GATI estrés térmico"
+      },
+      {
+        "category": "fisico",
+        "name": "Radiación no ionizante (soldadura)",
+        "source": "Procesos de soldadura eléctrica",
+        "possible_effects": ["Queratoconjuntivitis", "Quemaduras piel", "Fotoqueratitis"],
+        "suggested_controls": ["Casco soldadura tonalidad apropiada", "Mamparas opacas", "Capacitación"],
+        "reference": "Resolución 2400/1979 Art. 526-562"
+      },
+      {
+        "category": "quimico",
+        "name": "Polvo de cemento y sílice cristalina",
+        "source": "Mezcla cemento, corte concreto, demoliciones",
+        "possible_effects": ["Silicosis", "EPOC", "Cáncer pulmonar (sílice IARC G1)"],
+        "suggested_controls": ["Humidificación", "Mascarilla N95/FFP3", "Vigilancia médica respiratoria", "GATI sílice"],
+        "reference": "GATISO neumoconiosis; IARC; Resolución 2400/1979"
+      },
+      {
+        "category": "quimico",
+        "name": "Humos de soldadura",
+        "source": "Soldadura eléctrica, oxiacetileno",
+        "possible_effects": ["Fiebre humos metálicos", "Neumoconiosis", "Cáncer pulmonar"],
+        "suggested_controls": ["Extracción localizada", "Mascarilla con filtro humos metálicos", "Ventilación"],
+        "reference": "Resolución 2400/1979"
+      },
+      {
+        "category": "quimico",
+        "name": "Disolventes/pinturas/asfaltos",
+        "source": "Pintura, impermeabilización, pavimentación",
+        "possible_effects": ["Neurotoxicidad", "Dermatitis", "Cáncer (benceno)"],
+        "suggested_controls": ["Sustitución productos", "Ventilación", "EPP respiratorio cartucho orgánico", "Hojas SDS"],
+        "reference": "GATI hidrocarburos; Decreto 1496/2018 SGA"
+      },
+      {
+        "category": "quimico",
+        "name": "Asbesto en demoliciones",
+        "source": "Tejas eternit, cubiertas antiguas",
+        "possible_effects": ["Asbestosis", "Mesotelioma", "Cáncer pulmón"],
+        "suggested_controls": ["Diagnóstico previo", "Ley 1968/2019 prohibición", "Procedimiento desinstalación segura", "EPP especifico"],
+        "reference": "Ley 1968/2019; Resolución 935/2001"
+      },
+      {
+        "category": "biologico",
+        "name": "Vectores tropicales (zancudos)",
+        "source": "Trabajo en zonas tropicales con agua estancada",
+        "possible_effects": ["Dengue", "Malaria", "Zika", "Fiebre amarilla"],
+        "suggested_controls": ["Vacunación fiebre amarilla", "Repelentes", "Mosquiteros campamentos", "Eliminación criaderos"],
+        "reference": "GTC-45/2012; INS Colombia"
+      },
+      {
+        "category": "biologico",
+        "name": "Mordeduras de serpientes/animales",
+        "source": "Trabajos en obras rurales",
+        "possible_effects": ["Envenenamiento", "Heridas", "Rabia"],
+        "suggested_controls": ["Botas caña alta", "Botiquín antiofídico", "Protocolo emergencia", "Capacitación"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "biologico",
+        "name": "Bacterias en aguas residuales (alcantarillado)",
+        "source": "Trabajos en obras hidráulicas",
+        "possible_effects": ["Leptospirosis", "Hepatitis A", "Tétanos"],
+        "suggested_controls": ["Vacunación tétanos/hepatitis", "EPP impermeable", "Lavado riguroso post-jornada"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Manipulación manual de cargas pesadas",
+        "source": "Cargue de bloques, ladrillos, cemento",
+        "possible_effects": ["Lumbalgia mecánica", "Hernia discal", "Lesiones hombro"],
+        "suggested_controls": ["Ayudas mecánicas (carretilla, grúa)", "Capacitación higiene postural", "Pesos máximos NIOSH"],
+        "reference": "GATI-DME 2007; Resolución 2400/1979"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Posturas forzadas",
+        "source": "Trabajo agachado, en cuclillas, sobre cabeza",
+        "possible_effects": ["Lumbalgia", "Lesiones hombro/rodilla"],
+        "suggested_controls": ["Diseño tarea ergonómico", "Rodilleras", "Pausas activas"],
+        "reference": "GATI-DME"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Movimientos repetitivos (tareas albañilería)",
+        "source": "Mampostería, pega de baldosa",
+        "possible_effects": ["Tendinitis", "Epicondilitis"],
+        "suggested_controls": ["Rotación tareas", "Herramientas ergonómicas"],
+        "reference": "GATI-DME"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Trabajo bajo presión por cronograma",
+        "source": "Plazos cortos de obra, multas por atrasos",
+        "possible_effects": ["Estrés laboral", "Burnout", "Accidentalidad"],
+        "suggested_controls": ["Batería psicosocial", "Planeación realista", "Apoyo psicosocial"],
+        "reference": "Resolución 2646/2008"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Trabajo en obras lejanas (lejos de la familia)",
+        "source": "Campamentos, obras en regiones remotas",
+        "possible_effects": ["Conflicto trabajo-familia", "Depresión", "Adicciones"],
+        "suggested_controls": ["Programa apoyo psicosocial", "Comunicación familiar", "Permisos planeados"],
+        "reference": "Resolución 2646/2008"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Riesgo público (orden público)",
+        "source": "Obras en zonas de conflicto",
+        "possible_effects": ["Estrés postraumático", "Ansiedad"],
+        "suggested_controls": ["Análisis seguridad zona", "Esquemas seguridad", "Protocolo emergencia"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "mecanico",
+        "name": "Caídas de altura (>1.5m)",
+        "source": "Trabajo en andamios, cubiertas, taludes, escaleras",
+        "possible_effects": ["Fractura múltiples", "Muerte"],
+        "suggested_controls": ["Sistema acceso, prevención y detención de caídas", "Permiso trabajo alturas", "Trabajador certificado", "Coordinador trabajos en altura"],
+        "reference": "Resolución 4272/2021; Resolución 1409/2012"
+      },
+      {
+        "category": "mecanico",
+        "name": "Atrapamiento por maquinaria",
+        "source": "Excavadoras, retroexcavadoras, grúas",
+        "possible_effects": ["Aplastamiento", "Amputaciones", "Muerte"],
+        "suggested_controls": ["Señalero certificado", "Distancia segura", "Procedimiento LOTO", "Casco/chaleco visibilidad"],
+        "reference": "Resolución 2400/1979; GTC-45/2012"
+      },
+      {
+        "category": "mecanico",
+        "name": "Caída de objetos en altura",
+        "source": "Herramientas, materiales en niveles superiores",
+        "possible_effects": ["TCE", "Muerte"],
+        "suggested_controls": ["Mallas protección", "Cascos certificados ANSI Z89.1", "Áreas de exclusión", "Amarre herramientas"],
+        "reference": "Resolución 2400/1979 Art. 170"
+      },
+      {
+        "category": "mecanico",
+        "name": "Cortes y heridas con elementos metálicos",
+        "source": "Varilla, formaletas, hierros",
+        "possible_effects": ["Heridas profundas", "Tétanos"],
+        "suggested_controls": ["Tapas en varillas expuestas", "Guantes anticorte", "Vacunación tétanos", "Botiquín"],
+        "reference": "Resolución 2400/1979"
+      },
+      {
+        "category": "mecanico",
+        "name": "Espacios confinados",
+        "source": "Cámaras, tanques, alcantarillados",
+        "possible_effects": ["Asfixia", "Intoxicación", "Atrapamiento"],
+        "suggested_controls": ["Permiso espacios confinados", "Atmósfera segura (O2, LEL, H2S, CO)", "Vigía externo", "Equipo rescate"],
+        "reference": "Resolución 491/2020"
+      },
+      {
+        "category": "electrico",
+        "name": "Contacto líneas alta tensión",
+        "source": "Trabajo cerca de redes eléctricas",
+        "possible_effects": ["Electrocución", "Quemaduras graves"],
+        "suggested_controls": ["Distancias mínimas RETIE", "Coordinación con operador red", "Permiso especial", "Boque de líneas"],
+        "reference": "Resolución 90708/2013 RETIE"
+      },
+      {
+        "category": "electrico",
+        "name": "Tableros temporales / extensiones",
+        "source": "Instalaciones eléctricas provisionales en obra",
+        "possible_effects": ["Choque", "Incendios"],
+        "suggested_controls": ["Tableros con diferencial", "Inspección anual", "RETIE", "Cables certificados"],
+        "reference": "RETIE"
+      },
+      {
+        "category": "locativo",
+        "name": "Excavaciones / zanjas (derrumbes)",
+        "source": "Excavaciones >1.5m sin entibado",
+        "possible_effects": ["Sepultamiento", "Muerte"],
+        "suggested_controls": ["Entibado obligatorio", "Estudio suelos", "Análisis estabilidad talud", "Procedimiento ingreso"],
+        "reference": "GTC-45/2012; OSHA 1926 Subpart P"
+      },
+      {
+        "category": "locativo",
+        "name": "Almacenamiento materiales en obra",
+        "source": "Apilamiento ladrillos, bloques",
+        "possible_effects": ["Caída materiales", "Aplastamiento"],
+        "suggested_controls": ["Procedimiento estiba", "Altura máxima", "Demarcación zonas"],
+        "reference": "Resolución 2400/1979"
+      },
+      {
+        "category": "locativo",
+        "name": "Orden y aseo deficiente en frentes obra",
+        "source": "Materiales, escombros en pasos",
+        "possible_effects": ["Caídas, tropezones", "Atrapamientos"],
+        "suggested_controls": ["Programa 5S", "Inspecciones diarias", "Demarcación pasillos"],
+        "reference": "Resolución 2400/1979"
+      }
+    ]
+  },
+  {
+    "ciiu_code": "8610",
+    "ciiu_description": "Actividades de hospitales y clínicas, con internación",
+    "risk_class": "III",
+    "applicable_chapter": "III",
+    "applicable_chapter_note": "Riesgo III-IV según Decreto 1607/2002 (puede llegar a IV en áreas críticas: UCI, urgencias, salas cirugía). Aplica Capítulo III. Si riesgo IV+ aplica Cap III sin importar tamaño.",
+    "hazards": [
+      {
+        "category": "fisico",
+        "name": "Radiación ionizante (rayos X, medicina nuclear)",
+        "source": "Equipos imagenología, radiología, radioterapia",
+        "possible_effects": ["Cáncer", "Cataratas", "Esterilidad", "Síndrome agudo radiación"],
+        "suggested_controls": ["Dosimetría individual", "Blindajes", "Protocolo ALARA", "Vigilancia médica", "Licencia operación INVIMA"],
+        "reference": "Resolución 482/2018; Decreto 4725/2005"
+      },
+      {
+        "category": "fisico",
+        "name": "Radiación no ionizante (láser, UV)",
+        "source": "Equipos láser quirúrgicos, lámparas UV esterilización",
+        "possible_effects": ["Daño retiniano", "Quemaduras"],
+        "suggested_controls": ["Gafas protección láser específica", "Señalización", "Capacitación"],
+        "reference": "GTC-45/2012; ANSI Z136"
+      },
+      {
+        "category": "fisico",
+        "name": "Ruido (UCI, urgencias, calderas)",
+        "source": "Alarmas equipos, ventiladores mecánicos, calderas",
+        "possible_effects": ["Estrés", "Fatiga auditiva", "Hipoacusia"],
+        "suggested_controls": ["Sonometría", "Mantenimiento equipos", "Reducción alarmas innecesarias"],
+        "reference": "Resolución 1792/1990"
+      },
+      {
+        "category": "fisico",
+        "name": "Disconfort térmico (salas cirugía, lavandería)",
+        "source": "Aires acondicionados muy fríos / calderas calientes",
+        "possible_effects": ["Estrés térmico", "Resfriados"],
+        "suggested_controls": ["Control ambiental", "Hidratación", "Pausas"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "quimico",
+        "name": "Gases anestésicos (óxido nitroso, sevoflurano)",
+        "source": "Salas de cirugía, anestesia",
+        "possible_effects": ["Aborto espontáneo", "Cáncer", "Toxicidad neurológica"],
+        "suggested_controls": ["Sistemas evacuación gases", "Mediciones ambientales", "Mantenimiento equipos", "Vigilancia médica"],
+        "reference": "GATI químicos; OSHA"
+      },
+      {
+        "category": "quimico",
+        "name": "Glutaraldehído / desinfectantes alta nivel",
+        "source": "Esterilización equipos, central esterilización",
+        "possible_effects": ["Asma ocupacional", "Dermatitis", "Conjuntivitis"],
+        "suggested_controls": ["Sustitución por OPA", "Cabinas extracción", "EPP completo", "Capacitación"],
+        "reference": "GATI asma ocupacional; GTC-45/2012"
+      },
+      {
+        "category": "quimico",
+        "name": "Citostáticos / quimioterapia",
+        "source": "Preparación y administración antineoplásicos",
+        "possible_effects": ["Cáncer", "Aborto espontáneo", "Mutagenicidad"],
+        "suggested_controls": ["Cabina seguridad biológica clase II", "EPP categoría IV", "Procedimiento manejo derrames", "Vigilancia médica"],
+        "reference": "ASHP 2018; OSHA hazardous drugs"
+      },
+      {
+        "category": "quimico",
+        "name": "Mercurio (esfigmomanómetros antiguos)",
+        "source": "Equipos médicos con mercurio",
+        "possible_effects": ["Neurotoxicidad", "Nefrotoxicidad"],
+        "suggested_controls": ["Sustitución por digitales", "Procedimiento derrames", "Disposición especial"],
+        "reference": "Convenio Minamata; Resolución 2152/2017"
+      },
+      {
+        "category": "biologico",
+        "name": "Patógenos transmitidos por sangre (HIV, VHB, VHC)",
+        "source": "Punciones con elementos cortopunzantes contaminados",
+        "possible_effects": ["VIH", "Hepatitis B/C", "Cirrosis", "Cáncer hígado"],
+        "suggested_controls": ["Vacunación VHB obligatoria", "Cajas guardian", "Agujas con seguridad", "Profilaxis post-exposición", "Protocolo accidente biológico"],
+        "reference": "Resolución 1164/2002; Decreto 351/2014"
+      },
+      {
+        "category": "biologico",
+        "name": "Tuberculosis (TBC)",
+        "source": "Atención pacientes con TBC respiratoria",
+        "possible_effects": ["Tuberculosis pulmonar", "TBC resistente"],
+        "suggested_controls": ["Mascarilla N95 ajustada", "Cuartos aislamiento presión negativa", "Tamizaje PPD personal"],
+        "reference": "Resolución 4505/2012; Lineamiento programa TBC INS"
+      },
+      {
+        "category": "biologico",
+        "name": "Patógenos respiratorios (SARS-CoV-2, influenza)",
+        "source": "Atención pacientes respiratorios",
+        "possible_effects": ["COVID-19", "Influenza", "Neumonía"],
+        "suggested_controls": ["EPP completo (N95, gafas, careta, bata, guantes)", "Vacunación", "Protocolos bioseguridad"],
+        "reference": "Resolución 666/2020; OMS"
+      },
+      {
+        "category": "biologico",
+        "name": "Bacterias multirresistentes (KPC, MRSA, A. baumannii)",
+        "source": "Pacientes UCI, salas hospitalización",
+        "possible_effects": ["Infecciones sistémicas", "Sepsis"],
+        "suggested_controls": ["Higiene manos OMS", "Aislamientos", "Comité IAAS"],
+        "reference": "Resolución 1164/2002; Lineamientos IAAS INS"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Movilización pacientes",
+        "source": "Transferencias cama-camilla-silla, movilizaciones críticas",
+        "possible_effects": ["Lumbalgia", "Hernia discal", "Lesiones hombro"],
+        "suggested_controls": ["Grúas pacientes", "Capacitación técnicas movilización", "Sábanas deslizantes", "Trabajo en pareja"],
+        "reference": "GATI-DME 2007"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Bipedestación prolongada (cirugía, enfermería)",
+        "source": "Jornadas largas en pie",
+        "possible_effects": ["Várices", "Fatiga muscular", "Lumbalgia"],
+        "suggested_controls": ["Tapetes anti-fatiga", "Pausas activas", "Calzado ergonómico"],
+        "reference": "GATI-DME"
+      },
+      {
+        "category": "ergonomico",
+        "name": "Posturas forzadas en cirugía",
+        "source": "Cirujanos, instrumentadores en posiciones mantenidas",
+        "possible_effects": ["Cervicalgia crónica", "Síndrome miofascial"],
+        "suggested_controls": ["Sillas regulables", "Pausas en cirugías largas", "Lupas/cámaras para reducir flexión"],
+        "reference": "GATI-DME"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Estrés alta exigencia emocional",
+        "source": "Atención pacientes críticos, muerte, comunicación familias",
+        "possible_effects": ["Burnout", "Depresión", "Síndrome compasión fatiga"],
+        "suggested_controls": ["Batería psicosocial", "Apoyo psicológico", "Grupos Balint", "Rotación áreas críticas"],
+        "reference": "Resolución 2646/2008"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Trabajo por turnos / nocturnidad",
+        "source": "Turnos 12-24h, nocturnos, festivos",
+        "possible_effects": ["Trastornos sueño", "Trastornos cardiovasculares", "Síndrome metabólico"],
+        "suggested_controls": ["Diseño turnos ergonómico", "Pausas adecuadas", "Vigilancia médica"],
+        "reference": "Resolución 2646/2008; OIT 171"
+      },
+      {
+        "category": "psicosocial",
+        "name": "Violencia laboral (pacientes, familias)",
+        "source": "Urgencias, psiquiatría, hospitalización",
+        "possible_effects": ["Estrés postraumático", "Lesiones físicas"],
+        "suggested_controls": ["Protocolo agresiones", "Botón pánico", "Seguridad presencial", "Capacitación manejo conflicto"],
+        "reference": "Ley 1010/2006; Resolución 1356/2012"
+      },
+      {
+        "category": "mecanico",
+        "name": "Punciones cortopunzantes",
+        "source": "Agujas, bisturís, ampollas vidrio",
+        "possible_effects": ["Heridas", "Riesgo biológico asociado"],
+        "suggested_controls": ["Cajas guardián", "Agujas con seguridad", "Procedimiento descarte", "Protocolo accidente"],
+        "reference": "Resolución 1164/2002; Decreto 351/2014"
+      },
+      {
+        "category": "mecanico",
+        "name": "Caídas a mismo nivel",
+        "source": "Pisos húmedos, cables equipos médicos",
+        "possible_effects": ["Esguinces", "Fracturas"],
+        "suggested_controls": ["Pisos antideslizantes", "Señalización", "Orden cables"],
+        "reference": "GTC-45/2012"
+      },
+      {
+        "category": "electrico",
+        "name": "Riesgo eléctrico equipos médicos",
+        "source": "Equipos vitales (ventiladores, desfibriladores) cerca pacientes con líquidos",
+        "possible_effects": ["Choque eléctrico", "Microshock paciente"],
+        "suggested_controls": ["RETIE área hospitalaria", "Aislamiento galvánico", "Mantenimiento biomédico", "UPS"],
+        "reference": "RETIE; NTC 2050; IEC 60601"
+      },
+      {
+        "category": "locativo",
+        "name": "Espacios reducidos (UCI, salas)",
+        "source": "Equipos múltiples en espacio limitado",
+        "possible_effects": ["Tropezones", "Estrés"],
+        "suggested_controls": ["Diseño funcional", "Demarcación", "Inventario equipos"],
+        "reference": "Resolución 4445/1996"
+      },
+      {
+        "category": "locativo",
+        "name": "Manejo residuos hospitalarios",
+        "source": "Residuos peligrosos biológicos, anatomopatológicos",
+        "possible_effects": ["Exposición biológica", "Cortaduras"],
+        "suggested_controls": ["Plan gestión integral residuos", "Bolsas codificadas", "Rutas separadas", "Capacitación"],
+        "reference": "Decreto 351/2014; Resolución 1164/2002"
+      }
+    ]
+  }
+]

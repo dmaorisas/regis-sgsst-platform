@@ -1,0 +1,1132 @@
+[
+  {
+    "standard_number": "1.1.1",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Responsable del Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": true,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "acta_designacion",
+      "perfil_profesional",
+      "licencia_sst",
+      "curso_50h_sg_sst"
+    ],
+    "frequency_days": null,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27 Tabla de Valores, Estándar 1.1.1; Art. 16 (Cap. II)"
+  },
+  {
+    "standard_number": "1.1.2",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Responsabilidades en el Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "matriz_responsabilidades",
+      "manual_funciones",
+      "acta_socializacion"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.1.2"
+  },
+  {
+    "standard_number": "1.1.3",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Asignación de recursos para el Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "presupuesto_sst",
+      "plan_anual_trabajo",
+      "soporte_recursos"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.1.3"
+  },
+  {
+    "standard_number": "1.1.4",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Afiliación al Sistema General de Riesgos Laborales",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": true,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "planillas_pila",
+      "certificados_afiliacion_arl",
+      "certificados_afiliacion_eps_pension"
+    ],
+    "frequency_days": 30,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.1.4; Decreto 1295/1994"
+  },
+  {
+    "standard_number": "1.1.5",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Identificación de trabajadores que se dedican en forma permanente a actividades de alto riesgo y cotización de pensión especial",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "listado_trabajadores_alto_riesgo",
+      "planilla_pension_especial"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.1.5; Decreto 2090/2003"
+  },
+  {
+    "standard_number": "1.1.6",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Conformación COPASST / Vigía de SST",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "acta_conformacion",
+      "acta_eleccion_representantes",
+      "registro_votacion"
+    ],
+    "frequency_days": 730,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.1.6; Resolución 2013/1986"
+  },
+  {
+    "standard_number": "1.1.7",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Capacitación de los integrantes del COPASST / Vigía de SST",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "registro_capacitacion",
+      "certificados_capacitacion",
+      "plan_capacitacion_copasst"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.1.7"
+  },
+  {
+    "standard_number": "1.1.8",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Recursos financieros, técnicos, humanos y de otra índole",
+    "name": "Conformación Comité de Convivencia Laboral",
+    "weight_capitulo_iii": 0.5,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "acta_conformacion_comite_convivencia",
+      "acta_eleccion"
+    ],
+    "frequency_days": 730,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.1.8; Resolución 1356/2012; Resolución 652/2012"
+  },
+  {
+    "standard_number": "1.2.1",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Capacitación en el Sistema de Gestión de la Seguridad y la Salud en el Trabajo",
+    "name": "Programa de Capacitación, Promoción y Prevención – PyP",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": true,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "programa_capacitacion_anual",
+      "matriz_capacitacion",
+      "registros_asistencia"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.2.1"
+  },
+  {
+    "standard_number": "1.2.2",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Capacitación en el Sistema de Gestión de la Seguridad y la Salud en el Trabajo",
+    "name": "Inducción y reinducción en Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST. Actividades de Promoción y Prevención PyP",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "registro_induccion",
+      "registro_reinduccion",
+      "acta_asistencia",
+      "evaluacion_induccion"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.2.2; Decreto 1072/2015 Art. 2.2.4.6.11"
+  },
+  {
+    "standard_number": "1.2.3",
+    "standard_group": "Recursos",
+    "standard_subgroup": "Capacitación en el Sistema de Gestión de la Seguridad y la Salud en el Trabajo",
+    "name": "Responsables del Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST con curso virtual de 50 horas",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "certificado_curso_50h_sena_arl"
+    ],
+    "frequency_days": null,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 1.2.3; Resolución 4927/2016"
+  },
+  {
+    "standard_number": "2.1.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Política de Seguridad y Salud en el Trabajo",
+    "name": "Política del Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST firmada, fechada y comunicada al COPASST/Vigía",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "politica_sst_firmada",
+      "acta_socializacion_politica",
+      "registro_publicacion"
+    ],
+    "frequency_days": 365,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.1.1; Decreto 1072/2015 Art. 2.2.4.6.5"
+  },
+  {
+    "standard_number": "2.2.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Objetivos del Sistema de Gestión de la Seguridad y la Salud en el Trabajo SG-SST",
+    "name": "Objetivos definidos, claros, medibles, cuantificables, con metas, documentados, revisados del SG-SST",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "documento_objetivos_sst",
+      "matriz_objetivos_metas_indicadores"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.2.1; Decreto 1072/2015 Art. 2.2.4.6.7"
+  },
+  {
+    "standard_number": "2.3.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Evaluación inicial del SG-SST",
+    "name": "Evaluación e identificación de prioridades",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "evaluacion_inicial_estandares",
+      "informe_diagnostico",
+      "matriz_priorizacion"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.3.1; Decreto 1072/2015 Art. 2.2.4.6.16"
+  },
+  {
+    "standard_number": "2.4.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Plan Anual de Trabajo",
+    "name": "Plan que identifica objetivos, metas, responsabilidad, recursos con cronograma y firmado",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": true,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_anual_trabajo_firmado",
+      "cronograma_actividades",
+      "matriz_responsabilidades_plan"
+    ],
+    "frequency_days": 365,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.4.1; Decreto 1072/2015 Art. 2.2.4.6.8"
+  },
+  {
+    "standard_number": "2.5.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Conservación de la documentación",
+    "name": "Archivo o retención documental del Sistema de Gestión en Seguridad y Salud en el Trabajo SG-SST",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "tabla_retencion_documental",
+      "procedimiento_control_documentos",
+      "soporte_archivo"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.5.1; Decreto 1072/2015 Art. 2.2.4.6.13"
+  },
+  {
+    "standard_number": "2.6.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Rendición de cuentas",
+    "name": "Rendición sobre el desempeño",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "informe_rendicion_cuentas",
+      "acta_presentacion_alta_direccion"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.6.1; Decreto 1072/2015 Art. 2.2.4.6.8"
+  },
+  {
+    "standard_number": "2.7.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Normatividad nacional vigente y aplicable en materia de seguridad y salud en el trabajo",
+    "name": "Matriz legal",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "matriz_legal_sst",
+      "procedimiento_actualizacion_legal"
+    ],
+    "frequency_days": 180,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.7.1; Decreto 1072/2015 Art. 2.2.4.6.8 num. 8"
+  },
+  {
+    "standard_number": "2.8.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Comunicación",
+    "name": "Mecanismos de comunicación, auto reporte en Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "procedimiento_comunicacion",
+      "registros_auto_reporte",
+      "canales_comunicacion"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.8.1; Decreto 1072/2015 Art. 2.2.4.6.14"
+  },
+  {
+    "standard_number": "2.9.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Adquisiciones",
+    "name": "Identificación, evaluación para adquisición de productos y servicios del Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "procedimiento_compras_sst",
+      "checklist_evaluacion_proveedores"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.9.1; Decreto 1072/2015 Art. 2.2.4.6.27"
+  },
+  {
+    "standard_number": "2.10.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Contratación",
+    "name": "Evaluación y selección de proveedores y contratistas",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "procedimiento_seleccion_contratistas",
+      "evaluacion_sst_contratistas",
+      "afiliaciones_contratistas"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.10.1; Decreto 1072/2015 Art. 2.2.4.6.28"
+  },
+  {
+    "standard_number": "2.11.1",
+    "standard_group": "Gestión Integral del SG-SST",
+    "standard_subgroup": "Gestión del cambio",
+    "name": "Evaluación del impacto de cambios internos y externos en el Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Planear",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "procedimiento_gestion_cambio",
+      "evaluacion_impacto_cambios"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 2.11.1; Decreto 1072/2015 Art. 2.2.4.6.26"
+  },
+  {
+    "standard_number": "3.1.1",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Descripción sociodemográfica. Diagnóstico de Condiciones de Salud",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "informe_perfil_sociodemografico",
+      "diagnostico_condiciones_salud"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.1; Resolución 2346/2007"
+  },
+  {
+    "standard_number": "3.1.2",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Actividades de Promoción y Prevención en Salud",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_actividades_pyp",
+      "registros_actividades_realizadas"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.2"
+  },
+  {
+    "standard_number": "3.1.3",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Información al médico de los perfiles de cargo",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "profesiogramas",
+      "matriz_perfiles_cargo",
+      "comunicacion_medico_evaluador"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.3; Resolución 2346/2007 Art. 6"
+  },
+  {
+    "standard_number": "3.1.4",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Realización de Evaluaciones Médicas Ocupacionales - Peligros - Periodicidad - Comunicación al Trabajador",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": true,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "certificado_aptitud_medica",
+      "concepto_medico_ocupacional",
+      "consentimiento_informado"
+    ],
+    "frequency_days": 365,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.4; Resolución 2346/2007"
+  },
+  {
+    "standard_number": "3.1.5",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Custodia de Historias Clínicas",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "contrato_custodia_historias",
+      "registro_archivo_clinico",
+      "convenio_ips"
+    ],
+    "frequency_days": null,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.5; Resolución 1995/1999"
+  },
+  {
+    "standard_number": "3.1.6",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Restricciones y recomendaciones médico/laborales",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "matriz_restricciones_medicas",
+      "actas_reubicacion_laboral",
+      "seguimientos_medicos"
+    ],
+    "frequency_days": 90,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.6"
+  },
+  {
+    "standard_number": "3.1.7",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Estilos de vida y entornos saludables (controles tabaquismo, alcoholismo, farmacodependencia y otros)",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "programa_estilos_vida_saludable",
+      "campañas_pyp",
+      "registro_actividades"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.7; Resolución 1956/2008"
+  },
+  {
+    "standard_number": "3.1.8",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Agua potable, servicios sanitarios y disposición de basuras",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "analisis_agua_potable",
+      "inspeccion_baterias_sanitarias",
+      "plan_residuos"
+    ],
+    "frequency_days": 180,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.8; Resolución 2400/1979"
+  },
+  {
+    "standard_number": "3.1.9",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Condiciones de salud en el trabajo",
+    "name": "Eliminación adecuada de residuos sólidos, líquidos o gaseosos",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_gestion_integral_residuos",
+      "soportes_disposicion_final",
+      "certificados_gestor"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.1.9; Decreto 4741/2005"
+  },
+  {
+    "standard_number": "3.2.1",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Registro, reporte e investigación de las enfermedades laborales, los incidentes y accidentes de trabajo",
+    "name": "Reporte de los Accidentes de Trabajo y Enfermedad Laboral a la ARL, EPS y Dirección Territorial del Ministerio de Trabajo",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "furat",
+      "furel",
+      "comunicaciones_arl_eps_mintrabajo"
+    ],
+    "frequency_days": 2,
+    "trigger_immediate": "accidente_trabajo_o_enfermedad_laboral",
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.2.1; Resolución 1401/2007; Decreto 1295/1994 Art. 62"
+  },
+  {
+    "standard_number": "3.2.2",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Registro, reporte e investigación de las enfermedades laborales, los incidentes y accidentes de trabajo",
+    "name": "Investigación de Incidentes, Accidentes y Enfermedades Laborales",
+    "weight_capitulo_iii": 2.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "informe_investigacion_at",
+      "metodologia_causalidad",
+      "actas_copasst_investigacion"
+    ],
+    "frequency_days": 15,
+    "trigger_immediate": "accidente_trabajo",
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.2.2; Resolución 1401/2007"
+  },
+  {
+    "standard_number": "3.2.3",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Registro, reporte e investigación de las enfermedades laborales, los incidentes y accidentes de trabajo",
+    "name": "Registro y análisis estadístico de Accidentes y Enfermedades Laborales",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "matriz_accidentalidad",
+      "informe_estadistico_at_el",
+      "indicadores_accidentalidad"
+    ],
+    "frequency_days": 90,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.2.3"
+  },
+  {
+    "standard_number": "3.3.1",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Mecanismo de vigilancia de las condiciones de salud de los trabajadores",
+    "name": "Medición de la frecuencia de la accidentalidad",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "ficha_indicador_frecuencia",
+      "registro_calculo_indicador"
+    ],
+    "frequency_days": 30,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.3.1; Decreto 1072/2015 Art. 2.2.4.6.19"
+  },
+  {
+    "standard_number": "3.3.2",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Mecanismo de vigilancia de las condiciones de salud de los trabajadores",
+    "name": "Medición de la severidad de la accidentalidad",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "ficha_indicador_severidad",
+      "registro_calculo_indicador"
+    ],
+    "frequency_days": 30,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.3.2"
+  },
+  {
+    "standard_number": "3.3.3",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Mecanismo de vigilancia de las condiciones de salud de los trabajadores",
+    "name": "Medición de la mortalidad por Accidentes de Trabajo",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "ficha_indicador_mortalidad",
+      "registro_calculo_indicador"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.3.3"
+  },
+  {
+    "standard_number": "3.3.4",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Mecanismo de vigilancia de las condiciones de salud de los trabajadores",
+    "name": "Medición de la prevalencia de Enfermedad Laboral",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "ficha_indicador_prevalencia",
+      "registro_calculo_indicador"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.3.4"
+  },
+  {
+    "standard_number": "3.3.5",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Mecanismo de vigilancia de las condiciones de salud de los trabajadores",
+    "name": "Medición de la incidencia de Enfermedad Laboral",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "ficha_indicador_incidencia",
+      "registro_calculo_indicador"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.3.5"
+  },
+  {
+    "standard_number": "3.3.6",
+    "standard_group": "Gestión de la Salud",
+    "standard_subgroup": "Mecanismo de vigilancia de las condiciones de salud de los trabajadores",
+    "name": "Medición del ausentismo por causa médica",
+    "weight_capitulo_iii": 1.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "ficha_indicador_ausentismo",
+      "registro_calculo_indicador",
+      "incapacidades"
+    ],
+    "frequency_days": 30,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 3.3.6"
+  },
+  {
+    "standard_number": "4.1.1",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Identificación de peligros, evaluación y valoración de los riesgos",
+    "name": "Metodología para la identificación de peligros, evaluación y valoración de los riesgos",
+    "weight_capitulo_iii": 4.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "procedimiento_iper",
+      "metodologia_gtc45",
+      "matriz_peligros"
+    ],
+    "frequency_days": 365,
+    "trigger_immediate": "cambio_proceso_o_accidente_grave",
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.1.1; Decreto 1072/2015 Art. 2.2.4.6.15; GTC-45/2012"
+  },
+  {
+    "standard_number": "4.1.2",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Identificación de peligros, evaluación y valoración de los riesgos",
+    "name": "Identificación de peligros con participación de todos los niveles de la empresa",
+    "weight_capitulo_iii": 4.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": true,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "matriz_peligros_riesgos",
+      "actas_participacion_trabajadores",
+      "registros_inspecciones_planeadas"
+    ],
+    "frequency_days": 365,
+    "trigger_immediate": "cambio_proceso_o_accidente_grave",
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.1.2; Decreto 1072/2015 Art. 2.2.4.6.15"
+  },
+  {
+    "standard_number": "4.1.3",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Identificación de peligros, evaluación y valoración de los riesgos",
+    "name": "Identificación de sustancias catalogadas como carcinógenas o con toxicidad aguda",
+    "weight_capitulo_iii": 3.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "inventario_sustancias_quimicas",
+      "fichas_seguridad_sds",
+      "matriz_compatibilidad"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.1.3; Decreto 1496/2018 (SGA)"
+  },
+  {
+    "standard_number": "4.1.4",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Identificación de peligros, evaluación y valoración de los riesgos",
+    "name": "Realización mediciones ambientales químicos, físicos y biológicos",
+    "weight_capitulo_iii": 4.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "informe_mediciones_higienicas",
+      "certificados_calibracion",
+      "dosimetrias"
+    ],
+    "frequency_days": 730,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.1.4; Resolución 1792/1990; Decreto 1072/2015 Art. 2.2.4.6.24"
+  },
+  {
+    "standard_number": "4.2.1",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Medidas de prevención y control para intervenir los peligros / riesgos",
+    "name": "Implementación de medidas de prevención y control frente a peligros/riesgos identificados",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": true,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_intervencion_peligros",
+      "registro_implementacion_controles",
+      "matriz_jerarquia_controles"
+    ],
+    "frequency_days": 365,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.2.1; Decreto 1072/2015 Art. 2.2.4.6.24"
+  },
+  {
+    "standard_number": "4.2.2",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Medidas de prevención y control para intervenir los peligros / riesgos",
+    "name": "Verificación de aplicación de medidas de prevención y control por parte de los trabajadores",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "inspecciones_planeadas",
+      "observaciones_comportamentales",
+      "registros_supervision"
+    ],
+    "frequency_days": 90,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.2.2"
+  },
+  {
+    "standard_number": "4.2.3",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Medidas de prevención y control para intervenir los peligros / riesgos",
+    "name": "Elaboración de procedimientos, instructivos, fichas, protocolos",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "procedimientos_seguros",
+      "instructivos_trabajo_seguro",
+      "fichas_tecnicas"
+    ],
+    "frequency_days": 730,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.2.3"
+  },
+  {
+    "standard_number": "4.2.4",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Medidas de prevención y control para intervenir los peligros / riesgos",
+    "name": "Realización de inspecciones a instalaciones, maquinaria o equipos con la participación del COPASST",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_inspecciones",
+      "actas_inspecciones_copasst",
+      "informes_hallazgos"
+    ],
+    "frequency_days": 90,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.2.4; Resolución 2013/1986"
+  },
+  {
+    "standard_number": "4.2.5",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Medidas de prevención y control para intervenir los peligros / riesgos",
+    "name": "Mantenimiento periódico de instalaciones, equipos, máquinas, herramientas",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_mantenimiento",
+      "hojas_vida_equipos",
+      "registros_intervenciones"
+    ],
+    "frequency_days": 180,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.2.5"
+  },
+  {
+    "standard_number": "4.2.6",
+    "standard_group": "Gestión de Peligros y Riesgos",
+    "standard_subgroup": "Medidas de prevención y control para intervenir los peligros / riesgos",
+    "name": "Entrega de Elementos de Protección Personal - EPP, se verifica con contratistas y subcontratistas",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "matriz_epp_por_cargo",
+      "actas_entrega_epp",
+      "fichas_tecnicas_epp",
+      "registros_capacitacion_epp"
+    ],
+    "frequency_days": 180,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 4.2.6; Resolución 2400/1979 Art. 176; Decreto 1072/2015 Art. 2.2.4.6.24"
+  },
+  {
+    "standard_number": "5.1.1",
+    "standard_group": "Gestión de Amenazas",
+    "standard_subgroup": "Plan de prevención, preparación y respuesta ante emergencias",
+    "name": "Se cuenta con el Plan de Preparación, Prevención y Respuesta ante Emergencias",
+    "weight_capitulo_iii": 5.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_emergencias",
+      "analisis_vulnerabilidad",
+      "planos_evacuacion",
+      "actas_simulacros"
+    ],
+    "frequency_days": 365,
+    "trigger_immediate": "cambio_sede_o_proceso",
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 5.1.1; Decreto 1072/2015 Art. 2.2.4.6.25"
+  },
+  {
+    "standard_number": "5.1.2",
+    "standard_group": "Gestión de Amenazas",
+    "standard_subgroup": "Plan de prevención, preparación y respuesta ante emergencias",
+    "name": "Brigada de prevención conformada, capacitada y dotada",
+    "weight_capitulo_iii": 5.0,
+    "cycle_phva": "Hacer",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "acta_conformacion_brigada",
+      "registros_capacitacion_brigadistas",
+      "inventario_dotacion_brigada"
+    ],
+    "frequency_days": 365,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 5.1.2"
+  },
+  {
+    "standard_number": "6.1.1",
+    "standard_group": "Verificación del SG-SST",
+    "standard_subgroup": "Gestión y resultados del SG-SST",
+    "name": "Definición de indicadores del SG-SST de acuerdo condiciones de la empresa",
+    "weight_capitulo_iii": 1.25,
+    "cycle_phva": "Verificar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "fichas_tecnicas_indicadores",
+      "matriz_indicadores",
+      "tablero_control"
+    ],
+    "frequency_days": 90,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 6.1.1; Decreto 1072/2015 Art. 2.2.4.6.19, 20, 21, 22"
+  },
+  {
+    "standard_number": "6.1.2",
+    "standard_group": "Verificación del SG-SST",
+    "standard_subgroup": "Gestión y resultados del SG-SST",
+    "name": "La empresa adelanta auditoría por lo menos una vez al año",
+    "weight_capitulo_iii": 1.25,
+    "cycle_phva": "Verificar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "programa_auditoria_interna",
+      "informe_auditoria",
+      "actas_apertura_cierre"
+    ],
+    "frequency_days": 365,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 6.1.2; Decreto 1072/2015 Art. 2.2.4.6.29"
+  },
+  {
+    "standard_number": "6.1.3",
+    "standard_group": "Verificación del SG-SST",
+    "standard_subgroup": "Gestión y resultados del SG-SST",
+    "name": "Revisión anual de la Alta Dirección, resultados de la auditoría",
+    "weight_capitulo_iii": 1.25,
+    "cycle_phva": "Verificar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": true,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "acta_revision_alta_direccion",
+      "informe_revision_anual"
+    ],
+    "frequency_days": 365,
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 6.1.3; Decreto 1072/2015 Art. 2.2.4.6.31"
+  },
+  {
+    "standard_number": "6.1.4",
+    "standard_group": "Verificación del SG-SST",
+    "standard_subgroup": "Gestión y resultados del SG-SST",
+    "name": "Planificación auditorías con el COPASST",
+    "weight_capitulo_iii": 1.25,
+    "cycle_phva": "Verificar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "acta_copasst_planeacion_auditoria",
+      "cronograma_auditoria"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 6.1.4; Decreto 1072/2015 Art. 2.2.4.6.30"
+  },
+  {
+    "standard_number": "7.1.1",
+    "standard_group": "Mejoramiento",
+    "standard_subgroup": "Acciones preventivas y correctivas con base en los resultados del SG-SST",
+    "name": "Definición de acciones preventivas y correctivas con base en resultados del SG-SST",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Actuar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "matriz_acciones_correctivas_preventivas",
+      "procedimiento_acciones_mejora"
+    ],
+    "frequency_days": 90,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 7.1.1; Decreto 1072/2015 Art. 2.2.4.6.33"
+  },
+  {
+    "standard_number": "7.1.2",
+    "standard_group": "Mejoramiento",
+    "standard_subgroup": "Acciones preventivas y correctivas con base en los resultados del SG-SST",
+    "name": "Acciones de mejora conforme a revisión de la Alta Dirección",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Actuar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_mejora_alta_direccion",
+      "seguimiento_acciones_mejora"
+    ],
+    "frequency_days": 365,
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 7.1.2; Decreto 1072/2015 Art. 2.2.4.6.34"
+  },
+  {
+    "standard_number": "7.1.3",
+    "standard_group": "Mejoramiento",
+    "standard_subgroup": "Acciones preventivas y correctivas con base en los resultados del SG-SST",
+    "name": "Acciones de mejora con base en investigaciones de accidentes de trabajo y enfermedades laborales",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Actuar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "lecciones_aprendidas_at",
+      "plan_accion_post_investigacion"
+    ],
+    "frequency_days": 30,
+    "trigger_immediate": "investigacion_at_finalizada",
+    "is_critical": false,
+    "source_reference": "Resolución 0312/2019, Art. 27, Estándar 7.1.3; Resolución 1401/2007"
+  },
+  {
+    "standard_number": "7.1.4",
+    "standard_group": "Mejoramiento",
+    "standard_subgroup": "Acciones preventivas y correctivas con base en los resultados del SG-SST",
+    "name": "Elaboración Plan de Mejoramiento - implementación de medidas y acciones correctivas solicitadas por autoridades y ARL",
+    "weight_capitulo_iii": 2.5,
+    "cycle_phva": "Actuar",
+    "applies_chapter_i": false,
+    "applies_chapter_ii": false,
+    "applies_chapter_iii": true,
+    "evidence_types": [
+      "plan_mejoramiento_estandares",
+      "soporte_envio_arl",
+      "evidencia_implementacion"
+    ],
+    "frequency_days": 90,
+    "trigger_immediate": "autoevaluacion_critica_o_moderada",
+    "is_critical": true,
+    "source_reference": "Resolución 0312/2019, Art. 27 y 28, Estándar 7.1.4"
+  }
+]
