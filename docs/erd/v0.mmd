@@ -1,0 +1,581 @@
+erDiagram
+  %% =========================================================
+  %% ERD v0 — Regis SG-SST Platform
+  %% Versión: v0  | Fecha: 2026-04-28  | Autor: Operador-Agent
+  %% Tarea: T-F0-018  | Issue: #13
+  %% =========================================================
+  %% Convenciones:
+  %%   PK = primary key | FK = foreign key | UK = unique
+  %%   Toda tabla operacional incluye created_at, updated_at, deleted_at (soft delete)
+  %%   Campos de tenancy: regis_org_id (consultora) y/o company_id (empresa cliente)
+  %% =========================================================
+
+  %% ---------- TENANCY & CATÁLOGOS ----------
+
+  regis_orgs {
+    uuid id PK
+    text nombre
+    text nit UK
+    text contact_email
+    text plan_tier
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  companies {
+    uuid id PK
+    uuid regis_org_id FK
+    text razon_social
+    text nit UK
+    text ciiu_principal FK
+    int clase_riesgo_principal
+    int n_trabajadores_estimado
+    text departamento
+    text ciudad
+    text email_contacto
+    text telefono
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  centros_de_trabajo {
+    uuid id PK
+    uuid company_id FK
+    text nombre
+    text direccion
+    text departamento
+    text ciudad
+    text ciiu_centro FK
+    int clase_riesgo_centro
+    int n_trabajadores
+    boolean es_principal
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  ciiu_codes {
+    text codigo PK
+    text descripcion
+    int clase_riesgo
+    text division
+    text grupo
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  ciiu_hazard_mapping {
+    uuid id PK
+    text ciiu_codigo FK
+    text peligro_categoria
+    text peligro_descripcion
+    text fuente_referencia
+    int prioridad
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  empresa_ciiu {
+    uuid id PK
+    uuid company_id FK
+    text ciiu_codigo FK
+    boolean es_principal
+    timestamptz valid_from
+    timestamptz valid_to
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  eps_catalog {
+    uuid id PK
+    text codigo UK
+    text nombre
+    text tipo_regimen
+    boolean activo
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  afp_catalog {
+    uuid id PK
+    text codigo UK
+    text nombre
+    boolean activo
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  arl_catalog {
+    uuid id PK
+    text codigo UK
+    text nombre
+    boolean activo
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  document_types {
+    uuid id PK
+    text codigo UK
+    text nombre
+    text categoria
+    boolean requiere_vigencia
+    int retencion_meses
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  standards_0312 {
+    uuid id PK
+    text codigo UK
+    text titulo
+    text descripcion
+    numeric peso
+    text ciclo_phva
+    text capitulo
+    int aplica_desde_trabajadores
+    int aplica_hasta_trabajadores
+    text clase_riesgo_aplica
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  %% ---------- PERSONAS Y ROLES ----------
+
+  users {
+    uuid id PK
+    text email UK
+    text nombre_completo
+    text auth_provider
+    text auth_provider_id
+    timestamptz last_login_at
+    boolean activo
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  roles {
+    uuid id PK
+    text codigo UK
+    text nombre
+    text descripcion
+    jsonb permisos
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  user_company_role {
+    uuid id PK
+    uuid user_id FK
+    uuid company_id FK
+    uuid role_id FK
+    uuid regis_org_id FK
+    timestamptz valid_from
+    timestamptz valid_to
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  workers {
+    uuid id PK
+    text tipo_documento
+    text numero_documento UK
+    text nombres
+    text apellidos
+    date fecha_nacimiento
+    text genero
+    text telefono
+    text email
+    uuid eps_id FK
+    uuid afp_id FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  worker_company {
+    uuid id PK
+    uuid worker_id FK
+    uuid company_id FK
+    uuid centro_id FK
+    text cargo
+    text tipo_contrato
+    uuid arl_id FK
+    date fecha_ingreso
+    date fecha_retiro
+    boolean activo
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  %% ---------- CUMPLIMIENTO ----------
+
+  standard_evaluations {
+    uuid id PK
+    uuid company_id FK
+    uuid centro_id FK
+    uuid standard_id FK
+    text status
+    numeric peso_obtenido
+    text justificacion
+    uuid evidencia_documento_id FK
+    uuid evaluado_por_user_id FK
+    timestamptz evaluado_at
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  evaluation_snapshots {
+    uuid id PK
+    uuid company_id FK
+    uuid centro_id FK
+    date snapshot_month
+    numeric porcentaje_global
+    jsonb breakdown_phva
+    jsonb breakdown_capitulos
+    text status_general
+    timestamptz created_at
+  }
+
+  documents {
+    uuid id PK
+    uuid company_id FK
+    uuid centro_id FK
+    uuid document_type_id FK
+    text titulo
+    text version
+    text file_url
+    text file_hash
+    bigint file_size_bytes
+    date valid_from
+    date valid_until
+    uuid uploaded_by_user_id FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  %% ---------- COMITÉS ----------
+
+  committees {
+    uuid id PK
+    uuid company_id FK
+    uuid centro_id FK
+    text tipo
+    text nombre
+    date constituido_el
+    date vigencia_hasta
+    boolean activo
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  committee_members {
+    uuid id PK
+    uuid committee_id FK
+    uuid worker_id FK
+    text rol
+    text representacion
+    date desde
+    date hasta
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  meeting_actas {
+    uuid id PK
+    uuid committee_id FK
+    date fecha
+    text lugar
+    text agenda
+    text contenido_md
+    text file_url
+    uuid generada_por_user_id FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  compromisos {
+    uuid id PK
+    uuid acta_id FK
+    text descripcion
+    uuid responsable_worker_id FK
+    date fecha_compromiso
+    date fecha_cumplimiento
+    text status
+    text evidencia_url
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  %% ---------- ESPECIALIZADAS ----------
+
+  medical_exams {
+    uuid id PK
+    uuid worker_id FK
+    uuid company_id FK
+    text tipo_examen
+    date fecha_examen
+    text concepto_aptitud
+    jsonb recomendaciones
+    text file_url_secure
+    text bucket_name
+    int retention_years
+    uuid extracted_by_ai_run_id FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  risk_matrices {
+    uuid id PK
+    uuid company_id FK
+    uuid centro_id FK
+    text version
+    text metodologia
+    jsonb peligros
+    jsonb evaluacion
+    text status
+    uuid aprobada_por_user_id FK
+    timestamptz aprobada_at
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  emergency_plans {
+    uuid id PK
+    uuid company_id FK
+    uuid centro_id FK
+    text version
+    text contenido_md
+    jsonb brigadas
+    jsonb rutas_evacuacion
+    date vigencia_desde
+    date vigencia_hasta
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  furat_reports {
+    uuid id PK
+    uuid company_id FK
+    uuid centro_id FK
+    uuid worker_id FK
+    text numero_reporte UK
+    date fecha_accidente
+    text tipo_accidente
+    text descripcion
+    text parte_cuerpo_afectada
+    text severidad
+    boolean reportado_arl
+    date fecha_reporte_arl
+    text file_url
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+  }
+
+  %% ---------- SISTEMA ----------
+
+  audit_log {
+    uuid id PK
+    timestamptz created_at
+    uuid actor_user_id FK
+    text actor_type
+    text action
+    text entity_type
+    uuid entity_id
+    uuid company_id FK
+    uuid regis_org_id FK
+    jsonb old_values
+    jsonb new_values
+    text ip_address
+    text user_agent
+  }
+
+  consents {
+    uuid id PK
+    uuid worker_id FK
+    uuid company_id FK
+    text consent_type
+    text version_politica
+    text texto_aceptado
+    timestamptz aceptado_at
+    text canal
+    text ip_address
+    timestamptz revocado_at
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  notifications {
+    uuid id PK
+    uuid recipient_user_id FK
+    uuid recipient_worker_id FK
+    text channel
+    text template_codigo
+    jsonb payload
+    text status
+    int retry_count
+    text error_message
+    timestamptz scheduled_for
+    timestamptz sent_at
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  ai_usage {
+    uuid id PK
+    timestamptz created_at
+    text agent_id
+    text task_id
+    text complexity_level
+    text provider
+    text model
+    int prompt_tokens
+    int completion_tokens
+    numeric cost_usd
+    int latency_ms
+    boolean success
+    text error_signature
+    text request_hash
+  }
+
+  ai_outputs_pending_review {
+    uuid id PK
+    uuid ai_usage_id FK
+    text entity_type
+    uuid entity_id
+    jsonb output_payload
+    numeric confidence
+    text reason_for_review
+    text status
+    uuid reviewed_by_user_id FK
+    timestamptz reviewed_at
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  pg_boss_jobs {
+    uuid id PK
+    text name
+    jsonb data
+    text state
+    int retry_count
+    timestamptz created_on
+    timestamptz started_on
+    timestamptz completed_on
+    timestamptz expire_in
+  }
+
+  loop_detections {
+    uuid id PK
+    text trigger_code
+    text severity
+    text agent_id
+    text task_id
+    jsonb evidence
+    text action_taken
+    boolean resolved
+    timestamptz resolved_at
+    timestamptz created_at
+  }
+
+  auditor_findings {
+    uuid id PK
+    text audit_run_id
+    text severity
+    text rule_violated
+    text task_id
+    jsonb evidence
+    text recommended_action
+    text status
+    uuid reviewed_by_user_id FK
+    timestamptz reviewed_at
+    timestamptz created_at
+  }
+
+  %% =========================================================
+  %% RELACIONES
+  %% =========================================================
+
+  regis_orgs ||--o{ companies : "consultora administra"
+  companies ||--o{ centros_de_trabajo : "tiene centros"
+  companies ||--o{ empresa_ciiu : "tiene CIIU(s)"
+  ciiu_codes ||--o{ empresa_ciiu : "es asignado a"
+  ciiu_codes ||--o{ ciiu_hazard_mapping : "mapea peligros"
+  ciiu_codes ||--o{ companies : "ciiu_principal"
+  ciiu_codes ||--o{ centros_de_trabajo : "ciiu del centro"
+
+  regis_orgs ||--o{ user_company_role : "scope consultora"
+  companies ||--o{ user_company_role : "scope empresa"
+  users ||--o{ user_company_role : "tiene rol en"
+  roles ||--o{ user_company_role : "asigna"
+
+  workers ||--o{ worker_company : "trabaja en"
+  companies ||--o{ worker_company : "emplea a"
+  centros_de_trabajo ||--o{ worker_company : "asignado a centro"
+  eps_catalog ||--o{ workers : "afilia EPS"
+  afp_catalog ||--o{ workers : "afilia AFP"
+  arl_catalog ||--o{ worker_company : "afilia ARL"
+
+  companies ||--o{ standard_evaluations : "es evaluada"
+  centros_de_trabajo ||--o{ standard_evaluations : "evaluación por centro"
+  standards_0312 ||--o{ standard_evaluations : "estándar evaluado"
+  documents ||--o{ standard_evaluations : "evidencia"
+  users ||--o{ standard_evaluations : "evaluado por"
+
+  companies ||--o{ evaluation_snapshots : "snapshot mensual"
+  centros_de_trabajo ||--o{ evaluation_snapshots : "snapshot mensual"
+
+  companies ||--o{ documents : "tiene documentos"
+  centros_de_trabajo ||--o{ documents : "documentos del centro"
+  document_types ||--o{ documents : "clasifica"
+  users ||--o{ documents : "subió"
+
+  companies ||--o{ committees : "tiene comités"
+  centros_de_trabajo ||--o{ committees : "comité por centro"
+  committees ||--o{ committee_members : "tiene miembros"
+  workers ||--o{ committee_members : "es miembro"
+  committees ||--o{ meeting_actas : "tiene actas"
+  meeting_actas ||--o{ compromisos : "genera compromisos"
+  workers ||--o{ compromisos : "es responsable"
+  users ||--o{ meeting_actas : "genera acta"
+
+  workers ||--o{ medical_exams : "tiene exámenes"
+  companies ||--o{ medical_exams : "ordena examen"
+  companies ||--o{ risk_matrices : "tiene matrices"
+  centros_de_trabajo ||--o{ risk_matrices : "matriz por centro"
+  users ||--o{ risk_matrices : "aprueba"
+  companies ||--o{ emergency_plans : "tiene plan"
+  centros_de_trabajo ||--o{ emergency_plans : "plan por centro"
+  companies ||--o{ furat_reports : "reporta accidentes"
+  centros_de_trabajo ||--o{ furat_reports : "accidente en centro"
+  workers ||--o{ furat_reports : "trabajador accidentado"
+
+  users ||--o{ audit_log : "actor"
+  companies ||--o{ audit_log : "scope empresa"
+  regis_orgs ||--o{ audit_log : "scope consultora"
+
+  workers ||--o{ consents : "consentimiento"
+  companies ||--o{ consents : "consentimiento empresa"
+
+  users ||--o{ notifications : "destinatario user"
+  workers ||--o{ notifications : "destinatario worker"
+
+  ai_usage ||--o{ ai_outputs_pending_review : "output marcado"
+  users ||--o{ ai_outputs_pending_review : "revisor"
+  ai_usage ||--o{ medical_exams : "extracción IA"
+
+  users ||--o{ auditor_findings : "revisor"
