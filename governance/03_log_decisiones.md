@@ -35,6 +35,44 @@
 
 ## Log de decisiones
 
+### D-010 — MCP n8n conectado a n8n.dmaori.com (Opción A confirmada para T-F15-015)
+
+**Fecha:** 2026-04-30
+**Tomada por:** PM-Agent + supervisor humano
+**Tipo:** decision_tecnica + actualizacion_plan
+
+**Contexto:**
+El supervisor solicitó conectar MCP de n8n para trabajar en paralelo. Verificación exitosa: el MCP `mcp__ff52e7d3-...__*` apunta directamente a `n8n.dmaori.com` (Dmaori SAS, herramientas@dmaori.com, project ID `apHolqjKxJnd6rHP`, 40 workflows existentes).
+
+**Decisión:**
+Cambiar de Opción D (híbrido) a **Opción A (MCP puro)** para T-F15-015. PM-Agent crea, valida y prueba los 5 workflows directamente vía MCP n8n.
+
+**Tools disponibles vía MCP:**
+
+- `search_nodes`, `get_node_types`, `get_sdk_reference` — para escribir workflows correctamente
+- `validate_workflow` — valida código TypeScript SDK antes de crear
+- `create_workflow_from_code` / `update_workflow` / `archive_workflow`
+- `prepare_test_pin_data` + `test_workflow` — testing con pin data
+- `execute_workflow` + `get_execution` — ejecutar y monitorear
+- `search_workflows`, `search_projects`, `search_folders`
+
+**Razón:**
+
+- Setup ya funciona (cero overhead)
+- Workflows quedan auditable en n8n web UI + exportables como JSON al repo
+- Iteración rápida (validate → create → test sin fricción)
+- Project ID conocido: apHolqjKxJnd6rHP
+
+**Cambios al plan:**
+
+- T-F15-015 spec actualizada: PM-Agent crea workflows directamente vía MCP (no Operador-Agent vía API REST)
+- Ventaja adicional: workflows pueden testearse con `test_workflow` + pin data antes de activar
+
+**Risk assessment:**
+Bajo. La opcionalidad se preserva: si MCP falla en algún momento, fallback a Opción C (API REST con N8N_API_KEY).
+
+---
+
 ### D-009 — Reubicar T-F0-037 al final de Fase 1.5 (transición a modo autónomo)
 
 **Fecha:** 2026-04-29 (cierre Fase 0, inicio Fase 1)
