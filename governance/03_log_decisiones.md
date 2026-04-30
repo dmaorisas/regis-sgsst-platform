@@ -3,6 +3,7 @@
 **Propósito:** Registro inmutable de todas las decisiones tomadas por el PM durante la ejecución. Cada entrada se agrega al final, nunca se modifica.
 
 **Formato:**
+
 ```
 ### D-NNN — [Título corto]
 **Fecha:** YYYY-MM-DD HH:MM
@@ -34,7 +35,39 @@
 
 ## Log de decisiones
 
+### D-008 — Mover Wati (T-F0-006/007/008/034) a Bucket B (no ejecutar en concurso)
+
+**Fecha:** 2026-04-29 (cierre Fase 0)
+**Tomada por:** PM-Agent
+**Tipo:** modificacion_plan + reasignacion_bucket
+
+**Contexto:**
+Wati (WhatsApp Business via Meta API) requiere 24-48h de aprobación de templates por Meta, agregando un camino crítico oculto. El brief del concurso dice "envío por correo **o** WhatsApp" — son alternativas, no requisitos simultáneos. Resend (email) ya está configurado y funcional.
+
+**Decisión:**
+Mover T-F0-006, T-F0-007, T-F0-008 y T-F0-034 (todas Wati) a **Bucket B (declarado en roadmap)**.
+
+**Razón:**
+
+1. **Email cubre el requerimiento del concurso:** el brief permite explícitamente "correo o WhatsApp" como alternativas
+2. **Arquitectura pluggable:** la abstracción NotificationService (creada en T-F15-005) permite agregar WhatsApp como canal extra sin reescribir nada — solo cambiar config
+3. **Camino crítico:** evita 24-48h de espera Meta que pueden poner en riesgo Fase 2
+4. **Eficiencia de recursos:** ~3h ahorradas de configuración + posible re-trabajo si Meta rechaza
+5. **Demo defensible en video:** "WhatsApp arquitectónicamente listo, en producción se activa con templates aprobados de Meta. Para concurso usamos email que es legítimo per brief"
+
+**Cambios:**
+
+- T-F0-006/007/008/034: cerrar como CANCELADA (movida a Bucket B)
+- Stack: Resend = canal primario; WhatsApp = canal pluggable declarado
+- En el video del 9 may: declarar Wati como roadmap inmediato post-concurso (~1 hora de configuración)
+
+**Risk assessment:**
+Bajo. La adaptabilidad del NotificationService preserva la opción. Si Regis al recibir el ganador quiere activar WhatsApp, son <2h de trabajo.
+
+---
+
 ### D-007 — Reorganizar T-F0-039: documentación en F0, implementación en F1.5
+
 **Fecha:** 2026-04-29 17:15
 **Tomada por:** PM-Agent (per directiva supervisor: organizar nuevas tareas en su etapa correspondiente)
 **Tipo:** modificacion_plan (organización por fase)
@@ -44,15 +77,18 @@ T-F0-039 (creada en D-005) tenía alcance dual: documentar política + implement
 
 **Decisión:**
 Split T-F0-039 en dos:
+
 1. **T-F0-039 (Fase 0):** Solo documentación de la política → `governance/08_storage_policy.md`. Tiempo: ~45 min
 2. **T-F15-014 (Fase 1.5):** Implementación técnica → workflows n8n cleanup + tabla `storage_metrics` + alertas. Tiempo: ~90 min
 
 **Razón:**
+
 - La doc define el contrato; los agentes pueden alinearse a él durante F0
 - La implementación técnica necesita infra real (DB con migrations aplicadas, n8n con orquestación viva)
 - Ejecutar técnico en F0 sería prematuro (lo construye sobre placeholders)
 
 **Cambios al master list:**
+
 - T-F0-039 spec recortada a documentación
 - Nueva T-F15-014 agregada con la implementación técnica
 
@@ -64,6 +100,7 @@ La política se documenta ahora → los workflows se construyen en F1.5 → moni
 ---
 
 ### D-006 — Fusionar T-F0-024 (ERD v1) con T-F1-001 (configurar migrations)
+
 **Fecha:** 2026-04-29 16:50
 **Tomada por:** PM-Agent (con aprobación supervisor humano)
 **Tipo:** modificacion_plan (eficiencia)
@@ -73,22 +110,26 @@ T-F0-024 era "refinar ERD a v1 incorporando aprendizajes de T-F0-038". T-F1-001 
 
 **Decisión:**
 Fusionar T-F0-024 → T-F1-001. La primera tarea de Fase 1 ahora incluye:
+
 1. Refinar el ERD v0 con aprendizajes de T-F0-038 (en SQL directamente, no en archivo .mmd)
 2. Crear las migrations correspondientes
 3. Actualizar el `.mmd` del ERD para que refleje el SQL final (un solo archivo `v1.mmd`)
 
 **Verificación de impacto en plan maestro:**
+
 - T-F0-026 (ADR-02 formalizado): NO impactada. Puede ejecutarse con ERD v0 + decisiones ya tomadas. La materialización SQL no es requisito para formalizar el ADR.
 - T-F1-002 a T-F1-010 (migrations): BENEFICIADAS. Parten de un ERD ya refinado.
 - T-F0-036 (Phase Gate F0): ajusta criterio "ERD v1 publicado" a "ERD v0 publicado + refinamiento programado para inicio F1".
 - Resto del plan: sin cambios estructurales.
 
 **Razón:**
+
 - Eficiencia: ahorra 60 min de trabajo redundante (el ERD se materializa en SQL = es la versión definitiva)
 - Coherencia: una sola fuente de verdad para el modelo (el SQL ejecutado, no el diagrama)
 - Calidad: refinamiento + ejecución en una pasada reduce inconsistencias entre diagrama y código real
 
 **Cambios concretos al master list:**
+
 - T-F0-024: marcada como FUSIONADA con T-F1-001 (no se ejecuta como tarea separada)
 - T-F1-001: spec ampliada para incluir refinamiento ERD + creación de migrations + actualización del .mmd con la versión final
 - Tiempo estimado de T-F1-001: 45 min → 90 min (absorbe los 60 min de T-F0-024 - 15 min de overhead duplicado)
@@ -99,6 +140,7 @@ Bajo. La fusión preserva el contrato: al final de F1-001 existe un ERD v1 commi
 ---
 
 ### D-005 — Política de almacenamiento, archivos basura y limpieza periódica
+
 **Fecha:** 2026-04-29 16:50
 **Tomada por:** PM-Agent (siguiendo pregunta directa del supervisor)
 **Tipo:** principio_operativo + adicion_plan
@@ -131,16 +173,19 @@ Adoptar política formal de gestión de almacenamiento con 4 capas:
    - Reporte semanal de uso de espacio
 
 **Cambios concretos al master list:**
+
 - Agregar T-F0-039 — "Política y mecanismos de limpieza de almacenamiento" (45 min, nivel_qa estándar, antes de Phase Gate F0)
 
 **Razón:**
+
 - Supabase free tier tiene límites (500MB DB + 1GB storage)
 - 11 días × 4 agentes × N invocaciones acumulan archivos rápido
 - Una limpieza al final del proyecto es ineficiente; mejor prevenir
 - Auditoría limpia para el video del concurso (mostrar que el sistema es operativamente sólido)
 
 **Acciones inmediatas tomadas (antes de crear T-F0-039):**
-- ✅ Limpiar /tmp/*.md y /tmp/regis-clone (7 archivos)
+
+- ✅ Limpiar /tmp/\*.md y /tmp/regis-clone (7 archivos)
 - ✅ Mejorar .gitignore con patrones para basura
 - ✅ Documentar D-005 (este registro)
 
@@ -150,6 +195,7 @@ Medio si NO se ejecuta. Sin política, el riesgo es: (a) chocar contra límites 
 ---
 
 ### D-004 — Política: funcionalidad sobre completitud de datos
+
 **Fecha:** 2026-04-29 16:30
 **Tomada por:** PM-Agent (siguiendo directiva del supervisor)
 **Tipo:** principio_operativo
@@ -161,6 +207,7 @@ El supervisor refuerza que el objetivo del concurso es demostrar **funcionalidad
 Adoptar como principio operativo: **datos sintéticos coherentes son suficientes** para todas las tareas que requieren datos de prueba. Solo invertir en datos reales/exhaustivos donde sean indispensables para el funcionamiento (ej: pesos Resolución 0312, sí; nombres y NITs reales de empresas, no).
 
 **Implicaciones:**
+
 - T-F0-022: empresas sintéticas (3 perfiles, no investigación de empresas reales)
 - T-F2-010: PDFs de prueba que diseñemos
 - T-F3-002: 3-5 CIIUs cubiertos (no 1500)
@@ -169,6 +216,7 @@ Adoptar como principio operativo: **datos sintéticos coherentes son suficientes
 - T-F6-001: el wow moment del video pivota a **adaptabilidad arquitectónica** (cambiar config → recálculo en vivo)
 
 **Razón:**
+
 - El brief dice explícitamente que se permite construir con documentos genéricos
 - Regis nunca comparte datos reales, ni siquiera al ganador
 - El ganador alimentará sus datos reales después; nuestro trabajo es que el sistema esté listo
@@ -180,6 +228,7 @@ Adoptar como principio operativo: **datos sintéticos coherentes son suficientes
 ---
 
 ### D-003 — Clarificación T-F0-022: arquitectura multi-empresa adaptable
+
 **Fecha:** 2026-04-29 15:15
 **Tomada por:** PM-Agent (siguiendo input directo del supervisor)
 **Tipo:** clarificacion_spec
@@ -189,6 +238,7 @@ El supervisor humano clarifica que T-F0-022 NO debe limitarse a una sola empresa
 
 **Decisión:**
 T-F0-022 (reformulada en D-002) se refina aún más: en lugar de "seleccionar UNA empresa pública", se ejecuta como "configurar 2-3 empresas representativas que prueben los 3 capítulos de Resolución 0312":
+
 - 1 empresa pequeña (1-10 trab, riesgo I-III) → Capítulo I (7 estándares)
 - 1 empresa mediana (11-50 trab, riesgo I-III) → Capítulo II (21 estándares)
 - 1 empresa grande o de alto riesgo → Capítulo III (60 estándares)
@@ -196,12 +246,14 @@ T-F0-022 (reformulada en D-002) se refina aún más: en lugar de "seleccionar UN
 Esto garantiza cobertura del motor de cumplimiento y demuestra adaptabilidad arquitectónica en el video.
 
 **Razón:**
+
 - Refuerza el principio rector ("sistema demostrablemente adaptable")
 - Cubre los 3 capítulos de la Resolución 0312 con casos reales
 - El Discrepancy Report del video (T-F5-007) puede mostrar 3 empresas distintas con sus % calculados
 - Ya está soportado arquitectónicamente (multi-tenancy con RLS desde Fase 1)
 
 **Cambios al plan:**
+
 - T-F0-022 reformulada: "Configurar 2-3 empresas representativas (mix sintéticas + datos públicos)"
 - T-F1-013 reforzada: seed inicial cubre 3 empresas en lugar de 1
 - T-F5-X mantiene foco en datos reales (públicos), no fictos
@@ -212,6 +264,7 @@ Bajo. Mejora la robustez de la demostración sin agregar complejidad técnica.
 ---
 
 ### D-002 — Pivote estratégico: ejecución sin contacto con Regis
+
 **Fecha:** 2026-04-29 14:50
 **Tomada por:** PM-Agent (orquestador)
 **Tipo:** modificacion_plan (mayor)
@@ -223,6 +276,7 @@ El supervisor humano informa que NO tiene contacto activo con Regis al momento d
 Pivotar a modo "investigación pública". El sistema se construye 100% sobre fuentes públicas y datos abiertos. Cuando/si Regis aparece, se incorporan sus inputs como capa adicional sin reescritura.
 
 **Razón:**
+
 1. El brief explícitamente permite construir con documentos genéricos y normativa pública: "los documentos legales son plantillas obligatorias que no cambian entre empresas, lo que significa que construir con documentos de prueba propios es completamente viable".
 2. El principio rector ya reconoce este escenario: "datos de prueba realistas para una empresa real configurada (datos públicos)".
 3. Esperar a Regis bloquea el camino crítico y pone en riesgo la entrega del 9 may.
@@ -231,6 +285,7 @@ Pivotar a modo "investigación pública". El sistema se construye 100% sobre fue
 **Cambios concretos al plan:**
 
 CANCELADAS (movidas a Bucket B con rationale "requiere contacto Regis"):
+
 - T-F0-003 Verificar contacto activo con Regis
 - T-F0-004 Agendar llamada de 60 min con Regis
 - T-F0-005 Preparar lista de preguntas para llamada Regis
@@ -243,11 +298,13 @@ CANCELADAS (movidas a Bucket B con rationale "requiere contacto Regis"):
 - T-F0-035 Sesión de mapeo CIIU con Regis
 
 REFORMULADAS:
+
 - T-F0-022 "Confirmar empresa cliente real" → "Seleccionar empresa real desde datos públicos" (Nike Colombia / Ferrero Colombia / PayU Latam / Danone Colombia con NIT, CIIU, sector — todos datos públicos vía RUES)
 - T-F0-024 "Refinar ERD a v1 con base en llamada Regis" → "Refinar ERD a v1 con base en investigación pública normativa"
 - Tarea NUEVA T-F0-038: "Investigación pública SG-SST: pesos exactos Resolución 0312 + mapeo CIIU→peligros desde DANE/GTC-45/fuentes oficiales" (180 min, reemplaza la sesión con consultor Regis)
 
 RECONCILIADAS (ya completadas en pre-flight, marcar como done sin Issue):
+
 - T-F0-011 Crear repositorio Git → done en pre-flight (repo dmaorisas/regis-sgsst-platform)
 - T-F0-013 Crear proyecto Supabase → done en pre-flight
 - T-F0-015 Configurar n8n self-hosted → done previamente (n8n.dmaori.com)
@@ -256,11 +313,13 @@ RECONCILIADAS (ya completadas en pre-flight, marcar como done sin Issue):
 - T-F0-032 Aviso privacidad + autorización → done por PM (legal/aviso_privacidad.md, legal/autorizacion_tratamiento.md ya creados pero pendientes de adaptar a templates legales más robustos)
 
 **Impacto en cronograma:**
+
 - Fase 0: 37 tareas → ~28 tareas activas (ahorro ~10h)
 - Camino crítico: ya no depende de respuesta de Regis (era el riesgo R1 del plan)
 - Inicio Fase 1 puede adelantarse al 30 abr mañana (sin esperar llamada Regis)
 
 **Risk assessment:**
+
 - Riesgo eliminado: bloqueo por no-respuesta de Regis (era riesgo R1 alto/crítico)
 - Riesgo nuevo introducido: pesos exactos de items dentro de cada estándar pueden no estar 100% calibrados sin validación de consultor sénior Regis
   - Mitigación: usar pesos públicos a nivel de estándar (suman 100, distribución conocida); arquitectura permite override por configuración cuando se incorpore validación experta posterior
@@ -268,9 +327,11 @@ RECONCILIADAS (ya completadas en pre-flight, marcar como done sin Issue):
   - Mitigación: declarar explícitamente en SOP/video que el catálogo es base pública adaptable, demostrar con 3-5 CIIUs verificables
 
 **Cambios en principio rector:**
+
 - Sin cambios. El principio rector ya contempla este escenario.
 
 **Notificados:**
+
 - Operador-Agent (próxima invocación)
 - QA-Agent (próxima validación)
 - Supervisor humano (esta conversación)
@@ -278,6 +339,7 @@ RECONCILIADAS (ya completadas en pre-flight, marcar como done sin Issue):
 ---
 
 ### D-001 — Agregar T-F0-037 al master list para Camino C híbrido
+
 **Fecha:** 2026-04-29 14:20
 **Tomada por:** PM-Agent (orquestador conversacional)
 **Tipo:** modificacion_plan
@@ -292,15 +354,18 @@ Agregar T-F0-037 "Construir orquestación autónoma de agentes en n8n (Camino C)
 Sin esta tarea, la transición Fase 0 → Fase 1 no tiene mecanismo de orquestación autónomo. El Camino C lo exige explícitamente.
 
 **Cambios concretos:**
+
 - `tasks/02_lista_maestra_tareas.md`: agregada T-F0-037 (240 min, nivel_qa estricto, depende de T-F0-036)
 - Issue GitHub #12 creado y agregado al project board
 - Total tareas Fase 0: 36 → 37
 
 **Impacto en cronograma:**
+
 - Fase 0 extendida ~4h (240 min de T-F0-037)
 - Inicio Fase 1: ~30 abr noche en lugar de 30 abr mañana
 
 **Notificados:**
+
 - Operador-Agent (por contexto en próxima asignación)
 - QA-Agent (por contexto)
 - Supervisor humano (David, vía esta conversación)
