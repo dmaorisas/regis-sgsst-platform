@@ -35,6 +35,51 @@
 
 ## Log de decisiones
 
+### D-009 — Reubicar T-F0-037 al final de Fase 1.5 (transición a modo autónomo)
+
+**Fecha:** 2026-04-29 (cierre Fase 0, inicio Fase 1)
+**Tomada por:** PM-Agent (con aprobación supervisor humano)
+**Tipo:** modificacion_plan (reubicación temporal)
+
+**Contexto:**
+T-F0-037 (build n8n orchestration) estaba originalmente al final de F0 como tarea de transición. Análisis revela que es más eficiente ejecutarla al final de F1.5 cuando ya existe la infraestructura que los workflows van a orquestar.
+
+**Decisión:**
+Reubicar T-F0-037 a posición T-F15-015 (justo antes del Phase Gate F1.5). Mientras tanto, continuar en modo orquestación conversacional manual (Camino A híbrido) que ha demostrado 90% de aprobación en 1ra iteración durante F0.
+
+**Razón:**
+
+1. **Dependencias técnicas:** los workflows de n8n necesitan `pg-boss` (T-F15-001), cola revisión humana (T-F15-002/003), notificaciones (T-F15-004/005), AI usage tracking (T-F15-011) — todos en F1.5
+2. **Eficiencia:** ejecutar T-F0-037 ahora con infra inexistente fuerza re-trabajo después; ejecutarlo al final de F1.5 lo hace en una sola pasada
+3. **Modo manual está funcionando:** 90% aprobación 1ra iteración con orquestación conversacional valida que el camino actual es viable
+4. **Activación natural:** al cerrar T-F15-015 (rebautizada T-F0-037), el modo autónomo arranca exactamente para Fase 2 (módulos PILA y exámenes), donde la automatización 24/7 da máximo valor
+
+**Cambios:**
+
+- T-F0-037: marcada como POSTERGADA al final de F1.5 (renumerada como T-F15-015)
+- F0 cierra con 9 tareas aprobadas + 13 canceladas (sin T-F0-037)
+- Phase Gate F0 ya firmado con esto en cuenta (`phases/fase_0_gate.md` documenta T-F0-037 como "transición F0→F1" original; D-009 la reubica a final F1.5)
+- F1 arranca con T-F1-001 (migrations) en modo conversacional manual
+
+**Plan operativo durante "modo manual":**
+
+- Continuo orquestando ciclos Operador→QA→cierre conversacionalmente
+- Snapshots y métricas se generan on-demand cuando el supervisor los solicita
+- Auditor-Agent dormido (se activa cuando T-F15-015 pone n8n en marcha)
+- Mantengo el ritmo de ~30-90 min por ciclo demostrado en F0
+
+**Risk assessment:**
+Bajo. La pausa de T-F0-037 NO afecta:
+
+- El producto entregable al concurso
+- El principio rector
+- Ningún módulo de F1-F6
+- La calidad de las tareas (nivel QA preserva calidad independiente del modo)
+
+Lo único que se pierde: autonomía 24/7 hasta que T-F15-015 active n8n. Con la velocidad demostrada de F0, esto no compromete la entrega del 9 may.
+
+---
+
 ### D-008 — Mover Wati (T-F0-006/007/008/034) a Bucket B (no ejecutar en concurso)
 
 **Fecha:** 2026-04-29 (cierre Fase 0)
