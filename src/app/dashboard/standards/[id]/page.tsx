@@ -14,6 +14,9 @@ import Link from 'next/link'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import Header from '@/components/dashboard/Header'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger({ module: 'dashboard:standard-detail' })
 
 export const dynamic = 'force-dynamic'
 
@@ -123,7 +126,7 @@ export default async function StandardDetailPage({ params }: { params: { id: str
           }))
         }
       } catch (e) {
-        console.warn('[standards/[id]] audit_log lookup failed', e)
+        log.warn({ err: e }, 'audit_log lookup failed')
       }
     }
   }

@@ -17,6 +17,9 @@
 import { PgBoss } from 'pg-boss'
 import { config as loadEnv } from 'dotenv'
 import path from 'node:path'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger({ module: 'pg-boss' })
 
 // Asegura que .env.local esté cargado en scripts/CLI. En Next.js runtime
 // las env vars ya vienen desde el proceso, este loadEnv es no-op si la
@@ -48,7 +51,7 @@ export async function getBoss(): Promise<PgBoss> {
     boss.on('error', (err: unknown) => {
       // pg-boss emite errores transitorios (reconexión, etc.). No los
       // tratamos como fatales — solo log.
-      console.error('[pg-boss] error event', err)
+      log.error({ err }, 'pg-boss error event')
     })
     await boss.start()
     bossInstance = boss

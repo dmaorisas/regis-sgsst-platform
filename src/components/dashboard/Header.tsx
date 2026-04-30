@@ -7,6 +7,7 @@
 
 import Link from 'next/link'
 import type { AuthenticatedUser } from '@/lib/auth/get-user-with-roles'
+import NotificationBell from '@/components/dashboard/NotificationBell'
 
 const ROLE_LABEL: Record<string, string> = {
   regis_admin: 'Admin Regis',
@@ -42,6 +43,8 @@ export default function Header({
               {ROLE_LABEL[primaryRole] ?? primaryRole}
             </div>
           </div>
+          {/* T-F15-004: bell icon con count de no-leídas */}
+          <NotificationBell user={user} />
           <form action="/api/auth/signout" method="post">
             <button
               type="submit"

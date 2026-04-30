@@ -12,6 +12,9 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import type { User } from '@supabase/supabase-js'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger({ module: 'auth:get-user-with-roles' })
 
 export type RoleName = 'regis_admin' | 'regis_consultant' | 'client_admin' | 'worker'
 
@@ -55,7 +58,7 @@ export async function getUserWithRoles(): Promise<AuthenticatedUser | null> {
   if (rpcErr || !appUserId) {
     // Si falla la sincronización, no podemos continuar — devolvemos null
     // (la UI mostrará "no autorizado"). Logueamos para debug.
-    console.error('[getUserWithRoles] ensure_user_synced failed', rpcErr)
+    log.error({ err: rpcErr }, 'ensure_user_synced failed')
     return null
   }
 
@@ -66,7 +69,7 @@ export async function getUserWithRoles(): Promise<AuthenticatedUser | null> {
     .eq('id', appUserId as string)
     .single()
   if (pubErr || !pubUser) {
-    console.error('[getUserWithRoles] public.users lookup failed', pubErr)
+    log.error({ err: pubErr }, 'public.users lookup failed')
     return null
   }
 
@@ -78,7 +81,7 @@ export async function getUserWithRoles(): Promise<AuthenticatedUser | null> {
     .eq('is_active', true)
 
   if (rolesErr) {
-    console.error('[getUserWithRoles] roles lookup failed', rolesErr)
+    log.error({ err: rolesErr }, 'roles lookup failed')
     return null
   }
 
