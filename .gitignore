@@ -213,3 +213,10 @@ Desktop.ini
 # Outputs de orquestación n8n (versiones antiguas)
 flows/*.archive.json
 flows/*.bak.json
+
+# Supabase CLI (T-F1-001)
+# Mantener: supabase/config.toml, supabase/migrations/*.sql, supabase/seed.sql
+# Excluir: caches y branches locales del CLI
+supabase/.temp/
+supabase/.branches/
+supabase/.env
