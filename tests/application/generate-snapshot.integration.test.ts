@@ -4,15 +4,21 @@
 // Ejecuta el use case completo contra Supabase real con la Empresa
 // Piloto 1 (Consultora Andina, Cap I, 6 trab, riesgo 1).
 //
-// Estado actual de DB: 0 evaluaciones para los 7 estándares Cap I.
-// → Todos pendientes → score esperado = 0.00.
+// Bloque 4B iter 2 (R7) — fix bug 0% en Empresa 1:
+//   El test original asumía DB sin evaluaciones (score=0). Tras
+//   T-F1-020 (seed_demo_evaluations) la Empresa 1 tiene 6 evals con
+//   score=68%, así que la aserción de 0% pasaba sólo porque el test
+//   re-creaba el snapshot 0% de hoy en cada `npm test`, contaminando
+//   los datos de producción y haciendo que el dashboard sirviera 0%
+//   al usuario (el snapshot 0% del test ganaba `getLatestByCentro`).
 //
-// El test inserta el snapshot en evaluation_snapshots y luego lo
-// borra usando service_role (la tabla es APPEND-ONLY, pero el trigger
-// `fn_prevent_snapshot_modification` solo bloquea UPDATE/DELETE en
-// runtime SQL — service_role tampoco puede saltarse el trigger, así
-// que en su lugar usamos un snapshot_date único por test que no choca
-// con datos reales y dejamos el registro como evidencia auditable).
+//   Solución: el test ahora usa una fecha de corte (`asOf`) en el
+//   pasado lejano (2025-01-01), ANTES de cualquier evaluación
+//   sembrada. En ese corte temporal no hay evaluaciones aplicables,
+//   así que el score legítimamente es 0%. El snapshot persistido
+//   queda con `snapshot_date=2025-01-01` y nunca puede ganar el
+//   ORDER BY del repositorio frente a snapshots reales (snapshot_date
+//   actual). Es seguro re-ejecutar el test N veces sin polución.
 // =========================================================
 
 import { describe, it, expect, beforeAll } from 'vitest'
@@ -65,27 +71,16 @@ describe('generate-snapshot integration (Empresa Piloto 1, Cap I)', () => {
     pilot1CentroId = centroRow.id
   })
 
-  it('genera y persiste snapshot para centro de Empresa Piloto 1', async () => {
-    // Si ya existe un snapshot del día actual (re-run del test),
-    // borrarlo no siempre es posible (APPEND-ONLY trigger). Usamos
-    // siempre el día UTC actual; los snapshots quedan auditables.
-    const uniqueDay = new Date(Date.now())
-    uniqueDay.setUTCHours(0, 0, 0, 0)
+  it('genera y persiste snapshot histórico (asOf en pasado, sin evals)', async () => {
+    // Usamos un asOf en el pasado lejano. En ese corte temporal no
+    // existen evaluaciones (las semillas demo se crean el día actual),
+    // por lo que el score legítimamente es 0%. Como `snapshot_date` es
+    // antiguo, este snapshot NUNCA puede ganar el ORDER BY de
+    // `getLatestByCentro` frente a snapshots reales del día de hoy.
+    const asOf = new Date('2025-01-01T00:00:00.000Z')
+    const dayStr = asOf.toISOString().split('T')[0]!
 
-    // Limpiar snapshots previos del mismo día para idempotencia (si hay
-    // permisos): el trigger BEFORE DELETE bloquea, así que sólo intentamos.
-    const dayStr = uniqueDay.toISOString().split('T')[0]!
-    await client
-      .from('evaluation_snapshots')
-      .delete()
-      .eq('centro_id', pilot1CentroId)
-      .eq('snapshot_date', dayStr)
-      .then(
-        () => undefined,
-        () => undefined, // ignora si trigger lo bloquea
-      )
-
-    const snap = await generateSnapshotForCentro(pilot1CentroId, uniqueDay, {
+    const snap = await generateSnapshotForCentro(pilot1CentroId, asOf, {
       standardsRepo,
       evaluationsRepo,
       snapshotsRepo,
@@ -101,9 +96,21 @@ describe('generate-snapshot integration (Empresa Piloto 1, Cap I)', () => {
     expect(snap.by_standard.length).toBe(7)
     expect(snap.hash).toMatch(/^[0-9a-f]{64}$/)
 
-    // Verificar persistencia
-    const latest = await snapshotsRepo.getLatestByCentro(pilot1CentroId)
-    expect(latest).not.toBeNull()
-    expect(latest?.hash).toBe(snap.hash)
+    // Verificar persistencia POR HASH (no por getLatestByCentro: ya
+    // hay snapshots más recientes de seeds reales que ganarían el ORDER BY).
+    // Usamos `select(...,{count})` y limit(1) porque la tabla es
+    // APPEND-ONLY: re-runs del test acumulan filas con el mismo hash en
+    // 2025-01-01, así que `maybeSingle()` fallaría con PGRST116.
+    const { data: persisted, error: pErr } = await client
+      .from('evaluation_snapshots')
+      .select('hash, snapshot_date, total_percentage, total_evaluated')
+      .eq('centro_id', pilot1CentroId)
+      .eq('snapshot_date', dayStr)
+      .eq('hash', snap.hash)
+      .limit(1)
+    expect(pErr).toBeNull()
+    expect(persisted).not.toBeNull()
+    expect(persisted?.length ?? 0).toBeGreaterThanOrEqual(1)
+    expect(persisted?.[0]?.hash).toBe(snap.hash)
   }, 30_000)
 })

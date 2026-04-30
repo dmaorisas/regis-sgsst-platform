@@ -21,11 +21,7 @@ import { redirect } from 'next/navigation'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
-import { CentrosRepository } from '@/infrastructure/repositories/centros-repository'
-import { EvaluationsRepository } from '@/infrastructure/repositories/evaluations-repository'
 import { SnapshotsRepository } from '@/infrastructure/repositories/snapshots-repository'
-import { StandardsRepository } from '@/infrastructure/repositories/standards-repository'
-import { generateSnapshotForCentro } from '@/application/compliance/generate-snapshot.use-case'
 import Header from '@/components/dashboard/Header'
 import CompanyCard from '@/components/dashboard/CompanyCard'
 import ScoreCard from '@/components/dashboard/ScoreCard'
@@ -90,22 +86,41 @@ export default async function DashboardPage() {
   }
   const mainCentro = centros[0]!
 
-  // Snapshot: usamos admin client para el motor (necesita inyectar
-  // service_role para el insert APPEND-ONLY del snapshot regenerado).
-  // El cómputo no depende de RLS — los repositorios sólo leen estándares
-  // y evaluaciones (catálogo y datos de la empresa que ya validamos).
+  // Snapshot: el dashboard es READ-ONLY sobre evaluation_snapshots
+  // (Bloque 4B iter 2 — fix bug 0% en Empresa 1, R7 Opción A).
+  //
+  // Razón: si el dashboard regenerara ad-hoc, cada render con condiciones
+  // raras (RLS, transacciones a medias, llamadas concurrentes) podía
+  // persistir un snapshot con total_evaluated=0 que después ganaba el
+  // ORDER BY snapshot_date DESC, created_at DESC en getLatestByCentro,
+  // sirviendo 0% al usuario. La generación queda exclusivamente en:
+  //   - scripts/seed_demo_evaluations.ts (seed de demo)
+  //   - endpoint admin futuro (out of scope ahora)
+  //   - cron de F1.5
+  //
+  // El admin client se mantiene porque el cómputo del frontend no
+  // depende de RLS y queremos consistencia (la autorización ya se
+  // verificó arriba via getUserWithRoles + companyIds).
   const admin = getSupabaseAdminClient()
   const snapshotsRepo = new SnapshotsRepository(admin)
-  let snapshot: Snapshot | null = await snapshotsRepo.getLatestByCentro(mainCentro.id)
+  const snapshot: Snapshot | null = await snapshotsRepo.getLatestByCentro(mainCentro.id)
 
   if (!snapshot) {
-    // Generar snapshot ad-hoc si no hay ninguno persistido.
-    snapshot = await generateSnapshotForCentro(mainCentro.id, new Date(), {
-      standardsRepo: new StandardsRepository(admin),
-      evaluationsRepo: new EvaluationsRepository(admin),
-      snapshotsRepo,
-      centrosRepo: new CentrosRepository(admin),
-    })
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Header user={user} />
+        <main className="mx-auto max-w-3xl px-4 py-8">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
+            <h2 className="text-lg font-semibold">Aún no hay datos de cumplimiento</h2>
+            <p className="mt-1 text-sm">
+              No hay un snapshot generado para esta empresa. Pide al equipo Regis que ejecute el
+              cierre inicial de evaluaciones, o registra evaluaciones desde el módulo de
+              autoevaluación cuando esté disponible.
+            </p>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   const counts = countersFor(snapshot)
