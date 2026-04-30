@@ -49,6 +49,11 @@ export class SnapshotsRepository {
   }
 
   async getLatestByCentro(centro_id: string): Promise<Snapshot | null> {
+    // Si hay varios snapshots para la misma `snapshot_date` (regenerados
+    // tras correcciones puntuales) `created_at` desempata. Esta segunda
+    // cláusula `order` se añadió en Bloque 4B (T-F1-020) — el motor 4A
+    // sigue intacto: el cómputo y persistencia no cambian, sólo cómo
+    // recuperamos "el último" entre dos del mismo día.
     const { data, error } = await this.client
       .from('evaluation_snapshots')
       .select(
@@ -56,6 +61,7 @@ export class SnapshotsRepository {
       )
       .eq('centro_id', centro_id)
       .order('snapshot_date', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle()
     if (error) {

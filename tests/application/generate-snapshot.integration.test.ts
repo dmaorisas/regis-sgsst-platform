@@ -18,7 +18,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { config as loadEnv } from 'dotenv'
 import path from 'node:path'
-import { getSupabaseServerClient } from '@/lib/supabase-server'
+import { getSupabaseServerClient } from '@/lib/supabase-admin'
 import { CentrosRepository } from '@/infrastructure/repositories/centros-repository'
 import { EvaluationsRepository } from '@/infrastructure/repositories/evaluations-repository'
 import { SnapshotsRepository } from '@/infrastructure/repositories/snapshots-repository'

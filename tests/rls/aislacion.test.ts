@@ -98,16 +98,37 @@ async function buildFixture(label: 'A' | 'B'): Promise<Fixture> {
   const authUid = authData.user.id
 
   // 5) public.users
-  const { data: user, error: errUser } = await adminClient
+  // Tras Bloque 4B (T-F1-019), un trigger AFTER INSERT en auth.users
+  // crea automáticamente la fila en public.users con auth_uid. Por eso
+  // primero buscamos la fila existente; si no existe (caso legacy)
+  // hacemos el insert manual como antes. Los tests siguen verificando
+  // la lógica de RLS — esta sección sólo se adapta al nuevo trigger.
+  let user: { id: string; auth_uid: string; email: string }
+  const { data: existingUser } = await adminClient
     .from('users')
-    .insert({
-      auth_uid: authUid,
-      email,
-      nombre_completo: `RLS User ${label}`,
-    })
     .select()
-    .single()
-  if (errUser) throw new Error(`user-${label}: ${errUser.message}`)
+    .eq('auth_uid', authUid)
+    .maybeSingle()
+  if (existingUser) {
+    // Aseguramos nombre/email coherentes con el spec del test.
+    await adminClient
+      .from('users')
+      .update({ email, nombre_completo: `RLS User ${label}` })
+      .eq('id', existingUser.id)
+    user = { id: existingUser.id, auth_uid: existingUser.auth_uid, email }
+  } else {
+    const { data: created, error: errUser } = await adminClient
+      .from('users')
+      .insert({
+        auth_uid: authUid,
+        email,
+        nombre_completo: `RLS User ${label}`,
+      })
+      .select()
+      .single()
+    if (errUser) throw new Error(`user-${label}: ${errUser.message}`)
+    user = created
+  }
 
   // 6) user_company_role: regis_admin org-scope (company_id NULL)
   const { data: roleRow, error: errRole } = await adminClient

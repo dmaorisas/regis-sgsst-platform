@@ -1,33 +1,60 @@
 // =========================================================
-// Supabase server client (service_role)
+// Supabase server client (con cookies / sesión)
 // =========================================================
-// Cliente "admin" para uso server-side. Bypassa RLS, usa la service role
-// key. Solo debe importarse desde Infrastructure / Application layers,
-// NUNCA desde Domain ni desde código que se envíe al navegador.
+// Cliente para Server Components, Server Actions y Route Handlers en
+// Next.js 14 App Router. Usa @supabase/ssr (reemplazo oficial de
+// @supabase/auth-helpers-nextjs, deprecado a partir de oct 2024).
 //
-// Carga .env.local explícitamente — algunos contextos (vitest, scripts
-// node) no lo hacen automáticamente.
+// Lee la sesión del usuario desde cookies y respeta RLS — al revés del
+// admin client en `supabase-admin.ts` que usa service_role y bypassa RLS.
+//
+// IMPORTANTE: este módulo se importa SÓLO desde código server-side
+// (page.tsx con `export default async`, route.ts, server actions). Si
+// se importa desde un Client Component, Next romperá el build.
+//
+// Decisión técnica (R7):
+//  - Para mantener compat con scripts/tests que también importan
+//    `getSupabaseServerClient`, ese nombre se exporta desde
+//    `supabase-admin.ts`. Aquí exponemos `createSupabaseServerClient`
+//    (con cookies). Cualquier nuevo código server con auth debe usar
+//    este, no el admin.
 // =========================================================
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { config as loadEnv } from 'dotenv'
-import path from 'node:path'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-loadEnv({ path: path.resolve(process.cwd(), '.env.local') })
+export function createSupabaseServerClient() {
+  const cookieStore = cookies()
 
-let cached: SupabaseClient | null = null
-
-export function getSupabaseServerClient(): SupabaseClient {
-  if (cached) return cached
-
-  const url = process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY
   if (!url || !key) {
-    throw new Error('SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing — check .env.local')
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY missing — check .env.local',
+    )
   }
 
-  cached = createClient(url, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
+  return createServerClient(url, key, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+      set(name: string, value: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value, ...options })
+        } catch {
+          // `set` puede llamarse desde un Server Component (read-only).
+          // El middleware ya refresca la sesión, así que es seguro
+          // ignorar el throw aquí.
+        }
+      },
+      remove(name: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value: '', ...options })
+        } catch {
+          // ver comentario arriba
+        }
+      },
+    },
   })
-  return cached
 }
