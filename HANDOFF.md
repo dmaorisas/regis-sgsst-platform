@@ -1,7 +1,42 @@
 # HANDOFF — Estado del proyecto al cierre de sesión
 
-**Última actualización:** 2026-04-30 (cierre F1.5 sub-bloques A/B/C/D)
+**Última actualización:** 2026-05-01 (T-F15-015 en construcción, 20% — design + migration + workflow #1 código)
 **Próxima sesión:** lee este archivo PRIMERO
+
+---
+
+## 🔥 Estado vivo de T-F15-015 (al 2026-05-01)
+
+**Decisión activa (D-011):** ejecutar T-F15-015 ANTES de F2 para reducir costo IA y aumentar efectividad. Issue #12 actualizado a `phase:F1.5`.
+
+**Avance T-F15-015:**
+
+- ✅ Issue #12 corregido (renombrado T-F0-037 → T-F15-015, label phase:F0 → phase:F1.5)
+- ✅ Decisión D-011 documentada en `governance/03_log_decisiones.md`
+- ✅ Migration `20260501140000_system_state.sql` aplicada en Supabase remoto:
+  - `system_state` (singleton id=1, paused=false)
+  - `agent_tasks` (cola orquestación, 0 rows)
+  - `loop_detections` (log inmutable, 0 rows)
+- ✅ Documento arquitectónico `flows/ARCHITECTURE.md` con specs detalladas de los 5 workflows
+- ✅ Workflow #1 código completo en `flows/01-task-dispatcher.workflow.ts` (validate_workflow OK, 10 nodos)
+- ⏸️ Workflow #1 NO creado en n8n: `create_workflow_from_code` retorna 500 en el código grande pero OK en código trivial. Sospecha: jsCode del Code node con regex escapado o expr() en queryReplacement.
+- ⏸️ Workflows #2-#5: specs detalladas en ARCHITECTURE.md, código pendiente.
+
+**Próximo paso para retomar T-F15-015:**
+
+1. Diagnosticar el 500: dividir `flows/01-task-dispatcher.workflow.ts` en mitades, validar+create cada mitad, identificar nodo que rompe.
+2. Una vez que #1 esté en n8n: configurar credenciales (`Supabase Postgres`, `GitHub PAT (Header)`, `Anthropic API Key`, `Resend API`) según tabla en ARCHITECTURE.md
+3. Construir #2-#5 siguiendo specs (trabajo mecánico, ideal para Sonnet en sesión nueva)
+4. Test E2E con ticket ficticio
+5. Phase Gate F1.5
+
+**Reanudar manualmente la pausa del sistema (si se activa):**
+
+```sql
+UPDATE public.system_state SET paused=false, resumed_at=NOW(), resumed_by='David', resume_note='causa raíz: ...' WHERE id=1;
+```
+
+---
 
 ---
 

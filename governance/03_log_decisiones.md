@@ -35,6 +35,48 @@
 
 ## Log de decisiones
 
+### D-011 — Ejecutar T-F15-015 ANTES de F2 (autonomía agente sobre velocidad-a-F2)
+
+**Fecha:** 2026-05-01
+**Tomada por:** PM-Agent (con autorización explícita supervisor humano)
+**Tipo:** decision_secuenciacion + ratificacion_plan
+
+**Contexto:**
+Al retomar sesión, el HANDOFF anterior recomendaba saltar T-F15-015 e ir directo a F2 con orquestación manual conversacional. Análisis de PM-Agent reveló trade-off no explícito: saltar implica que el supervisor humano queda en el loop conversacional para ~50+ ciclos restantes durante F2-F6 (carga de tiempo no cuantificada). El supervisor confirmó preferencia por construir T-F15-015 primero para reducir costos y aumentar efectividad.
+
+**Decisión:**
+Ejecutar T-F15-015 (5 workflows orquestación n8n vía MCP, ~4h) ANTES de arrancar F2. Phase Gate F1.5 se firma DESPUÉS de T-F15-015, no antes.
+
+**Razón:**
+
+1. **Costo IA:** orquestación manual implica re-cargar contexto en cada ciclo (memoria, lectura de specs, sincronización). Workflows n8n con prompts cacheados son más eficientes en tokens.
+2. **Efectividad:** modo autónomo permite que F2-F6 corran 24/7 sin esperar disponibilidad humana
+3. **Trade-off corregido:** la lectura "manual funciona al 90%" omitía el costo de oportunidad humano. Con 9 días restantes y ~80h de trabajo en F2-F6, la inversión de 4h libera al supervisor de aprobaciones ciclo-a-ciclo.
+4. **Riesgo bajo:** MCP n8n ya validado (D-010), 5 workflows tienen specs detalladas en T-F15-015 + security/ + governance/
+
+**Cambios al plan:**
+
+- Phase Gate F1.5 (T-F15-013) se ejecuta DESPUÉS de T-F15-015, no antes
+- Veredicto esperado: GO completo (no GO_CON_AJUSTES)
+- F2 arranca con Operador-Agent autónomo en n8n (no conversacional)
+- Issue #12 actualizado: title T-F0-037 → T-F15-015, label phase:F0 → phase:F1.5
+
+**Impacto en cronograma:**
+
+- +4h hoy (1 may) para construir workflows
+- −X horas distribuidas en F2-F6 por reducción de fricción ciclo-a-ciclo
+- Net esperado: positivo en tiempo y en costo IA
+
+**Notificados:**
+
+- Supervisor humano (esta conversación)
+- Issue #12 actualizado en GitHub
+
+**Risk assessment:**
+Bajo. Si los workflows fallan en testing, fallback a Opción C (API REST) o continuación manual está disponible. Sin pérdida de progreso F0-F1.5.
+
+---
+
 ### D-010 — MCP n8n conectado a n8n.dmaori.com (Opción A confirmada para T-F15-015)
 
 **Fecha:** 2026-04-30
