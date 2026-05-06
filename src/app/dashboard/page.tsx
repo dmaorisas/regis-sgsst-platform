@@ -18,6 +18,7 @@
 // =========================================================
 
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
@@ -35,15 +36,10 @@ export default async function DashboardPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
 
-  // Regis staff → vista de cartera, no de una sola empresa.
-  if (user.isRegisStaff) {
-    redirect('/regis/dashboard')
-  }
 
-  if (user.companyIds.length === 0) {
+  if (user.companyIds.length === 0 && !user.isRegisStaff) {
     return (
       <div className="min-h-screen bg-slate-50">
-        <Header user={user} />
         <main className="mx-auto max-w-3xl px-4 py-8">
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
             <h2 className="text-lg font-semibold">Sin empresa asignada</h2>
@@ -57,7 +53,19 @@ export default async function DashboardPage() {
     )
   }
 
-  const companyId = user.companyIds[0]!
+  let companyId = user.companyIds[0]
+  if (user.isRegisStaff) {
+    const cookieStore = cookies()
+    const selectedCompanyId = cookieStore.get('selected_company_id')?.value
+    if (!selectedCompanyId) {
+      redirect('/regis/dashboard')
+    }
+    companyId = selectedCompanyId
+  }
+
+  if (!companyId) {
+    return errorView('No fue posible determinar la empresa activa.', user)
+  }
 
   // Lectura con cliente RLS-aware (cookie session). El usuario sólo
   // verá filas autorizadas por las policies de migration 012.
@@ -108,7 +116,6 @@ export default async function DashboardPage() {
   if (!snapshot) {
     return (
       <div className="min-h-screen bg-slate-50">
-        <Header user={user} />
         <main className="mx-auto max-w-3xl px-4 py-8">
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
             <h2 className="text-lg font-semibold">Aún no hay datos de cumplimiento</h2>
@@ -127,7 +134,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header user={user} />
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <CompanyCard
           company={{
@@ -170,7 +176,6 @@ function countersFor(s: Snapshot) {
 function errorView(msg: string, user: NonNullable<Awaited<ReturnType<typeof getUserWithRoles>>>) {
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header user={user} />
       <main className="mx-auto max-w-3xl px-4 py-8">
         <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-rose-900">
           <h2 className="text-lg font-semibold">Error</h2>

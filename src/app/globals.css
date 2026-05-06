@@ -3,14 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbf8fa;
+  --foreground: #1e293b;
+  
+  /* Regis Sentinel Colors */
+  --regis-navy: #1e293b;
+  --regis-slate: #64748b;
+  --regis-surface: #ffffff;
+  --regis-surface-dim: #f8fafc;
+  
+  /* Status Colors */
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --status-success-bg: #d1fae5;
+  --status-warning-bg: #fef3c7;
+  --status-error-bg: #fee2e2;
 }
 
+/* Force light mode for the enterprise app to match designs */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #fbf8fa;
+    --foreground: #1e293b;
   }
 }
 

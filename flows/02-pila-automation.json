@@ -1,0 +1,113 @@
+{
+  "name": "Módulo 1: Automatización PILA",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 1 * *"
+            }
+          ]
+        }
+      },
+      "name": "Cron (Día 1 del Mes)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, name, contact_email FROM companies WHERE is_active = true"
+      },
+      "name": "Obtener Empresas",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "to": "={{$json.contact_email}}",
+        "from": "compliance@regiscolombia.com",
+        "subject": "Recordatorio: Planilla PILA del mes",
+        "html": "Hola equipo de {{$json.name}},<br><br>Por favor respondan este correo adjuntando el PDF de la planilla PILA de este mes.<br><br>Saludos,<br>Regis Colombia"
+      },
+      "name": "Enviar Petición (Resend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "resend-inbound",
+        "options": {}
+      },
+      "name": "Webhook (Recibir Correo)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://<tu-app>.vercel.app/api/webhooks/pila-received",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "company_id",
+              "value": "={{$json.body.extracted_company_id}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Llamar API Regis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 500]
+    }
+  ],
+  "connections": {
+    "Cron (Día 1 del Mes)": {
+      "main": [
+        [
+          {
+            "node": "Obtener Empresas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Empresas": {
+      "main": [
+        [
+          {
+            "node": "Enviar Petición (Resend)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook (Recibir Correo)": {
+      "main": [
+        [
+          {
+            "node": "Llamar API Regis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "workflow-pila-001"
+}

@@ -2,6 +2,7 @@
 // CompaniesTable — listado de empresas de la cartera Regis.
 // =========================================================
 
+import { selectCompanyAction } from '@/app/regis/actions'
 import SemaforoBadge from './SemaforoBadge'
 
 export type CompanyRow = {
@@ -38,11 +39,19 @@ export default function CompaniesTable({ companies }: { companies: CompanyRow[] 
               </div>
               {c.total_percentage !== null ? <SemaforoBadge pct={c.total_percentage} /> : null}
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-slate-900">
-                {c.total_percentage !== null ? c.total_percentage.toFixed(1) : '—'}
-              </span>
-              <span className="text-sm text-slate-500">%</span>
+            <div className="mt-2 flex items-baseline justify-between gap-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-slate-900">
+                  {c.total_percentage !== null ? c.total_percentage.toFixed(1) : '—'}
+                </span>
+                <span className="text-sm text-slate-500">%</span>
+              </div>
+              <form action={selectCompanyAction}>
+                <input type="hidden" name="companyId" value={c.id} />
+                <button type="submit" className="text-xs bg-sky-100 text-sky-700 px-3 py-1.5 rounded-md font-semibold">
+                  Ver Dashboard
+                </button>
+              </form>
             </div>
             <div className="mt-1 text-[11px] text-slate-500">
               {c.numero_trabajadores} trab · {c.centros_count} centros · {c.ciudad ?? '—'}
@@ -64,6 +73,7 @@ export default function CompaniesTable({ companies }: { companies: CompanyRow[] 
               <Th right>Centros</Th>
               <Th right>Cumplimiento</Th>
               <Th>Estado</Th>
+              <Th right>Acción</Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
@@ -84,6 +94,14 @@ export default function CompaniesTable({ companies }: { companies: CompanyRow[] 
                 </td>
                 <td className="px-4 py-2.5">
                   {c.total_percentage !== null ? <SemaforoBadge pct={c.total_percentage} /> : '—'}
+                </td>
+                <td className="px-4 py-2.5 text-right">
+                  <form action={selectCompanyAction}>
+                    <input type="hidden" name="companyId" value={c.id} />
+                    <button type="submit" className="text-xs bg-sky-100 hover:bg-sky-200 transition text-sky-700 px-3 py-1.5 rounded-md font-semibold whitespace-nowrap">
+                      Entrar →
+                    </button>
+                  </form>
                 </td>
               </tr>
             ))}

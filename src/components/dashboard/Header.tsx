@@ -27,12 +27,28 @@ export default function Header({
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <Link href={homeHref} className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-600 text-sm font-bold text-white">
-            R
-          </div>
-          <span className="text-base font-semibold text-slate-900">Regis SG-SST</span>
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href={homeHref} className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-600 text-sm font-bold text-white">
+              R
+            </div>
+            <span className="text-base font-semibold text-slate-900 hidden sm:block">Regis SG-SST</span>
+          </Link>
+          
+          <nav className="flex items-center gap-4 text-sm font-medium text-slate-600">
+            <Link href="/dashboard" className="hover:text-sky-600">Dashboard</Link>
+            <Link href="/dashboard/medical" className="hover:text-sky-600">Médico</Link>
+            <Link href="/dashboard/matrices" className="hover:text-sky-600">Matrices GTC-45</Link>
+            <Link href="/dashboard/actas" className="hover:text-sky-600">Actas</Link>
+            <Link href="/dashboard/emergencies" className="hover:text-sky-600">Plan Emergencias</Link>
+            {user.isRegisStaff && (
+              <Link href="/regis/dashboard" className="ml-4 font-semibold text-sky-600 hover:text-sky-800 border-l pl-4 border-slate-300">
+                ← Volver a Cartera
+              </Link>
+            )}
+            <Link href="/admin/pila-demo" className="hover:text-sky-600 text-amber-600 ml-4">Demo PILA</Link>
+          </nav>
+        </div>
 
         <div className="flex items-center gap-3">
           <div className="hidden text-right sm:block">
