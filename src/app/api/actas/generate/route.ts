@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { ActaGenerator } from '@/lib/ai/acta-generator'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,10 +26,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 })
     }
 
-    // Obtener nombre de la empresa
-    const { data: company, error } = await supabase
+    // Obtener la empresa usando Admin client (bypass RLS)
+    const adminSupabase = getSupabaseAdminClient()
+    const { data: company, error } = await adminSupabase
       .from('companies')
-      .select('razon_social, name')
+      .select('name, razon_social')
       .eq('id', companyId)
       .single()
 

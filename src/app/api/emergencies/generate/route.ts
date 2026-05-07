@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { EmergencyGenerator } from '@/lib/ai/emergency-generator'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,8 +27,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Falta el archivo o el companyId' }, { status: 400 })
     }
 
-    // Obtener detalles de la empresa
-    const { data: company, error } = await supabase
+    // Obtener detalles de la empresa bypass RLS
+    const adminSupabase = getSupabaseAdminClient()
+    const { data: company, error } = await adminSupabase
       .from('companies')
       .select('name, razon_social, ciiu_principal')
       .eq('id', companyId)
