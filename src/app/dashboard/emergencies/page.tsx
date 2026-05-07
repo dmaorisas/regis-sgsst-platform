@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import EmergencyAudioUploader from './EmergencyAudioUploader'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import Link from 'next/link'
 
 export default async function EmergenciesPage() {
   const user = await getUserWithRoles()
@@ -40,12 +41,17 @@ export default async function EmergenciesPage() {
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Generador de Planes de Emergencia (Voz a Texto)</h1>
-          <p className="text-gray-600">
-            Empresa: <span className="font-semibold">{company?.razon_social || company?.name}</span>
-          </p>
+      <div>
+        <Link href="/dashboard" className="text-sm text-sky-600 hover:text-sky-800 font-medium mb-4 inline-block">
+          ← Volver al Dashboard
+        </Link>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Asistente de Planes de Emergencia</h1>
+            <p className="text-gray-600">
+              Empresa: <span className="font-semibold">{company?.razon_social || company?.name}</span>
+            </p>
+          </div>
         </div>
       </div>
       

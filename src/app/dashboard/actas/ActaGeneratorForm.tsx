@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 
-export default function ActaGeneratorForm({ companyId }: { companyId: string }) {
+export default function ActaGeneratorForm({ companyId, defaultAttendees = '' }: { companyId: string, defaultAttendees?: string }) {
   const [tipoComite, setTipoComite] = useState('COPASST')
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0])
-  const [asistentes, setAsistentes] = useState('')
+  const [asistentes, setAsistentes] = useState(defaultAttendees)
   const [notasBreves, setNotasBreves] = useState('')
   
   const [acta, setActa] = useState<string | null>(null)

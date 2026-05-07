@@ -44,10 +44,9 @@ export default function ScoreCard({
         <span className="text-2xl font-medium text-slate-400">%</span>
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Counter label="Cumple" value={counters.cumple} tone="verde" />
         <Counter label="No cumple" value={counters.no_cumple} tone="rojo" />
-        <Counter label="No aplica" value={counters.no_aplica} tone="gris" />
         <Counter label="Pendiente" value={counters.pendiente} tone="amarillo" />
       </dl>
 

@@ -3,6 +3,9 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import ActaGeneratorForm from './ActaGeneratorForm'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import Link from 'next/link'
+
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export default async function ActasPage() {
   const user = await getUserWithRoles()
@@ -38,14 +41,41 @@ export default async function ActasPage() {
     .eq('id', companyId)
     .single()
 
+  // Fetch company users for default attendees
+  const adminSupabase = getSupabaseAdminClient()
+  const { data: userRoles } = await adminSupabase
+    .from('user_company_role')
+    .select('user_id')
+    .eq('company_id', companyId)
+    .eq('is_active', true)
+
+  let defaultAttendees = ''
+  if (userRoles && userRoles.length > 0) {
+    const userIds = userRoles.map(ur => ur.user_id)
+    const { data: users } = await adminSupabase
+      .from('users')
+      .select('nombre_completo')
+      .in('id', userIds)
+    
+    if (users) {
+      const attendeesList = users.map(u => u.nombre_completo).filter(Boolean) as string[]
+      defaultAttendees = attendeesList.join(', ')
+    }
+  }
+
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Generador Automático de Actas (Comités)</h1>
-          <p className="text-gray-600">
-            Empresa: <span className="font-semibold">{company?.razon_social || company?.name}</span>
-          </p>
+      <div>
+        <Link href="/dashboard" className="text-sm text-sky-600 hover:text-sky-800 font-medium mb-4 inline-block">
+          ← Volver al Dashboard
+        </Link>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Generador Automático de Actas (Comités)</h1>
+            <p className="text-gray-600">
+              Empresa: <span className="font-semibold">{company?.razon_social || company?.name}</span>
+            </p>
+          </div>
         </div>
       </div>
       
@@ -55,7 +85,7 @@ export default async function ActasPage() {
         </p>
       </div>
 
-      <ActaGeneratorForm companyId={companyId} />
+      <ActaGeneratorForm companyId={companyId} defaultAttendees={defaultAttendees} />
     </div>
   )
 }

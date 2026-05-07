@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import MatrixViewer from './MatrixViewer'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import Link from 'next/link'
 
 export default async function MatricesPage() {
   const user = await getUserWithRoles()
@@ -43,6 +44,9 @@ export default async function MatricesPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-5 gap-4">
           <div>
+            <Link href="/dashboard" className="text-sm text-sky-600 hover:text-sky-800 font-medium mb-4 inline-block">
+              ← Volver al Dashboard
+            </Link>
             <h1 className="text-3xl font-bold text-[#1e293b] tracking-tight">Matriz de Peligros GTC-45 (Generada por IA)</h1>
             <p className="text-[#64748b] mt-2 text-sm font-medium flex items-center gap-2">
               <span className="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">{company?.razon_social || company?.name}</span>
