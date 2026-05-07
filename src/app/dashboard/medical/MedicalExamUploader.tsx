@@ -222,7 +222,7 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
           
           {results.length === 0 ? (
             <div className="bg-[#d1fae5] border border-[#10b981]/20 rounded-lg p-6 text-center">
-              <span className="text-3xl mb-2 block">✅</span>
+              <svg className="w-12 h-12 text-emerald-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <p className="text-[#065f46] font-medium">El trabajador está APTO sin restricciones médicas operativas.</p>
             </div>
           ) : (

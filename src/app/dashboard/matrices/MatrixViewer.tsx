@@ -82,7 +82,7 @@ export default function MatrixViewer({ companyId }: { companyId: string }) {
                   Analizando industria y generando matriz...
                 </>
               ) : (
-                '🚀 Generar Matriz Base (IA)'
+                'Generar Matriz Base (IA)'
               )}
             </button>
             {error && <p className="mt-4 text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</p>}

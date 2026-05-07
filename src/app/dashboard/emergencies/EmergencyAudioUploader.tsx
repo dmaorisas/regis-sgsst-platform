@@ -135,7 +135,7 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
                {status}
              </>
           ) : (
-            '▶️ Transcribir y Generar Plan'
+            'Transcribir y Generar Plan'
           )}
         </button>
       )}
