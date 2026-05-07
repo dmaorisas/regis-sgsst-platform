@@ -37,7 +37,7 @@ export default async function ActasPage() {
 
   const { data: company } = await supabase
     .from('companies')
-    .select('razon_social, name')
+    .select('razon_social')
     .eq('id', companyId)
     .single()
 
@@ -73,7 +73,7 @@ export default async function ActasPage() {
           <div>
             <h1 className="text-2xl font-bold">Generador Automático de Actas (Comités)</h1>
             <p className="text-gray-600">
-              Empresa: <span className="font-semibold">{company?.razon_social || company?.name}</span>
+              Empresa: <span className="font-semibold">{company?.razon_social}</span>
             </p>
           </div>
         </div>

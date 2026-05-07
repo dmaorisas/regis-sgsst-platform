@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const adminSupabase = getSupabaseAdminClient()
     const { data: company, error } = await adminSupabase
       .from('companies')
-      .select('name, razon_social, ciiu_principal')
+      .select('razon_social, ciiu_principal')
       .eq('id', companyId)
       .single()
 
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 })
     }
 
-    const companyName = company.razon_social || company.name
+    const companyName = company.razon_social
     const ciiu = company.ciiu_principal || 'Actividad comercial general'
 
     // Generar con IA

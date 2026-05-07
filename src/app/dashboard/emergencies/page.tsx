@@ -35,7 +35,7 @@ export default async function EmergenciesPage() {
 
   const { data: company } = await supabase
     .from('companies')
-    .select('razon_social, name')
+    .select('razon_social, ciiu_principal')
     .eq('id', companyId)
     .single()
 
@@ -49,7 +49,7 @@ export default async function EmergenciesPage() {
           <div>
             <h1 className="text-2xl font-bold">Asistente de Planes de Emergencia</h1>
             <p className="text-gray-600">
-              Empresa: <span className="font-semibold">{company?.razon_social || company?.name}</span>
+               <span className="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">{company?.razon_social}</span>
             </p>
           </div>
         </div>

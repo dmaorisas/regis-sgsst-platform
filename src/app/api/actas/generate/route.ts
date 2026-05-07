@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const adminSupabase = getSupabaseAdminClient()
     const { data: company, error } = await adminSupabase
       .from('companies')
-      .select('name, razon_social')
+      .select('razon_social')
       .eq('id', companyId)
       .single()
 
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 })
     }
 
-    const companyName = company.razon_social || company.name
+    const companyName = company.razon_social
 
     // Generar Acta
     const generator = new ActaGenerator()

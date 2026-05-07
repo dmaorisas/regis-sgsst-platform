@@ -35,7 +35,7 @@ export default async function MedicalExamsPage() {
 
   const { data: company } = await supabase
     .from('companies')
-    .select('name, razon_social')
+    .select('razon_social')
     .eq('id', companyId)
     .single()
 
@@ -49,7 +49,7 @@ export default async function MedicalExamsPage() {
           <div className="border-b border-slate-200 pb-5">
             <h1 className="text-3xl font-bold text-[#1e293b] tracking-tight">Procesamiento de Exámenes Médicos con IA</h1>
             <p className="text-[#64748b] mt-2 max-w-2xl text-sm leading-relaxed">
-              Empresa: <span className="font-semibold">{company?.razon_social || company?.name}</span>. Sube el PDF del examen médico ocupacional. La inteligencia artificial analizará el documento y extraerá automáticamente las recomendaciones y restricciones laborales.
+               <span className="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">{company?.razon_social}</span>. Sube el PDF del examen médico ocupacional. La inteligencia artificial analizará el documento y extraerá automáticamente las recomendaciones y restricciones laborales.
             </p>
           </div>
         </div>

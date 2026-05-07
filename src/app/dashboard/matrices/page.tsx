@@ -35,7 +35,7 @@ export default async function MatricesPage() {
 
   const { data: company } = await supabase
     .from('companies')
-    .select('razon_social, name, ciiu_principal')
+    .select('razon_social, ciiu_principal')
     .eq('id', companyId)
     .single()
 
@@ -49,7 +49,7 @@ export default async function MatricesPage() {
             </Link>
             <h1 className="text-3xl font-bold text-[#1e293b] tracking-tight">Matriz de Peligros GTC-45 (Generada por IA)</h1>
             <p className="text-[#64748b] mt-2 text-sm font-medium flex items-center gap-2">
-              <span className="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">{company?.razon_social || company?.name}</span>
+              <span className="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">{company?.razon_social}</span>
               <span className="text-slate-300">•</span>
               <span>CIIU: {company?.ciiu_principal || 'No registrado'}</span>
             </p>
