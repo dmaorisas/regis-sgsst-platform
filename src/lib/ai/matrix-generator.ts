@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { GroqFallbackClient } from './groq-client'
 
 export class MatrixGenerator {
   private anthropic: Anthropic
@@ -31,18 +32,31 @@ REGLAS CRÍTICAS (Mitigación de Riesgos Legales):
 
 Retorna ÚNICAMENTE el objeto JSON sin markdown, sin texto extra.`
 
-    const response = await this.anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20240620',
-      max_tokens: 4000,
-      system: 'Eres una API que solo devuelve JSON válido. No incluyes markdown ni saludos.',
-      messages: [
-        { role: 'user', content: prompt }
-      ]
-    })
+    let responseText = ''
 
     try {
-      const content = response.content[0]?.type === 'text' ? response.content[0].text : '{}'
-      const parsed = JSON.parse(content)
+      const response = await this.anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20240620',
+        max_tokens: 4000,
+        system: 'Eres una API que solo devuelve JSON válido. No incluyes markdown ni saludos.',
+        messages: [
+          { role: 'user', content: prompt }
+        ]
+      })
+      responseText = response.content[0]?.type === 'text' ? response.content[0].text : '{}'
+    } catch (e: unknown) {
+      const err = e as { message?: string; status?: number }
+      if (err?.message?.includes('balance') || err?.status === 402 || err?.status === 403 || err?.status === 400 || String(err).includes('balance')) {
+        console.warn('Fallback a Groq para MatrixGenerator')
+        const groq = new GroqFallbackClient()
+        responseText = await groq.generateText('Eres una API que solo devuelve JSON válido. No incluyes markdown ni saludos.', prompt)
+      } else {
+        throw e
+      }
+    }
+
+    try {
+      const parsed = JSON.parse(responseText)
       return parsed.matriz || []
     } catch (e) {
       console.error('Error parsing Claude JSON:', e)

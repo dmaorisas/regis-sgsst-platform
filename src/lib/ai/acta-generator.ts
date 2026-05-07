@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { GroqFallbackClient } from './groq-client'
 
 export class ActaGenerator {
   private anthropic: Anthropic
@@ -36,17 +37,26 @@ INSTRUCCIONES:
 
 Devuelve ÚNICAMENTE el texto redactado en formato Markdown. No agregues saludos previos ni comentarios posteriores.`
 
-    const response = await this.anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20240620',
-      max_tokens: 3000,
-      system: 'Eres un redactor experto en actas legales corporativas. Respondes exclusivamente con el texto del acta en formato Markdown.',
-      messages: [
-        { role: 'user', content: prompt }
-      ]
-    })
-
-    if (response.content[0]?.type === 'text') {
-      return response.content[0].text
+    try {
+      const response = await this.anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20240620',
+        max_tokens: 3000,
+        system: 'Eres un redactor experto en actas legales corporativas. Respondes exclusivamente con el texto del acta en formato Markdown.',
+        messages: [
+          { role: 'user', content: prompt }
+        ]
+      })
+      if (response.content[0]?.type === 'text') {
+        return response.content[0].text
+      }
+    } catch (e: unknown) {
+      const err = e as { message?: string; status?: number }
+      if (err?.message?.includes('balance') || err?.status === 402 || err?.status === 403 || err?.status === 400 || String(err).includes('balance')) {
+        console.warn('Fallback a Groq para ActaGenerator')
+        const groq = new GroqFallbackClient()
+        return await groq.generateText('Eres un redactor experto en actas legales corporativas. Respondes exclusivamente con el texto del acta en formato Markdown.', prompt)
+      }
+      throw e
     }
     
     throw new Error('Fallo al generar el texto del acta.')
