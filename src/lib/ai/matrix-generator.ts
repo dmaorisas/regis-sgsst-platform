@@ -17,18 +17,24 @@ Necesito que generes una matriz básica de identificación de peligros y valorac
 - Nombre: ${companyName}
 - Actividad Económica / Código CIIU: ${industryDescription}
 
-REGLAS CRÍTICAS (Mitigación de Riesgos Legales):
-1. Solo puedes usar las clasificaciones de peligros oficiales de la GTC-45 (Biológico, Físico, Químico, Psicosocial, Biomecánico, Condiciones de Seguridad, Fenómenos Naturales).
+REGLAS CRÍTICAS (Mitigación de Riesgos Legales - Decreto 1072 de 2015):
+1. Solo puedes usar las clasificaciones de peligros oficiales de la Guía Técnica Colombiana GTC-45 actualizada (Biológico, Físico, Químico, Psicosocial, Biomecánico, Condiciones de Seguridad, Fenómenos Naturales).
 2. Genera entre 5 y 8 peligros críticos y reales que apliquen a esta industria. No inventes cosas irreales.
-3. El output DEBE ser un JSON válido que contenga un arreglo llamado "matriz", donde cada objeto tiene esta estructura exacta:
+3. El output DEBE ser un JSON válido que contenga un arreglo llamado "matriz", donde cada objeto tiene esta estructura exacta basada en el anexo de la GTC-45:
    - "proceso": string
    - "zona": string
    - "actividad": string
-   - "peligro_clasificacion": string (debe ser una de las oficiales)
+   - "rutinaria": boolean (true o false)
+   - "peligro_clasificacion": string (debe ser una de las 7 clasificaciones oficiales)
    - "peligro_descripcion": string
-   - "efectos_posibles": string
-   - "nivel_riesgo_inicial": string (Alto, Medio, o Bajo)
-   - "medida_intervencion_sugerida": string
+   - "efectos_posibles": string (ej. Hipoacusia, Estrés laboral, Amputación)
+   - "nivel_deficiencia": number (0, 2, 6, 10)
+   - "nivel_exposicion": number (1, 2, 3, 4)
+   - "nivel_probabilidad": number (Deficiencia * Exposición)
+   - "nivel_consecuencia": number (10, 25, 60, 100)
+   - "nivel_riesgo_inicial": number (Probabilidad * Consecuencia)
+   - "interpretacion_riesgo": string (I, II, III o IV según el nivel de riesgo inicial)
+   - "medida_intervencion_sugerida": string (Controles en la fuente, medio o individuo)
 
 Retorna ÚNICAMENTE el objeto JSON sin markdown, sin texto extra.`
 

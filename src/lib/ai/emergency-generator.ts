@@ -49,14 +49,33 @@ Acabo de realizar una visita técnica a la empresa "${empresa}" (Actividad Econ�
 Aquí está la transcripción de mi nota de voz:
 "${transcript}"
 
-Basado en estos hallazgos, redacta un "Plan de Acción de Emergencias (Correcciones Inmediatas)".
-Estructura la respuesta estrictamente en Markdown con las siguientes secciones:
-1. **Resumen de Hallazgos Críticos** (Lista de lo encontrado en el audio).
-2. **Acciones Correctivas Inmediatas** (Qué hacer, nivel de prioridad Alto/Medio/Bajo).
-3. **Recomendaciones Normativas Adicionales** (Basado en el CIIU de la empresa, añade un par de recomendaciones típicas de prevención de emergencias para ese sector).
-4. **Alerta de Riesgo Legal** (Un breve párrafo sobre por qué no corregir esto puede causar multas ante el Ministerio de Trabajo).
+Basado en estos hallazgos, redacta el "DOCUMENTO DE PREPARACIÓN Y RESPUESTA ANTE EMERGENCIAS (Decreto 1072 de 2015)".
+NO inventes un formato nuevo. Utiliza ESTRICTAMENTE la siguiente plantilla Markdown, rellenando los campos entre corchetes [ ] con la información proporcionada o inferida lógicamente, y expandiendo con vocabulario técnico en SST:
 
-Usa un tono directivo, urgente y altamente profesional. Devuelve ÚNICAMENTE el texto en Markdown.`
+# DOCUMENTO DE PREPARACIÓN Y RESPUESTA ANTE EMERGENCIAS
+**Empresa:** ${empresa}
+**CIIU:** ${ciiu}
+**Fecha de Emisión:** [Generar Fecha de Hoy]
+**Marco Legal:** Decreto 1072 de 2015, Libro 2, Parte 2, Título 4, Capítulo 6, Artículo 2.2.4.6.25.
+
+## 1. JUSTIFICACIÓN Y ALCANCE
+El presente documento establece las acciones preventivas y correctivas inmediatas identificadas tras la inspección técnica en las instalaciones, con el fin de proteger a los trabajadores, contratistas y visitantes de la empresa **${empresa}**, de acuerdo a su actividad económica (${ciiu}).
+
+## 2. ANÁLISIS DE VULNERABILIDAD Y HALLAZGOS CRÍTICOS
+[Enumera en viñetas los hallazgos críticos extraídos de la nota de voz. Usa lenguaje técnico de seguridad industrial. Ejemplo: En lugar de "cables sueltos", usa "Riesgo eléctrico por exposición de cableado sin canalización"].
+
+## 3. PLAN DE ACCIÓN Y PROCEDIMIENTOS OPERATIVOS NORMALIZADOS (PON) INMEDIATOS
+| Nivel de Prioridad | Hallazgo/Amenaza | Acción Correctiva Inmediata requerida |
+| :--- | :--- | :--- |
+| [Alta/Media/Baja] | [Hallazgo 1] | [Solución técnica a implementar] |
+
+## 4. RECOMENDACIONES NORMATIVAS ADICIONALES (ESPECÍFICAS AL CIIU)
+[Con base en el sector económico de la empresa (${ciiu}), enumera 3 recomendaciones típicas y obligatorias para prevención de desastres y emergencias (ej. Brigadas, Extintores, Rutas de evacuación)].
+
+## 5. ALERTA DE RIESGO LEGAL
+El incumplimiento en la corrección de los hallazgos descritos constituye una vulneración al Artículo 2.2.4.6.25 del Decreto 1072 de 2015 y puede acarrear sanciones administrativas por parte del Ministerio de Trabajo y la Unidad de Gestión Pensional y Parafiscales (UGPP).
+
+Devuelve ÚNICAMENTE la plantilla completada en formato Markdown. No agregues introducciones, saludos ni comentarios fuera de la plantilla.`
 
     try {
       const response = await this.anthropic.messages.create({

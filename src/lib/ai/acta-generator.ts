@@ -26,16 +26,43 @@ INFORMACIÓN PROVISTA (Notas informales):
 - Notas de la reunión: ${notasBreves}
 
 INSTRUCCIONES:
-1. Transforma las notas informales en lenguaje corporativo, técnico, legal y profesional apropiado para Colombia (Resolución 2013 de 1986 o Resolución 652 de 2012 según aplique).
-2. Estructura el acta estrictamente con los siguientes encabezados en Markdown:
-   - **Encabezado** (Nombre del comité, Acta No. X, Fecha, Empresa).
-   - **Objetivo de la reunión**.
-   - **Orden del Día**.
-   - **Desarrollo de la Reunión** (Aquí expandes las notas informales con lenguaje técnico).
-   - **Compromisos y Tareas** (Extrae las tareas mencionadas, asigna responsables lógicos basados en los asistentes si es posible).
-   - **Cierre y Firmas** (Espacio para firmas).
+1. Transforma las notas informales en lenguaje corporativo, técnico, legal y profesional apropiado para Colombia (Resolución 2013 de 1986 para COPASST o Resolución 652 de 2012 para Convivencia).
+2. NO inventes un formato nuevo. Utiliza ESTRICTAMENTE la siguiente plantilla Markdown, rellenando los campos entre corchetes [ ] con la información proporcionada o inferida lógicamente:
 
-Devuelve ÚNICAMENTE el texto redactado en formato Markdown. No agregues saludos previos ni comentarios posteriores.`
+# ACTA DE REUNIÓN DEL ${tipoComite === 'COPASST' ? 'COMITÉ PARITARIO DE SEGURIDAD Y SALUD EN EL TRABAJO (COPASST)' : 'COMITÉ DE CONVIVENCIA LABORAL'}
+**Empresa:** ${empresa}
+**Acta No:** [Asigna un número consecutivo aleatorio, ej: 04-2024]
+**Fecha:** ${fecha}
+**Lugar:** Modalidad Presencial/Virtual - Instalaciones de la Empresa
+
+## 1. ASISTENTES
+[Enumera los asistentes provistos: ${asistentes}. Si aplica, indica su rol inferido].
+
+## 2. ORDEN DEL DÍA
+1. Verificación de asistencia y quórum.
+2. Lectura y aprobación del acta anterior.
+3. Desarrollo de temas programados.
+4. Proposiciones y varios.
+5. Definición de compromisos.
+
+## 3. DESARROLLO DE LA REUNIÓN
+**3.1 Verificación del quórum:** Se verificó la asistencia, contando con el quórum reglamentario exigido por la normativa vigente para sesionar de forma válida.
+**3.2 Lectura del acta anterior:** Se sometió a lectura y aprobación el acta de la reunión anterior, siendo aprobada por unanimidad de los presentes.
+**3.3 Temas tratados y análisis:**
+[Aquí debes expandir las notas informales proporcionadas de forma profesional, detallada y técnica. Separa en viñetas o subpuntos los hallazgos principales].
+
+## 4. COMPROMISOS Y TAREAS (PLAN DE ACCIÓN)
+| Actividad / Compromiso a ejecutar | Responsable Asignado | Fecha de Cumplimiento |
+| :--- | :--- | :--- |
+| [Acción concreta extraída de las notas] | [Nombre del asistente asignado] | [Fecha próxima lógica] |
+
+## 5. CIERRE
+Agotado el orden del día y sin más temas por tratar, el presidente del comité da por terminada la sesión.
+
+**FIRMAS DE CONSTANCIA:**
+[Genera líneas para firma de cada uno de los asistentes mencionados]
+
+Devuelve ÚNICAMENTE la plantilla completada en formato Markdown. No agregues introducciones, saludos ni comentarios fuera del documento.`
 
     try {
       const response = await this.anthropic.messages.create({
