@@ -70,30 +70,60 @@ export default async function RegisDashboardPage() {
   }
 
   // Para cada empresa: resolver último snapshot del centro principal.
-  // Hacemos N queries (≤ 3 en demo). En producción → vista materializada.
+  // OPTIMIZACIÓN: Evitar N+1 queries. Extraer los IDs principales y hacer una sola consulta.
   type WithCentros = (typeof companies)[number] & {
     centros_de_trabajo: { id: string }[] | null
   }
+  
   const rows: CompanyRow[] = []
+  const principalIds: string[] = []
+  
+  for (const comp of companies as WithCentros[]) {
+    const centros = comp.centros_de_trabajo ?? []
+    if (centros.length > 0) {
+      const ids = centros.map((c) => c.id).sort()
+      principalIds.push(ids[0])
+    }
+  }
+
+  // Cargar todos los snapshots de los centros principales en 1 sola consulta
+  const latestPctByCentro = new Map<string, number>()
+  if (principalIds.length > 0) {
+    const { data: allSnaps } = await admin
+      .from('evaluation_snapshots')
+      .select('centro_id, total_percentage, snapshot_date, created_at')
+      .in('centro_id', principalIds)
+      // Traemos todos y filtramos en JS. Las evaluaciones son 1 al año aprox, por lo que el volumen es manejable.
+    
+    if (allSnaps && allSnaps.length > 0) {
+      // Ordenar por snapshot_date desc, created_at desc
+      allSnaps.sort((a, b) => {
+        const dateA = new Date(a.snapshot_date || a.created_at).getTime()
+        const dateB = new Date(b.snapshot_date || b.created_at).getTime()
+        return dateB - dateA
+      })
+      
+      // El primero que encontremos por centro será el más reciente
+      for (const snap of allSnaps) {
+        if (!latestPctByCentro.has(snap.centro_id) && snap.total_percentage !== null) {
+          latestPctByCentro.set(snap.centro_id, Number(snap.total_percentage))
+        }
+      }
+    }
+  }
+
   for (const comp of companies as WithCentros[]) {
     const centros = comp.centros_de_trabajo ?? []
     let pct: number | null = null
+    
     if (centros.length > 0) {
-      // tomamos el centro con id menor por orden alfabético — proxy del centro principal
       const ids = centros.map((c) => c.id).sort()
       const principalId = ids[0]
-      const { data: lastSnap } = await admin
-        .from('evaluation_snapshots')
-        .select('total_percentage')
-        .eq('centro_id', principalId)
-        .order('snapshot_date', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      if (lastSnap?.total_percentage !== undefined && lastSnap?.total_percentage !== null) {
-        pct = Number(lastSnap.total_percentage)
+      if (latestPctByCentro.has(principalId)) {
+        pct = latestPctByCentro.get(principalId)!
       }
     }
+    
     rows.push({
       id: comp.id as string,
       razon_social: comp.razon_social as string,

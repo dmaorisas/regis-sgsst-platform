@@ -5,6 +5,8 @@ import { EmergencyGenerator } from '@/lib/ai/emergency-generator'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const cookieStore = cookies()

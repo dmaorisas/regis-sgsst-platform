@@ -33,20 +33,11 @@ export default async function MedicalExamsPage() {
     { cookies: { getAll: () => cookieStore.getAll() } }
   )
 
-  // Fetch workers for this company (using worker_company NM)
-  const { data: workersData } = await supabase
-    .from('worker_company')
-    .select('workers (id, nombres, apellidos, cedula)')
-    .eq('company_id', companyId)
-    .eq('is_active', true)
-
   const { data: company } = await supabase
     .from('companies')
     .select('name, razon_social')
     .eq('id', companyId)
     .single()
-
-  const workers = workersData?.map(w => w.workers).flat() || []
 
   return (
     <div className="min-h-screen bg-[#fbf8fa] p-8">
@@ -66,7 +57,6 @@ export default async function MedicalExamsPage() {
         <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(30,41,59,0.04),0_4px_12px_rgba(30,41,59,0.06)] border border-slate-100 p-8">
           <MedicalExamUploader 
             companyId={companyId} 
-            workers={workers as any[]} 
           />
         </div>
       </div>

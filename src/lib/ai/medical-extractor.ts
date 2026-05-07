@@ -1,6 +1,6 @@
 import { ClaudeClient } from '@/lib/ai/claude-client'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import pdfParse from 'pdf-parse'
+const pdfParse = require('pdf-parse')
 import { GroqFallbackClient } from './groq-client'
 
 export type RecommendationType = 'recomendacion' | 'restriccion' | 'reubicacion'

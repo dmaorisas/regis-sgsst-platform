@@ -1,18 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
-export default function MedicalExamUploader({ companyId, workers }: { companyId: string, workers: any[] }) {
+export default function MedicalExamUploader({ companyId }: { companyId: string }) {
   const [file, setFile] = useState<File | null>(null)
-  const [workerId, setWorkerId] = useState('')
+  
+  // Async Search State
+  const [searchTerm, setSearchTerm] = useState('')
+  const [workers, setWorkers] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [selectedWorker, setSelectedWorker] = useState<any>(null)
+  const [showDropdown, setShowDropdown] = useState(false)
+  
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
   const [examType, setExamType] = useState('ingreso')
   const [isUploading, setIsUploading] = useState(false)
   const [results, setResults] = useState<any[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    const fetchWorkers = async () => {
+      if (searchTerm.length < 2 && !showDropdown) return
+      setIsSearching(true)
+      try {
+        const res = await fetch(`/api/workers/search?companyId=${companyId}&q=${encodeURIComponent(searchTerm)}`)
+        const data = await res.json()
+        if (res.ok) setWorkers(data.workers || [])
+      } catch (err) {
+        console.error('Error fetching workers', err)
+      } finally {
+        setIsSearching(false)
+      }
+    }
+    
+    const debounceTimer = setTimeout(fetchWorkers, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [searchTerm, companyId, showDropdown])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!file || !workerId) {
+    if (!file || !selectedWorker) {
       setError('Por favor selecciona un trabajador y un archivo PDF.')
       return
     }
@@ -24,7 +62,7 @@ export default function MedicalExamUploader({ companyId, workers }: { companyId:
     try {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('worker_id', workerId)
+      formData.append('worker_id', selectedWorker.id)
       formData.append('company_id', companyId)
       formData.append('type', examType)
 
@@ -51,21 +89,65 @@ export default function MedicalExamUploader({ companyId, workers }: { companyId:
     <div className="space-y-8">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
+          <div className="relative" ref={dropdownRef}>
             <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Trabajador</label>
-            <select 
-              value={workerId} 
-              onChange={(e) => setWorkerId(e.target.value)}
-              className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-[#1e293b] focus:ring-[#1e293b] bg-[#fbf8fa] transition-colors"
-              required
-            >
-              <option value="">Selecciona un trabajador...</option>
-              {workers.map(w => (
-                <option key={w.id} value={w.id}>
-                  {w.nombres} {w.apellidos} - {w.cedula}
-                </option>
-              ))}
-            </select>
+            {selectedWorker ? (
+              <div className="flex items-center justify-between border border-emerald-300 bg-emerald-50 px-4 py-3 rounded-lg">
+                <div className="text-sm text-emerald-900 font-medium">
+                  {selectedWorker.nombres} {selectedWorker.apellidos} <span className="text-emerald-700 opacity-70">({selectedWorker.cedula})</span>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setSelectedWorker(null)
+                    setSearchTerm('')
+                  }}
+                  className="text-emerald-600 hover:text-emerald-800 text-xs font-semibold"
+                >
+                  Cambiar
+                </button>
+              </div>
+            ) : (
+              <div>
+                <input 
+                  type="text"
+                  placeholder="Buscar por cédula o nombre..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    setShowDropdown(true)
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-[#1e293b] focus:ring-[#1e293b] bg-[#fbf8fa] transition-colors"
+                  required
+                />
+                {showDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {isSearching ? (
+                      <div className="p-4 text-sm text-slate-500 text-center">Buscando...</div>
+                    ) : workers.length === 0 ? (
+                      <div className="p-4 text-sm text-slate-500 text-center">No se encontraron trabajadores.</div>
+                    ) : (
+                      <ul className="py-1">
+                        {workers.map(w => (
+                          <li 
+                            key={w.id} 
+                            onClick={() => {
+                              setSelectedWorker(w)
+                              setShowDropdown(false)
+                            }}
+                            className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm text-slate-700 border-b border-slate-100 last:border-0"
+                          >
+                            <div className="font-medium">{w.nombres} {w.apellidos}</div>
+                            <div className="text-xs text-slate-500">CC: {w.cedula}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -112,7 +194,7 @@ export default function MedicalExamUploader({ companyId, workers }: { companyId:
 
         <button 
           type="submit" 
-          disabled={isUploading || !file || !workerId}
+          disabled={isUploading || !file || !selectedWorker}
           className="w-full bg-[#1e293b] text-white px-6 py-4 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50 flex items-center justify-center gap-3 transition-colors shadow-sm"
         >
           {isUploading ? (

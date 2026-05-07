@@ -3,6 +3,8 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { MedicalExtractor } from '@/lib/ai/medical-extractor'
 
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const cookieStore = cookies()
