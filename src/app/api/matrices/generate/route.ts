@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { MatrixGenerator } from '@/lib/ai/matrix-generator'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
+import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,9 +14,9 @@ export async function POST(req: NextRequest) {
       { cookies: { getAll: () => cookieStore.getAll() } }
     )
 
-    // Check auth
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
+    // Check auth and roles
+    const userWithRoles = await getUserWithRoles()
+    if (!userWithRoles) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
@@ -24,6 +25,11 @@ export async function POST(req: NextRequest) {
 
     if (!companyId) {
       return NextResponse.json({ error: 'Falta companyId' }, { status: 400 })
+    }
+
+    // Validar seguridad: El usuario debe pertenecer a la empresa o ser Regis Staff
+    if (!userWithRoles.isRegisStaff && !userWithRoles.companyIds.includes(companyId)) {
+      return NextResponse.json({ error: 'No tienes acceso a esta empresa' }, { status: 403 })
     }
 
     // Obtener detalles de la empresa bypass RLS
