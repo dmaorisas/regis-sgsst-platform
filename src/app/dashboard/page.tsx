@@ -36,7 +36,6 @@ export default async function DashboardPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
 
-
   if (user.companyIds.length === 0 && !user.isRegisStaff) {
     return (
       <div className="min-h-screen bg-slate-50">
@@ -64,7 +63,7 @@ export default async function DashboardPage() {
   }
 
   if (!companyId) {
-    return errorView('No fue posible determinar la empresa activa.', user)
+    return errorView('No fue posible determinar la empresa activa.')
   }
 
   // Lectura con cliente RLS-aware (cookie session). El usuario sólo
@@ -80,7 +79,7 @@ export default async function DashboardPage() {
     .single()
 
   if (cErr || !companyRow) {
-    return errorView(`No fue posible cargar la empresa (${cErr?.message ?? 'desconocido'})`, user)
+    return errorView(`No fue posible cargar la empresa (${cErr?.message ?? 'desconocido'})`)
   }
 
   const { data: centros } = await supabase
@@ -90,7 +89,7 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: true })
 
   if (!centros || centros.length === 0) {
-    return errorView('La empresa no tiene centros de trabajo configurados.', user)
+    return errorView('La empresa no tiene centros de trabajo configurados.')
   }
   const mainCentro = centros[0]!
 
@@ -134,6 +133,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <Header user={user} />
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <CompanyCard
           company={{
@@ -173,7 +173,7 @@ function countersFor(s: Snapshot) {
   return c
 }
 
-function errorView(msg: string, user: NonNullable<Awaited<ReturnType<typeof getUserWithRoles>>>) {
+function errorView(msg: string) {
   return (
     <div className="min-h-screen bg-slate-50">
       <main className="mx-auto max-w-3xl px-4 py-8">

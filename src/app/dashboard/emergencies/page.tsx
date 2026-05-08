@@ -5,6 +5,8 @@ import EmergencyAudioUploader from './EmergencyAudioUploader'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function EmergenciesPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
@@ -30,7 +32,7 @@ export default async function EmergenciesPage() {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } }
+    { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
   const { data: company } = await supabase
@@ -40,24 +42,31 @@ export default async function EmergenciesPage() {
     .single()
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-8">
       <div>
-        <Link href="/dashboard" className="text-sm text-sky-600 hover:text-sky-800 font-medium mb-4 inline-block">
+        <Link
+          href="/dashboard"
+          className="mb-4 inline-block text-sm font-medium text-sky-600 hover:text-sky-800"
+        >
           ← Volver al Dashboard
         </Link>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Asistente de Planes de Emergencia</h1>
             <p className="text-gray-600">
-               <span className="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">{company?.razon_social}</span>
+              <span className="rounded-md bg-slate-100 px-2.5 py-1 text-slate-700">
+                {company?.razon_social}
+              </span>
             </p>
           </div>
         </div>
       </div>
-      
-      <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md">
+
+      <div className="rounded-r-md border-l-4 border-red-500 bg-red-50 p-4">
         <p className="text-red-800">
-          Sube el archivo de audio (.mp3 o .m4a) de tu nota de voz grabada durante la visita técnica. Whisper transcribirá tus hallazgos y Claude redactará automáticamente el Plan de Acción Correctiva Inmediata.
+          Sube el archivo de audio (.mp3 o .m4a) de tu nota de voz grabada durante la visita
+          técnica. Whisper transcribirá tus hallazgos y Claude redactará automáticamente el Plan de
+          Acción Correctiva Inmediata.
         </p>
       </div>
 

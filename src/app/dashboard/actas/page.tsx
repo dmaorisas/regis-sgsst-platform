@@ -5,6 +5,8 @@ import ActaGeneratorForm from './ActaGeneratorForm'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export default async function ActasPage() {
@@ -32,7 +34,7 @@ export default async function ActasPage() {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } }
+    { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
   const { data: company } = await supabase
@@ -51,25 +53,28 @@ export default async function ActasPage() {
 
   let defaultAttendees = ''
   if (userRoles && userRoles.length > 0) {
-    const userIds = userRoles.map(ur => ur.user_id)
+    const userIds = userRoles.map((ur) => ur.user_id)
     const { data: users } = await adminSupabase
       .from('users')
       .select('nombre_completo')
       .in('id', userIds)
-    
+
     if (users) {
-      const attendeesList = users.map(u => u.nombre_completo).filter(Boolean) as string[]
+      const attendeesList = users.map((u) => u.nombre_completo).filter(Boolean) as string[]
       defaultAttendees = attendeesList.join(', ')
     }
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-8">
       <div>
-        <Link href="/dashboard" className="text-sm text-sky-600 hover:text-sky-800 font-medium mb-4 inline-block">
+        <Link
+          href="/dashboard"
+          className="mb-4 inline-block text-sm font-medium text-sky-600 hover:text-sky-800"
+        >
           ← Volver al Dashboard
         </Link>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Generador Automático de Actas (Comités)</h1>
             <p className="text-gray-600">
@@ -78,10 +83,11 @@ export default async function ActasPage() {
           </div>
         </div>
       </div>
-      
-      <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-md">
+
+      <div className="rounded-r-md border-l-4 border-emerald-500 bg-emerald-50 p-4">
         <p className="text-emerald-800">
-          Ingresa notas breves de tu reunión. La Inteligencia Artificial redactará automáticamente el acta con lenguaje corporativo y estructura legal válida para el Ministerio de Trabajo.
+          Ingresa notas breves de tu reunión. La Inteligencia Artificial redactará automáticamente
+          el acta con lenguaje corporativo y estructura legal válida para el Ministerio de Trabajo.
         </p>
       </div>
 

@@ -3,13 +3,15 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll: () => cookieStore.getAll() } }
+      { cookies: { getAll: () => cookieStore.getAll() } },
     )
 
     // Check auth
@@ -44,7 +46,9 @@ export async function GET(req: NextRequest) {
       // A safer approach if the foreign table OR is tricky is to use an RPC or search the workers table directly if RLS allows.
       // Since workers is a separate table, we can just fetch all matching workers and then filter by company_id.
       // For simplicity, we'll search the workers directly using the relationship.
-      query = query.or(`cedula.ilike.%${q}%,nombres.ilike.%${q}%,apellidos.ilike.%${q}%`, { foreignTable: 'workers' })
+      query = query.or(`cedula.ilike.%${q}%,nombres.ilike.%${q}%,apellidos.ilike.%${q}%`, {
+        foreignTable: 'workers',
+      })
     }
 
     // Límite para evitar colapso
@@ -53,11 +57,12 @@ export async function GET(req: NextRequest) {
     if (error) throw error
 
     // Formatear salida
-    const results = (data || []).map(row => row.workers).flat()
+    const results = (data || []).map((row) => row.workers).flat()
 
     return NextResponse.json({ workers: results })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in workers/search API:', error)
-    return NextResponse.json({ error: error.message || 'Error interno' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Error interno'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

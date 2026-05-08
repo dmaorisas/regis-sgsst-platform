@@ -13,6 +13,8 @@
 
 import LoginForm from './login-form'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Ingreso · Regis SG-SST',
 }
@@ -46,6 +48,10 @@ export default function LoginPage({
         <p className="mt-6 text-center text-xs text-slate-500">
           ¿Problemas para acceder? Contacta a{' '}
           <span className="font-medium text-slate-700">soporte@regiscolombia-demo.local</span>
+        </p>
+
+        <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-widest text-slate-400">
+          REGIS PLATFORM v2.2-STABLE • 2026
         </p>
       </div>
     </div>

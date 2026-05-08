@@ -7,7 +7,7 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
   const [isLoading, setIsLoading] = useState(false)
   const [status, setStatus] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
-  
+
   const [transcript, setTranscript] = useState<string | null>(null)
   const [plan, setPlan] = useState<string | null>(null)
 
@@ -61,8 +61,8 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
       setTranscript(data.transcript)
       setPlan(data.plan)
       setStatus('Completado')
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error interno')
       setStatus('')
     } finally {
       setIsLoading(false)
@@ -72,17 +72,26 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
   return (
     <div className="space-y-6">
       {/* Zona de Carga */}
-      <div 
+      <div
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-lg p-10 text-center transition-colors ${file ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-red-400'}`}
+        className={`rounded-lg border-2 border-dashed p-10 text-center transition-colors ${file ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-red-400'}`}
       >
-        <div className="text-4xl mb-4">🎙️</div>
+        <div className="mb-4 text-4xl text-red-600">
+          <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+            />
+          </svg>
+        </div>
         {file ? (
           <div>
             <p className="text-lg font-semibold text-gray-800">Archivo seleccionado:</p>
-            <p className="text-red-600 font-medium">{file.name}</p>
-            <button 
+            <p className="font-medium text-red-600">{file.name}</p>
+            <button
               onClick={() => setFile(null)}
               className="mt-2 text-sm text-gray-500 underline"
               disabled={isLoading}
@@ -93,11 +102,13 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
         ) : (
           <div>
             <p className="text-lg font-medium text-gray-700">Arrastra tu nota de voz aquí</p>
-            <p className="text-sm text-gray-500 mt-2">Formatos soportados: MP3, M4A, WAV (Max 10MB)</p>
-            <input 
-              type="file" 
-              accept="audio/*" 
-              className="hidden" 
+            <p className="mt-2 text-sm text-gray-500">
+              Formatos soportados: MP3, M4A, WAV (Max 10MB)
+            </p>
+            <input
+              type="file"
+              accept="audio/*"
+              className="hidden"
               id="audio-upload"
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
@@ -106,9 +117,9 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
                 }
               }}
             />
-            <button 
+            <button
               onClick={() => document.getElementById('audio-upload')?.click()}
-              className="mt-4 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="mt-4 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
             >
               Explorar Archivos
             </button>
@@ -116,24 +127,20 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
         )}
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-100 text-red-700 rounded-md">
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-md bg-red-100 p-4 text-red-700">{error}</div>}
 
       {/* Botón de Procesar */}
       {file && !plan && (
         <button
           onClick={handleProcess}
           disabled={isLoading}
-          className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 transition-all"
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-transparent bg-red-600 px-4 py-4 text-lg font-bold text-white shadow-sm transition-all hover:bg-red-700 disabled:opacity-50"
         >
           {isLoading ? (
-             <>
-               <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-               {status}
-             </>
+            <>
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              {status}
+            </>
           ) : (
             'Transcribir y Generar Plan'
           )}
@@ -142,33 +149,37 @@ export default function EmergencyAudioUploader({ companyId }: { companyId: strin
 
       {/* Resultados */}
       {plan && transcript && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="lg:col-span-1 bg-white p-6 rounded-lg border shadow-sm h-fit">
-            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Transcripción de Audio</h3>
-            <p className="text-sm text-gray-700 italic border-l-4 border-gray-200 pl-3">
-              "{transcript}"
+        <div className="animate-in fade-in slide-in-from-bottom-4 grid grid-cols-1 gap-6 duration-500 lg:grid-cols-3">
+          <div className="h-fit rounded-lg border bg-white p-6 shadow-sm lg:col-span-1">
+            <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">
+              Transcripción de Audio
+            </h3>
+            <p className="border-l-4 border-gray-200 pl-3 text-sm italic text-gray-700">
+              &quot;{transcript}&quot;
             </p>
             <button
-              onClick={() => { setFile(null); setPlan(null); setTranscript(null); }}
-              className="mt-6 w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              onClick={() => {
+                setFile(null)
+                setPlan(null)
+                setTranscript(null)
+              }}
+              className="mt-6 w-full rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Subir nuevo audio
             </button>
           </div>
 
-          <div className="lg:col-span-2 bg-white p-6 rounded-lg border shadow-sm">
-            <div className="flex justify-between items-center mb-4">
+          <div className="rounded-lg border bg-white p-6 shadow-sm lg:col-span-2">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-800">Plan de Acción (IA)</h3>
               <button
                 onClick={() => navigator.clipboard.writeText(plan)}
-                className="text-sm text-red-600 hover:text-red-800 font-medium"
+                className="text-sm font-medium text-red-600 hover:text-red-800"
               >
                 Copiar Texto
               </button>
             </div>
-            <div className="prose prose-red max-w-none text-sm whitespace-pre-wrap">
-              {plan}
-            </div>
+            <div className="prose prose-red max-w-none whitespace-pre-wrap text-sm">{plan}</div>
           </div>
         </div>
       )}

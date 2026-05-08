@@ -5,15 +5,15 @@ import { EmergencyGenerator } from '@/lib/ai/emergency-generator'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 
-export const maxDuration = 60;
+export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
   try {
     const cookieStore = cookies()
-    const supabase = createServerClient(
+    /* const supabase = */ createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll: () => cookieStore.getAll() } }
+      { cookies: { getAll: () => cookieStore.getAll() } },
     )
 
     // Check auth and roles
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     const ciiu = company.ciiu_principal || 'Actividad general'
 
     const generator = new EmergencyGenerator()
-    
+
     // 1. Transcripción con Whisper (Groq)
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
@@ -60,14 +60,14 @@ export async function POST(req: NextRequest) {
     // 2. Generación de Plan con Claude 3.5
     const planMarkdown = await generator.generateEmergencyPlan(companyName, ciiu, transcript)
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       transcript: transcript,
-      plan: planMarkdown 
+      plan: planMarkdown,
     })
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error procesando emergencia:', error)
-    return NextResponse.json({ error: error.message || 'Error interno' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Error interno'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

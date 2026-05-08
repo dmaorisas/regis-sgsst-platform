@@ -5,15 +5,15 @@ import { ActaGenerator } from '@/lib/ai/acta-generator'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 
-export const maxDuration = 60;
+export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
   try {
     const cookieStore = cookies()
-    const supabase = createServerClient(
+    /* const supabase = */ createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll: () => cookieStore.getAll() } }
+      { cookies: { getAll: () => cookieStore.getAll() } },
     )
 
     // Check auth and roles
@@ -50,12 +50,18 @@ export async function POST(req: NextRequest) {
 
     // Generar Acta
     const generator = new ActaGenerator()
-    const actaMarkdown = await generator.generateActa(tipoComite, companyName, fecha, asistentes, notasBreves)
+    const actaMarkdown = await generator.generateActa(
+      tipoComite,
+      companyName,
+      fecha,
+      asistentes,
+      notasBreves,
+    )
 
     return NextResponse.json({ success: true, acta: actaMarkdown })
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating acta:', error)
-    return NextResponse.json({ error: error.message || 'Error interno' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Error interno'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

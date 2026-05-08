@@ -1,6 +1,8 @@
 import { ClaudeClient } from '@/lib/ai/claude-client'
 import type { SupabaseClient } from '@supabase/supabase-js'
-const pdfParse = require('pdf-parse')
+import type Anthropic from '@anthropic-ai/sdk'
+// pdf-parse is imported dynamically in the catch block to avoid build-time issues
+
 import { GroqFallbackClient } from './groq-client'
 
 export type RecommendationType = 'recomendacion' | 'restriccion' | 'reubicacion'
@@ -45,41 +47,51 @@ DEBES responder ÚNICAMENTE con un JSON válido con la siguiente estructura exac
 Si no hay recomendaciones ni restricciones, devuelve: {"recommendations": []}
 `
 
-    let response: any
+    let response: { content: { type: string; text?: string }[] }
 
     try {
       response = await this.claude.invoke({
-      agent_id: 'medical_extractor_agent',
-      module: 'medical_exams',
-      complexity_level: 'complex', // Utilizamos complex para asegurar la precisión del análisis de PDFs médicos
-      system: systemPrompt,
-      // Le pedimos a la API que devuelva JSON
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'document',
-              source: {
-                type: 'base64',
-                media_type: 'application/pdf',
-                data: pdfBase64,
+        agent_id: 'medical_extractor_agent',
+        module: 'medical_exams',
+        complexity_level: 'complex', // Utilizamos complex para asegurar la precisión del análisis de PDFs médicos
+        system: systemPrompt,
+        // Le pedimos a la API que devuelva JSON
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'document',
+                source: {
+                  type: 'base64',
+                  media_type: 'application/pdf',
+                  data: pdfBase64,
+                },
               },
-            },
-            {
-              type: 'text',
-              text: 'Extrae las recomendaciones de este examen médico ocupacional y devuelve el JSON.',
-            },
-          ],
-        },
-      ] as any,
-    })
+              {
+                type: 'text',
+                text: 'Extrae las recomendaciones de este examen médico ocupacional y devuelve el JSON.',
+              },
+            ],
+          },
+        ] as Anthropic.MessageParam[],
+      })
     } catch (e: unknown) {
       const err = e as { message?: string; status?: number }
-      if (err?.message?.includes('balance is too low') || err?.status === 402 || err?.status === 403 || err?.status === 400 || String(err).includes('balance')) {
-        console.warn('Anthropic API falló por saldo/créditos. Intentando fallback con Groq Llama 3...')
-        
+      if (
+        err?.message?.includes('balance is too low') ||
+        err?.status === 402 ||
+        err?.status === 403 ||
+        err?.status === 400 ||
+        String(err).includes('balance')
+      ) {
+        console.warn(
+          'Anthropic API falló por saldo/créditos. Intentando fallback con Groq Llama 3...',
+        )
+
         // 1. Extraer texto del PDF localmente
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const pdfParse = require('pdf-parse')
         const pdfBuffer = Buffer.from(pdfBase64, 'base64')
         const parsedPdf = await pdfParse(pdfBuffer)
         const textContent = parsedPdf.text
@@ -88,16 +100,20 @@ Si no hay recomendaciones ni restricciones, devuelve: {"recommendations": []}
         const groq = new GroqFallbackClient()
         const groqResponse = await groq.generateText(
           systemPrompt,
-          `Texto extraído del PDF médico:\n\n${textContent}\n\nExtrae las recomendaciones y devuelve estrictamente el JSON solicitado.`
+          `Texto extraído del PDF médico:\n\n${textContent}\n\nExtrae las recomendaciones y devuelve estrictamente el JSON solicitado.`,
         )
 
         try {
           const jsonMatch = groqResponse.match(/\{[\s\S]*\}/)
           const jsonString = jsonMatch ? jsonMatch[0] : groqResponse
           const parsed = JSON.parse(jsonString) as MedicalExtractionResult
-          return { recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [] }
+          return {
+            recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+          }
         } catch (fallbackErr) {
-          throw new Error(`Error parseando JSON de Groq (Fallback): ${groqResponse.slice(0, 100)}. Err: ${fallbackErr}`)
+          throw new Error(
+            `Error parseando JSON de Groq (Fallback): ${groqResponse.slice(0, 100)}. Err: ${fallbackErr}`,
+          )
         }
       }
       throw e // Relanzar si es otro error
@@ -108,18 +124,21 @@ Si no hay recomendaciones ni restricciones, devuelve: {"recommendations": []}
       throw new Error('Claude no devolvió contenido de texto')
     }
 
+    const text = textContent.text || ''
     try {
       // Intentar parsear el JSON
-      const jsonMatch = textContent.text.match(/\{[\s\S]*\}/)
-      const jsonString = jsonMatch ? jsonMatch[0] : textContent.text
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      const jsonString = jsonMatch ? jsonMatch[0] : text
       const parsed = JSON.parse(jsonString) as MedicalExtractionResult
-      
+
       // Sanitizar el resultado
       return {
-        recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : []
+        recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
       }
     } catch (error) {
-      throw new Error(`Error parseando el JSON de Claude: ${textContent.text.slice(0, 200)}... Detalles: ${error}`)
+      throw new Error(
+        `Error parseando el JSON de Claude: ${text.slice(0, 200)}... Detalles: ${error}`,
+      )
     }
   }
 }

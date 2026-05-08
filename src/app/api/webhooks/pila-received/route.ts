@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const supabaseAdmin = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { cookies: { getAll: () => [], setAll: () => {} } }
+      { cookies: { getAll: () => [], setAll: () => {} } },
     )
 
     const formData = await req.formData()
@@ -14,7 +14,10 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null
 
     if (!companyId || !file) {
-      return NextResponse.json({ error: 'Faltan parámetros requeridos (company_id, file)' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Faltan parámetros requeridos (company_id, file)' },
+        { status: 400 },
+      )
     }
 
     // 1. Subir a Storage
@@ -22,7 +25,7 @@ export async function POST(req: NextRequest) {
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('company_documents')
       .upload(fileName, file)
-      
+
     if (uploadError && !uploadError.message.includes('Bucket not found')) {
       console.warn('Storage error:', uploadError)
     }
@@ -60,7 +63,7 @@ export async function POST(req: NextRequest) {
           file_url: filePath,
           status: 'approved',
           valid_from: new Date().toISOString(),
-          metadata: { mes_pila: new Date().getMonth() + 1 }
+          metadata: { mes_pila: new Date().getMonth() + 1 },
         })
         .select()
         .single()
@@ -94,25 +97,27 @@ export async function POST(req: NextRequest) {
           .update({
             compliance_status: 'meets',
             evidence_id: documentId,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .eq('id', evalData.id)
       } else {
         // Insertamos si no existe
-        await supabaseAdmin
-          .from('standard_evaluations')
-          .insert({
-            company_id: companyId,
-            standard_id: standard.id,
-            compliance_status: 'meets',
-            evidence_id: documentId
-          })
+        await supabaseAdmin.from('standard_evaluations').insert({
+          company_id: companyId,
+          standard_id: standard.id,
+          compliance_status: 'meets',
+          evidence_id: documentId,
+        })
       }
     }
 
-    return NextResponse.json({ success: true, message: 'PILA procesada exitosamente y evaluación actualizada' })
-  } catch (error: any) {
+    return NextResponse.json({
+      success: true,
+      message: 'PILA procesada exitosamente y evaluación actualizada',
+    })
+  } catch (error: unknown) {
     console.error('Error en Webhook PILA:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Error interno'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

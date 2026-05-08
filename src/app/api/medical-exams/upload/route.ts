@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { MedicalExtractor } from '@/lib/ai/medical-extractor'
 
-export const maxDuration = 60;
+export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,18 +19,20 @@ export async function POST(req: NextRequest) {
           setAll(cookiesToSet) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
+                cookieStore.set(name, value, options),
               )
-            } catch (error) {
+            } catch {
               // Ignore if we are rendering a component
             }
           },
         },
-      }
+      },
     )
 
     // Check Authentication
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -40,7 +42,7 @@ export async function POST(req: NextRequest) {
     const workerId = formData.get('worker_id') as string | null
     const companyId = formData.get('company_id') as string | null
     const type = formData.get('type') as string | null
-    
+
     if (!file || !workerId || !companyId || !type) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
     // 1. Upload to Supabase Storage (medical_exams_secure bucket)
     const fileExt = file.name.split('.').pop()
     const fileName = `${companyId}/${workerId}/${Date.now()}.${fileExt}`
-    
+
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('medical_exams_secure')
       .upload(fileName, file)
@@ -69,9 +71,9 @@ export async function POST(req: NextRequest) {
     const supabaseAdmin = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { cookies: { getAll: () => [], setAll: () => {} } }
+      { cookies: { getAll: () => [], setAll: () => {} } },
     )
-    
+
     const extractor = MedicalExtractor.create(supabaseAdmin)
     const extractionResult = await extractor.extractFromPdf(base64)
 
@@ -93,11 +95,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (extractionResult.recommendations.length > 0) {
-      const recommendationsToInsert = extractionResult.recommendations.map(r => ({
+      const recommendationsToInsert = extractionResult.recommendations.map((r) => ({
         exam_id: examData.id,
         recommendation_text: r.text,
         type: r.type,
-        duration_days: r.duration_days
+        duration_days: r.duration_days,
       }))
 
       const { error: recError } = await supabase
@@ -105,18 +107,18 @@ export async function POST(req: NextRequest) {
         .insert(recommendationsToInsert)
 
       if (recError) {
-         console.error('Error insertando recomendaciones:', recError)
+        console.error('Error insertando recomendaciones:', recError)
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       exam: examData,
-      extracted: extractionResult.recommendations 
+      extracted: extractionResult.recommendations,
     })
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload Error:', error)
-    return NextResponse.json({ error: error.message || 'Internal Error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Internal Error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

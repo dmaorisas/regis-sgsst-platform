@@ -5,6 +5,8 @@ import MatrixViewer from './MatrixViewer'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function MatricesPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
@@ -30,7 +32,7 @@ export default async function MatricesPage() {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } }
+    { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
   const { data: company } = await supabase
@@ -41,22 +43,29 @@ export default async function MatricesPage() {
 
   return (
     <div className="min-h-screen bg-[#fbf8fa] p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-5 gap-4">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-center">
           <div>
-            <Link href="/dashboard" className="text-sm text-sky-600 hover:text-sky-800 font-medium mb-4 inline-block">
+            <Link
+              href="/dashboard"
+              className="mb-4 inline-block text-sm font-medium text-sky-600 hover:text-sky-800"
+            >
               ← Volver al Dashboard
             </Link>
-            <h1 className="text-3xl font-bold text-[#1e293b] tracking-tight">Matriz de Peligros GTC-45 (Generada por IA)</h1>
-            <p className="text-[#64748b] mt-2 text-sm font-medium flex items-center gap-2">
-              <span className="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">{company?.razon_social}</span>
+            <h1 className="text-3xl font-bold tracking-tight text-[#1e293b]">
+              Matriz de Peligros GTC-45 (Generada por IA)
+            </h1>
+            <p className="mt-2 flex items-center gap-2 text-sm font-medium text-[#64748b]">
+              <span className="rounded-md bg-slate-100 px-2.5 py-1 text-slate-700">
+                {company?.razon_social}
+              </span>
               <span className="text-slate-300">•</span>
               <span>CIIU: {company?.ciiu_principal || 'No registrado'}</span>
             </p>
           </div>
         </div>
-        
-        <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(30,41,59,0.04),0_4px_12px_rgba(30,41,59,0.06)] border border-slate-100 p-8">
+
+        <div className="rounded-xl border border-slate-100 bg-white p-8 shadow-[0_2px_4px_rgba(30,41,59,0.04),0_4px_12px_rgba(30,41,59,0.06)]">
           <MatrixViewer companyId={companyId} />
         </div>
       </div>
