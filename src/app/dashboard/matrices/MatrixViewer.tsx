@@ -9,7 +9,8 @@ interface MatrixRow {
   peligro_clasificacion?: string
   peligro_descripcion?: string
   efectos_posibles?: string
-  nivel_riesgo_inicial?: string
+  nivel_riesgo_inicial?: number | string
+  interpretacion_riesgo?: string
   medida_intervencion_sugerida?: string
 }
 
@@ -56,6 +57,7 @@ export default function MatrixViewer({ companyId }: { companyId: string }) {
       'Descripción Peligro',
       'Efectos Posibles',
       'Nivel Riesgo',
+      'Interpretación',
       'Medida de Intervención',
     ]
     const csvContent = [
@@ -69,6 +71,7 @@ export default function MatrixViewer({ companyId }: { companyId: string }) {
           `"${row.peligro_descripcion || ''}"`,
           `"${row.efectos_posibles || ''}"`,
           `"${row.nivel_riesgo_inicial || ''}"`,
+          `"${row.interpretacion_riesgo || ''}"`,
           `"${row.medida_intervencion_sugerida || ''}"`,
         ].join(','),
       ),
@@ -191,17 +194,22 @@ export default function MatrixViewer({ companyId }: { companyId: string }) {
                       {row.efectos_posibles}
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
-                          row.nivel_riesgo_inicial?.toLowerCase().includes('alto')
-                            ? 'bg-[#fee2e2] text-[#ef4444]'
-                            : row.nivel_riesgo_inicial?.toLowerCase().includes('medio')
-                              ? 'bg-[#fef3c7] text-[#f59e0b]'
-                              : 'bg-[#d1fae5] text-[#10b981]'
-                        }`}
-                      >
-                        {row.nivel_riesgo_inicial}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+                            row.interpretacion_riesgo === 'I'
+                              ? 'bg-[#fee2e2] text-[#ef4444]'
+                              : row.interpretacion_riesgo === 'II'
+                                ? 'bg-[#fef3c7] text-[#f59e0b]'
+                                : 'bg-[#d1fae5] text-[#10b981]'
+                          }`}
+                        >
+                          Riesgo {row.interpretacion_riesgo}
+                        </span>
+                        <span className="text-xs text-[#64748b]">
+                          Valor: {row.nivel_riesgo_inicial}
+                        </span>
+                      </div>
                     </td>
                     <td className="max-w-xs px-6 py-4 text-sm text-[#45474c]">
                       {row.medida_intervencion_sugerida}
