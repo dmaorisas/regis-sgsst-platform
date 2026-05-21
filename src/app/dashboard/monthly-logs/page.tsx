@@ -1,13 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import EmergencyAudioUploader from './EmergencyAudioUploader'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import MonthlyLogsList from './MonthlyLogsList'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-export default async function EmergenciesPage() {
+export default async function MonthlyLogsPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
 
@@ -35,11 +35,19 @@ export default async function EmergenciesPage() {
     { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
+  // 1. Obtener la información de la empresa
   const { data: company } = await supabase
     .from('companies')
-    .select('razon_social, ciiu_principal')
+    .select('razon_social')
     .eq('id', companyId)
     .single()
+
+  // 2. Obtener las bitácoras mensuales históricas
+  const { data: logs } = await supabase
+    .from('monthly_logs')
+    .select('*')
+    .eq('company_id', companyId)
+    .order('month', { ascending: false })
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-8">
@@ -52,7 +60,7 @@ export default async function EmergenciesPage() {
         </Link>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Asistente de Planes de Emergencia</h1>
+            <h1 className="text-2xl font-bold">Bitácora Mensual de Trabajo</h1>
             <p className="text-gray-600">
               <span className="rounded-md bg-slate-100 px-2.5 py-1 text-slate-700">
                 {company?.razon_social}
@@ -62,16 +70,11 @@ export default async function EmergenciesPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="rounded-r-md border-l-4 border-red-500 bg-red-50 p-4">
-          <p className="text-sm text-red-800">
-            Sube el archivo de audio (.mp3 o .m4a) de tu nota de voz grabada durante la visita
-            técnica. Whisper transcribirá tus hallazgos y Claude redactará automáticamente el Plan
-            de Acción Correctiva Inmediata.
-          </p>
-        </div>
-        <EmergencyAudioUploader companyId={companyId} />
-      </div>
+      <MonthlyLogsList
+        initialLogs={logs || []}
+        companyId={companyId}
+        isRegisStaff={user.isRegisStaff}
+      />
     </div>
   )
 }

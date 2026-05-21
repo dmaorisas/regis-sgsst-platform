@@ -27,9 +27,14 @@ const baseOpts = {
   timestamp: pino.stdTimeFunctions.isoTime,
 }
 
-export const logger: Logger = isProd
-  ? pino(baseOpts)
-  : pino({
+// En desarrollo, el transport de pino-pretty utiliza hilos de trabajo (worker threads).
+// Con la recarga en caliente de Next.js, esto puede generar errores críticos
+// ("Error: the worker has exited"). Desactivamos el transport si estamos en el
+// runtime de Next.js para evitar que la aplicación aborte.
+const usePretty = !isProd && !process.env.NEXT_RUNTIME
+
+export const logger: Logger = usePretty
+  ? pino({
       ...baseOpts,
       transport: {
         target: 'pino-pretty',
@@ -40,6 +45,7 @@ export const logger: Logger = isProd
         },
       },
     })
+  : pino(baseOpts)
 
 /**
  * Devuelve un child logger con contexto pre-poblado. Útil para

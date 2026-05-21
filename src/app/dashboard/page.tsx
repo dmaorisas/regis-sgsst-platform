@@ -25,9 +25,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import { SnapshotsRepository } from '@/infrastructure/repositories/snapshots-repository'
 import Header from '@/components/dashboard/Header'
 import CompanyCard from '@/components/dashboard/CompanyCard'
-import ScoreCard from '@/components/dashboard/ScoreCard'
-import ByCycleChart from '@/components/dashboard/ByCycleChart'
-import StandardsTable from '@/components/dashboard/StandardsTable'
+import StandardsChecklistTable from '@/components/dashboard/StandardsChecklistTable'
+
 import type { Snapshot } from '@/domain/compliance/types'
 
 export const dynamic = 'force-dynamic'
@@ -93,43 +92,40 @@ export default async function DashboardPage() {
   }
   const mainCentro = centros[0]!
 
-  // Snapshot: el dashboard es READ-ONLY sobre evaluation_snapshots
-  // (Bloque 4B iter 2 — fix bug 0% en Empresa 1, R7 Opción A).
-  //
-  // Razón: si el dashboard regenerara ad-hoc, cada render con condiciones
-  // raras (RLS, transacciones a medias, llamadas concurrentes) podía
-  // persistir un snapshot con total_evaluated=0 que después ganaba el
-  // ORDER BY snapshot_date DESC, created_at DESC en getLatestByCentro,
-  // sirviendo 0% al usuario. La generación queda exclusivamente en:
-  //   - scripts/seed_demo_evaluations.ts (seed de demo)
-  //   - endpoint admin futuro (out of scope ahora)
-  //   - cron de F1.5
-  //
-  // El admin client se mantiene porque el cómputo del frontend no
-  // depende de RLS y queremos consistencia (la autorización ya se
-  // verificó arriba via getUserWithRoles + companyIds).
   const admin = getSupabaseAdminClient()
+
+  // Load standards applicable to this company's chapter
+  const chapter = (companyRow.capitulo_aplicable as string | null) ?? 'III'
+  const chapterCol = `applies_chapter_${chapter.toLowerCase()}`
+  const { data: standardRows } = await supabase
+    .from('standards_0312')
+    .select('id, standard_number, name, cycle_phva, weight_capitulo_iii')
+    .eq(chapterCol, true)
+    .order('standard_number')
+
+  // Load current evaluations for this centro
+  const { data: evalRows } = await admin
+    .from('standard_evaluations')
+    .select('standard_id, status')
+    .eq('centro_id', mainCentro.id)
+    .is('deleted_at', null)
+
+  const checklistStandards = (standardRows ?? []).map((r) => ({
+    id: r.id as string,
+    standard_number: r.standard_number as string,
+    name: r.name as string,
+    cycle_phva: r.cycle_phva as string,
+  }))
+
+  const checklistEvaluations = (evalRows ?? []).map((r) => ({
+    standard_id: r.standard_id as string,
+    status: r.status as 'cumple' | 'no_cumple' | 'no_aplica' | 'pendiente',
+  }))
+
+  // Snapshot (optional — dashboard works without it)
   const snapshotsRepo = new SnapshotsRepository(admin)
   const snapshot: Snapshot | null = await snapshotsRepo.getLatestByCentro(mainCentro.id)
-
-  if (!snapshot) {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <main className="mx-auto max-w-3xl px-4 py-8">
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
-            <h2 className="text-lg font-semibold">Aún no hay datos de cumplimiento</h2>
-            <p className="mt-1 text-sm">
-              No hay un snapshot generado para esta empresa. Pide al equipo Regis que ejecute el
-              cierre inicial de evaluaciones, o registra evaluaciones desde el módulo de
-              autoevaluación cuando esté disponible.
-            </p>
-          </div>
-        </main>
-      </div>
-    )
-  }
-
-  const counts = countersFor(snapshot)
+  const _counts = snapshot ? countersFor(snapshot) : null
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -149,17 +145,12 @@ export default async function DashboardPage() {
           }}
         />
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <ScoreCard
-            percentage={snapshot.total_percentage}
-            asOf={snapshot.snapshot_date}
-            counters={counts}
-            totalAplicables={snapshot.total_aplicables}
-          />
-          <ByCycleChart byCycle={snapshot.by_cycle} total={snapshot.total_percentage} />
-        </div>
-
-        <StandardsTable standards={snapshot.by_standard} drillBaseHref="/dashboard/standards" />
+        <StandardsChecklistTable
+          standards={checklistStandards}
+          initialEvaluations={checklistEvaluations}
+          centroId={mainCentro.id}
+          chapter={chapter as 'I' | 'II' | 'III'}
+        />
       </main>
     </div>
   )

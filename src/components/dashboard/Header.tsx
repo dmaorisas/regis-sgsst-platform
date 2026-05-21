@@ -32,21 +32,63 @@ export default function Header({
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-600 text-sm font-bold text-white">
               R
             </div>
-            <span className="text-base font-semibold text-slate-900 hidden sm:block">Regis SG-SST</span>
+            <span className="hidden text-base font-semibold text-slate-900 sm:block">
+              Regis SG-SST
+            </span>
           </Link>
-          
+
           <nav className="flex items-center gap-4 text-sm font-medium text-slate-600">
-            <Link href="/dashboard" className="hover:text-sky-600">Dashboard</Link>
-            <Link href="/dashboard/medical" className="hover:text-sky-600">Médico</Link>
-            <Link href="/dashboard/matrices" className="hover:text-sky-600">Matrices GTC-45</Link>
-            <Link href="/dashboard/actas" className="hover:text-sky-600">Actas</Link>
-            <Link href="/dashboard/emergencies" className="hover:text-sky-600">Plan Emergencias</Link>
+            <Link href="/dashboard" className="hover:text-sky-600">
+              Dashboard
+            </Link>
+            <Link href="/dashboard/medical" className="hover:text-sky-600">
+              Médico
+            </Link>
+            <Link href="/dashboard/matrices" className="hover:text-sky-600">
+              Matrices GTC-45
+            </Link>
+            <Link href="/dashboard/actas" className="hover:text-sky-600">
+              Actas
+            </Link>
+            <Link href="/dashboard/emergencies" className="hover:text-sky-600">
+              Plan Emergencias
+            </Link>
+            <Link href="/dashboard/emergencies/inventory" className="hover:text-sky-600">
+              Inventario
+            </Link>
+            <Link href="/dashboard/documents" className="hover:text-sky-600">
+              Documentos
+            </Link>
+            <Link href="/dashboard/monthly-logs" className="hover:text-sky-600">
+              Bitácora
+            </Link>
             {user.isRegisStaff && (
-              <Link href="/regis/dashboard" className="ml-4 font-semibold text-sky-600 hover:text-sky-800 border-l pl-4 border-slate-300">
+              <Link
+                href="/regis/dashboard"
+                className="ml-4 border-l border-slate-300 pl-4 font-semibold text-sky-600 hover:text-sky-800"
+              >
                 ← Volver a Cartera
               </Link>
             )}
-            <Link href="/admin/pila-demo" className="hover:text-sky-600 text-amber-600 ml-4">Demo PILA</Link>
+            {user.roleNames.includes('regis_admin') && (
+              <>
+                <Link
+                  href="/regis/companies"
+                  className="ml-4 border-l border-slate-300 pl-4 hover:text-sky-600"
+                >
+                  Empresas
+                </Link>
+                <Link
+                  href="/regis/users"
+                  className="ml-4 border-l border-slate-300 pl-4 hover:text-sky-600"
+                >
+                  Usuarios
+                </Link>
+              </>
+            )}
+            <Link href="/admin/pila-demo" className="ml-4 text-amber-600 hover:text-sky-600">
+              Demo PILA
+            </Link>
           </nav>
         </div>
 

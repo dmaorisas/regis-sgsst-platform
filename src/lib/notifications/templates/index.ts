@@ -10,10 +10,16 @@
 // llamadores fallan en TypeScript si pasan un payload incompleto.
 // =========================================================
 
-export type TemplateName = 'welcome' | 'score_alert' | 'pm_snapshot'
+export type TemplateName =
+  | 'welcome'
+  | 'score_alert'
+  | 'pm_snapshot'
+  | 'equipment_expiry'
+  | 'consultant_weekly_pending'
+  | 'consultant_weekly_summary'
 
 type TemplateMap = {
-  welcome: { user_name: string; login_url: string }
+  welcome: { user_name: string; login_url: string; email: string; password?: string }
   score_alert: {
     company_name: string
     centro_name: string
@@ -29,12 +35,32 @@ type TemplateMap = {
     blockers: string
     cost_24h_usd: string
   }
+  equipment_expiry: {
+    consultant_name: string
+    company_name: string
+    centro_name: string
+    equipment_type: string
+    equipment_code: string
+    expiry_date: string
+    days_left: number
+    action_url: string
+  }
+  consultant_weekly_pending: {
+    consultant_name: string
+    companies_table_html: string
+    dashboard_url: string
+  }
+  consultant_weekly_summary: {
+    consultant_name: string
+    companies_table_html: string
+    dashboard_url: string
+  }
 }
 
 export type RenderResult = { subject: string; html: string }
 
 const TEMPLATES: { [K in TemplateName]: (vars: TemplateMap[K]) => RenderResult } = {
-  welcome: ({ user_name, login_url }) => ({
+  welcome: ({ user_name, login_url, email, password }) => ({
     subject: 'Bienvenido a Regis SG-SST',
     html: layout(
       'Bienvenido a Regis SG-SST',
@@ -43,9 +69,16 @@ const TEMPLATES: { [K in TemplateName]: (vars: TemplateMap[K]) => RenderResult }
       <p style="margin:0 0 12px;color:#334155;line-height:1.5">
         Tu cuenta en la plataforma de cumplimiento SG-SST de Regis ya está activa.
       </p>
+      <div style="margin:20px 0;padding:16px;background:#f8fafc;border-left:4px solid #0284c7;border-radius:0 8px 8px 0">
+        <p style="margin:0 0 8px;color:#475569">
+          <strong>Usuario (Email):</strong> ${esc(email)}
+        </p>
+        <p style="margin:0;color:#475569">
+          <strong>Contraseña Temporal:</strong> <code style="background:#e2e8f0;padding:2px 6px;border-radius:4px;font-family:monospace">${password ? esc(password) : '*(Establecida por el administrador)*'}</code>
+        </p>
+      </div>
       <p style="margin:0 0 24px;color:#334155;line-height:1.5">
-        Desde tu panel podrás ver el estado de cumplimiento de tu empresa, las
-        evaluaciones por estándar y los hallazgos pendientes.
+        Al ingresar por primera vez, te recomendamos cambiar tu contraseña desde tu perfil de usuario.
       </p>
       ${button(login_url, 'Entrar al panel')}
       `,
@@ -78,6 +111,90 @@ const TEMPLATES: { [K in TemplateName]: (vars: TemplateMap[K]) => RenderResult }
         <li>Bloqueadores: <strong>${esc(blockers)}</strong></li>
         <li>Costo IA 24h: <strong>USD ${esc(cost_24h_usd)}</strong></li>
       </ul>
+      `,
+    ),
+  }),
+  equipment_expiry: ({
+    consultant_name,
+    company_name,
+    centro_name,
+    equipment_type,
+    equipment_code,
+    expiry_date,
+    days_left,
+    action_url,
+  }) => {
+    const isOverdue = days_left <= 0
+    const color = isOverdue ? '#dc2626' : '#d97706'
+    const statusText = isOverdue ? 'ha vencido' : `vencerá en ${days_left} días`
+
+    return {
+      subject: `Alerta de Vencimiento: ${equipment_type.toUpperCase()} - ${company_name}`,
+      html: layout(
+        'Alerta de Vencimiento de Equipo de Emergencia',
+        `
+        <h1 style="margin:0 0 16px;font-size:20px;color:#0f172a">Hola ${esc(consultant_name)},</h1>
+        <p style="margin:0 0 12px;color:#334155;line-height:1.5">
+          Te notificamos que el siguiente equipo de emergencia de la empresa <strong>${esc(company_name)}</strong> (Centro de Trabajo: ${esc(centro_name)}) requiere atención:
+        </p>
+        <div style="margin:20px 0;padding:16px;background:#f8fafc;border-left:4px solid ${color};border-radius:0 8px 8px 0">
+          <p style="margin:0 0 8px;color:#475569">
+            <strong>Tipo de Equipo:</strong> ${esc(equipment_type.toUpperCase())}
+          </p>
+          <p style="margin:0 0 8px;color:#475569">
+            <strong>Código Interno:</strong> ${esc(equipment_code)}
+          </p>
+          <p style="margin:0 0 8px;color:#475569">
+            <strong>Fecha de Vencimiento:</strong> <span style="color:${color};font-weight:bold">${esc(expiry_date)}</span>
+          </p>
+          <p style="margin:0;color:${color};font-weight:bold">
+            Estado: El equipo ${statusText}.
+          </p>
+        </div>
+        <p style="margin:0 0 24px;color:#334155;line-height:1.5">
+          Por favor, coordina la revisión o recarga correspondiente con el cliente y registra la actualización en la plataforma.
+        </p>
+        ${button(action_url, 'Ver Inventario de Equipos')}
+        `,
+      ),
+    }
+  },
+  consultant_weekly_pending: ({ consultant_name, companies_table_html, dashboard_url }) => ({
+    subject: 'Resumen Semanal de Pendientes - Regis SG-SST',
+    html: layout(
+      'Resumen Semanal de Pendientes',
+      `
+      <h1 style="margin:0 0 16px;font-size:20px;color:#0f172a">Hola ${esc(consultant_name)},</h1>
+      <p style="margin:0 0 16px;color:#334155;line-height:1.5">
+        A continuación, te presentamos el estado de pendientes para tus clientes asignados de esta semana. 
+        Úsalo para organizar tus prioridades y evitar retrasos en el cumplimiento legal.
+      </p>
+      <div style="margin:20px 0;overflow-x:auto">
+        ${companies_table_html}
+      </div>
+      <p style="margin:24px 0 24px;color:#334155;line-height:1.5">
+        Recuerda ingresar a la plataforma para gestionar estas tareas y subir las evidencias correspondientes.
+      </p>
+      ${button(dashboard_url, 'Ir al Panel Regis')}
+      `,
+    ),
+  }),
+  consultant_weekly_summary: ({ consultant_name, companies_table_html, dashboard_url }) => ({
+    subject: 'Balance Semanal de Tareas - Regis SG-SST',
+    html: layout(
+      'Balance Semanal de Cumplimiento',
+      `
+      <h1 style="margin:0 0 16px;font-size:20px;color:#0f172a">Hola ${esc(consultant_name)},</h1>
+      <p style="margin:0 0 16px;color:#334155;line-height:1.5">
+        Aquí tienes el balance de tareas completadas esta semana y lo que aún permanece abierto con cada uno de tus clientes.
+      </p>
+      <div style="margin:20px 0;overflow-x:auto">
+        ${companies_table_html}
+      </div>
+      <p style="margin:24px 0 24px;color:#334155;line-height:1.5">
+        Buen fin de semana. El lunes a primera hora recibirás la lista actualizada de prioridades.
+      </p>
+      ${button(dashboard_url, 'Ir al Panel Regis')}
       `,
     ),
   }),

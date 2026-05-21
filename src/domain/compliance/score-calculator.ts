@@ -2,33 +2,29 @@
 // Domain Layer — Score Calculator (T-F1-016 🔥 CRÍTICA)
 // Issue: https://github.com/dmaorisas/regis-sgsst-platform/issues/23
 // =========================================================
-// Calcula el % de cumplimiento aplicando redistribución de pesos
-// cuando hay estándares con status='no_aplica'.
+// Calcula el % de cumplimiento según la estructura oficial de la
+// Resolución 0312 de 2019 con jerarquía de 7 macroestándares.
 //
-// Especificación matemática:
-//   sum_no_aplica = Σ peso_original(s) where status='no_aplica'
-//   sum_base      = Σ peso_original(s) for s ∈ standards (todos los aplicables)
-//   total_aplicable = sum_base − sum_no_aplica
+// Especificación matemática requerida:
+//   1. Agrupar estándares aplicables por los 7 Macroestándares con sus pesos oficiales:
+//      - Recursos → 10% (Planear)
+//      - Gestión integral SG-SST → 15% (Planear)
+//      - Gestión de la salud → 20% (Hacer)
+//      - Gestión de peligros y riesgos → 30% (Hacer)
+//      - Gestión de amenazas → 10% (Hacer)
+//      - Verificación → 5% (Verificar)
+//      - Mejoramiento → 10% (Actuar)
 //
-//   Si total_aplicable = 0 (todos no_aplica o no hay estándares):
-//     score = 100  (decisión documentada en el reporte; "no hay nada
-//                   que evaluar" → empresa cumple por vacuidad)
+//   2. Para cada macroestándar, excluir los estándares con status='no_aplica'.
+//      - avance_interno = cumple_count / (total_standards_in_macro - no_aplica_count)
+//      - aporte = peso_oficial * avance_interno
 //
-//   En caso contrario:
-//     factor = sum_base / total_aplicable
-//     peso_redistribuido(s) = peso_original(s) * factor (s no es no_aplica)
-//     score = Σ peso_redistribuido(s) where status='cumple'
-//
-// Notas críticas:
-//   - 'pendiente' cuenta como 'no_cumple' (no suma).
-//   - Para Cap III sum_base = 100, así factor = 100/total_aplicable
-//     coincide con la fórmula del Issue. Para Cap I/II sum_base ≠ 100,
-//     entonces normalizamos: factor = sum_base/total_aplicable, y el score
-//     final lo escalamos a la base 100 dividiendo por sum_base * 100.
-//     → Equivalente: score(0..100) = (Σ peso_original(s cumple no aplica)) / total_aplicable * 100
+//   3. El cumplimiento total es la suma ponderada de macroestándares,
+//      excluyendo aquellos que no tienen ningún estándar aplicable (weight redistribution):
+//      - total_percentage = sum(aporte) / sum(peso_oficial de macros activos) * 100
 //
 // Precisión: usamos decimal.js (38 dígitos) y redondeamos al final a
-// 2 decimales (toFixed(2)). Esto evita el drift 0.1+0.2 ≠ 0.3.
+// 2 decimales (toFixed(2)). Esto evita el drift de precisión.
 // =========================================================
 
 import Decimal from 'decimal.js'
@@ -42,7 +38,7 @@ import type {
   StandardScoreDetail,
 } from './types'
 
-// 38 dígitos significativos cubre con holgura sumas de 60 weights * factor.
+// 38 dígitos significativos cubren con holgura todas las operaciones.
 Decimal.set({ precision: 38, rounding: Decimal.ROUND_HALF_UP })
 
 /** Redondea a 2 decimales y devuelve number. Half-up. */
@@ -51,23 +47,56 @@ function round2(d: Decimal): number {
 }
 
 const PHVA_KEYS: ReadonlyArray<CyclePHVA> = ['Planear', 'Hacer', 'Verificar', 'Actuar']
-
 const STATUSES: ReadonlyArray<EvaluationStatus> = ['cumple', 'no_cumple', 'no_aplica', 'pendiente']
 
+export type MacroInfo = {
+  name: string
+  weight: number
+  cycle: CyclePHVA
+}
+
+// 7 Macroestándares oficiales y sus pesos definidos por la Resolución 0312
+export const MACRO_STANDARDS_INFO: ReadonlyArray<MacroInfo> = [
+  { name: 'Recursos', weight: 10, cycle: 'Planear' },
+  { name: 'Gestión integral SG-SST', weight: 15, cycle: 'Planear' },
+  { name: 'Gestión de la salud', weight: 20, cycle: 'Hacer' },
+  { name: 'Gestión de peligros y riesgos', weight: 30, cycle: 'Hacer' },
+  { name: 'Gestión de amenazas', weight: 10, cycle: 'Hacer' },
+  { name: 'Verificación', weight: 5, cycle: 'Verificar' },
+  { name: 'Mejoramiento', weight: 10, cycle: 'Actuar' },
+]
+
+/** Maps a standard number (e.g. '1.1.1', '4.2.3') to its official macro-standard name. */
+export function getMacroForStandard(stdNum: string): string {
+  if (stdNum.startsWith('1.1.') || stdNum.startsWith('1.2.')) {
+    return 'Recursos'
+  }
+  if (stdNum.startsWith('2.')) {
+    return 'Gestión integral SG-SST'
+  }
+  if (stdNum.startsWith('3.')) {
+    return 'Gestión de la salud'
+  }
+  if (stdNum.startsWith('4.')) {
+    return 'Gestión de peligros y riesgos'
+  }
+  if (stdNum.startsWith('5.')) {
+    return 'Gestión de amenazas'
+  }
+  if (stdNum.startsWith('6.')) {
+    return 'Verificación'
+  }
+  if (stdNum.startsWith('7.')) {
+    return 'Mejoramiento'
+  }
+  return 'Otros'
+}
+
 /**
- * Calcula el resultado de cumplimiento para un conjunto de estándares
- * aplicables y sus evaluaciones.
- *
- * Garantías de invariante (verificadas en tests):
- *  - sum(by_cycle.*) === total_percentage  (con tolerancia 0.01 por redondeo)
- *  - by_standard.length === standards.length
- *  - by_standard ordenado por standard_number ascendente y estable
- *  - 0 ≤ total_percentage ≤ 100
+ * Calcula el resultado de cumplimiento jerárquico según Resolución 0312 de 2019.
  *
  * @param standards   estándares aplicables al capítulo de la empresa
- * @param evaluations evaluaciones (puede contener evaluaciones de estándares
- *                    no aplicables; se ignoran). Si un estándar aplicable no
- *                    tiene evaluación → status='pendiente' por defecto.
+ * @param evaluations evaluaciones registradas
  */
 export function calculateScore(standards: Standard[], evaluations: Evaluation[]): ScoreResult {
   if (!Array.isArray(standards)) {
@@ -86,13 +115,13 @@ export function calculateScore(standards: Standard[], evaluations: Evaluation[])
     evalByStandard.set(e.standard_id, e)
   }
 
-  // 1) Resolver status efectivo por estándar aplicable.
-  //    Estándar sin evaluación → 'pendiente' (= no_cumple para score).
+  // 1) Agrupar y resolver el estado de cada estándar aplicable
   type ResolvedStandard = {
     std: Standard
     status: EvaluationStatus
-    weight: Decimal // peso_original
+    macroName: string
   }
+
   const resolved: ResolvedStandard[] = standards.map((std) => {
     if (typeof std.weight_capitulo_iii !== 'number' || std.weight_capitulo_iii < 0) {
       throw new Error(
@@ -103,36 +132,80 @@ export function calculateScore(standards: Standard[], evaluations: Evaluation[])
     return {
       std,
       status: ev?.status ?? 'pendiente',
-      weight: new Decimal(std.weight_capitulo_iii),
+      macroName: getMacroForStandard(std.standard_number),
     }
   })
 
-  // 2) Sumas base.
-  const sumBase = resolved.reduce((acc, r) => acc.plus(r.weight), new Decimal(0))
-  const sumNoAplica = resolved
-    .filter((r) => r.status === 'no_aplica')
-    .reduce((acc, r) => acc.plus(r.weight), new Decimal(0))
-  const totalAplicable = sumBase.minus(sumNoAplica)
+  // Contadores generales de estado
+  const counts = { cumple: 0, no_cumple: 0, no_aplica: 0, pendiente: 0 }
+  for (const r of resolved) {
+    counts[r.status] += 1
+  }
 
-  // 3) Factor de redistribución.
-  //    Si no hay nada para evaluar → score 100 por vacuidad (decisión R7).
-  //    factor solo se aplica a estándares con status != no_aplica.
-  let factor: Decimal
-  if (totalAplicable.isZero()) {
-    factor = new Decimal(0) // estándares no_aplica reciben 0 igualmente
+  // 2) Calcular estadísticas de avance por Macroestándar
+  type MacroStats = {
+    info: MacroInfo
+    allStandards: ResolvedStandard[]
+    applicableStandards: ResolvedStandard[]
+    cumpleCount: number
+    isActive: boolean
+    avanceInterno: Decimal
+    aporte: Decimal
+  }
+
+  const macroStatsList: MacroStats[] = MACRO_STANDARDS_INFO.map((macro) => {
+    const allInMacro = resolved.filter((r) => r.macroName === macro.name)
+    const applicableInMacro = allInMacro.filter((r) => r.status !== 'no_aplica')
+    const cumpleInMacro = applicableInMacro.filter((r) => r.status === 'cumple')
+
+    const hasStandards = allInMacro.length > 0
+    const hasApplicable = applicableInMacro.length > 0
+    const isActive = hasStandards && hasApplicable
+
+    let avanceInterno = new Decimal(0)
+    let aporte = new Decimal(0)
+
+    if (isActive) {
+      avanceInterno = new Decimal(cumpleInMacro.length).dividedBy(applicableInMacro.length)
+      aporte = new Decimal(macro.weight).times(avanceInterno)
+    } else if (hasStandards && !hasApplicable) {
+      // Si tiene estándares pero todos son no_aplica, se considera 100% de avance por vacuidad interna,
+      // pero no se contará como macroestándar "activo" para no sesgar el denominador de redistribución
+      avanceInterno = new Decimal(1)
+      aporte = new Decimal(macro.weight)
+    }
+
+    return {
+      info: macro,
+      allStandards: allInMacro,
+      applicableStandards: applicableInMacro,
+      cumpleCount: cumpleInMacro.length,
+      isActive,
+      avanceInterno,
+      aporte,
+    }
+  })
+
+  // 3) Determinar la suma de pesos de macroestándares activos para redistribución (Denominador)
+  const activeMacros = macroStatsList.filter((m) => m.isActive)
+  const wActive = activeMacros.reduce((acc, m) => acc.plus(m.info.weight), new Decimal(0))
+
+  // Calcular el porcentaje total de cumplimiento
+  let totalPctD = new Decimal(0)
+  if (wActive.gt(0)) {
+    const sumAportes = activeMacros.reduce((acc, m) => acc.plus(m.aporte), new Decimal(0))
+    totalPctD = sumAportes.dividedBy(wActive).times(100)
   } else {
-    factor = sumBase.dividedBy(totalAplicable)
+    // Si no hay estándares aplicables en toda la empresa (todos no_aplica o lista vacía)
+    totalPctD = new Decimal(100)
   }
 
-  // 4) Detalle por estándar y acumuladores.
+  // 4) Calcular contribuciones individuales para cada estándar aplicable y ciclo
+  //    Para mantener la compatibilidad y los invariantes del sistema:
+  //      - original_weight de un estándar = peso_macro / cantidad_total_estándares_en_macro
+  //      - redistributed_weight de un estándar = (peso_macro / cantidad_aplicables_en_macro) * (100 / wActive)
+  //      - contributes_to_score = redistributed_weight si status='cumple' de lo contrario 0
   const details: Array<StandardScoreDetail & { _redistD: Decimal }> = []
-  let scoreD = new Decimal(0)
-  const counts: Record<EvaluationStatus, number> = {
-    cumple: 0,
-    no_cumple: 0,
-    no_aplica: 0,
-    pendiente: 0,
-  }
   const byCycleD: Record<CyclePHVA, Decimal> = {
     Planear: new Decimal(0),
     Hacer: new Decimal(0),
@@ -141,71 +214,70 @@ export function calculateScore(standards: Standard[], evaluations: Evaluation[])
   }
 
   for (const r of resolved) {
-    counts[r.status] += 1
-
-    let redistributed: Decimal
-    let contributes: Decimal
-    if (r.status === 'no_aplica') {
-      redistributed = new Decimal(0)
-      contributes = new Decimal(0)
-    } else {
-      redistributed = r.weight.times(factor)
-      contributes = r.status === 'cumple' ? redistributed : new Decimal(0)
+    const mStats = macroStatsList.find((m) => m.info.name === r.macroName)
+    if (!mStats) {
+      // Estándar huérfano (no debería ocurrir con los seeds correctos)
+      details.push({
+        _redistD: new Decimal(0),
+        standard_id: r.std.id,
+        standard_number: r.std.standard_number,
+        status: r.status,
+        cycle_phva: r.std.cycle_phva,
+        original_weight: 0,
+        redistributed_weight: 0,
+        contributes_to_score: 0,
+      })
+      continue
     }
 
-    scoreD = scoreD.plus(contributes)
-    byCycleD[r.std.cycle_phva] = byCycleD[r.std.cycle_phva].plus(contributes)
+    const totalInMacro = mStats.allStandards.length
+    const applInMacro = mStats.applicableStandards.length
+    const macroWeight = new Decimal(mStats.info.weight)
+
+    let origWeightD = new Decimal(0)
+    let redistWeightD = new Decimal(0)
+    let contributesD = new Decimal(0)
+
+    if (totalInMacro > 0) {
+      origWeightD = macroWeight.dividedBy(totalInMacro)
+    }
+
+    if (r.status !== 'no_aplica' && applInMacro > 0 && wActive.gt(0)) {
+      redistWeightD = macroWeight.dividedBy(applInMacro).times(new Decimal(100).dividedBy(wActive))
+      contributesD = r.status === 'cumple' ? redistWeightD : new Decimal(0)
+    }
+
+    byCycleD[r.std.cycle_phva] = byCycleD[r.std.cycle_phva].plus(contributesD)
 
     details.push({
-      _redistD: redistributed,
+      _redistD: redistWeightD,
       standard_id: r.std.id,
       standard_number: r.std.standard_number,
       status: r.status,
       cycle_phva: r.std.cycle_phva,
-      original_weight: round2(r.weight),
-      redistributed_weight: round2(redistributed),
-      contributes_to_score: round2(contributes),
+      original_weight: round2(origWeightD),
+      redistributed_weight: round2(redistWeightD),
+      contributes_to_score: round2(contributesD),
     })
   }
 
-  // Caso "todos no_aplica" o standards.length=0:
-  // total_aplicable = 0 → no hay estándares para evaluar → score = 100
-  // (vacuidad lógica). Documentado en el reporte de ejecución (R7).
-  let totalPctD: Decimal
-  if (totalAplicable.isZero()) {
-    totalPctD = new Decimal(100)
-  } else {
-    // Normalizar a base 100 dividiendo por sum_base.
-    // Para Cap III sum_base=100 → no cambia.
-    // Para Cap I/II sum_base<100 → escala correctamente.
-    totalPctD = scoreD.dividedBy(sumBase).times(100)
-  }
-
-  // by_cycle también debe escalarse a base 100.
+  // by_cycle consolidada en base 100
   const byCycle: ByCycle = {
     Planear: 0,
     Hacer: 0,
     Verificar: 0,
     Actuar: 0,
   }
-  if (totalAplicable.isZero()) {
-    // Distribución vacía: el 100 no se asigna a un ciclo concreto.
-    // Convención: dejar 0 en cada ciclo. Documentado.
-    for (const k of PHVA_KEYS) byCycle[k] = 0
-  } else {
-    for (const k of PHVA_KEYS) {
-      byCycle[k] = round2(byCycleD[k].dividedBy(sumBase).times(100))
-    }
+  for (const k of PHVA_KEYS) {
+    byCycle[k] = round2(byCycleD[k])
   }
 
-  // Ordenar by_standard por standard_number (orden estable, comparación
-  // segmentada para que '1.10.1' > '1.2.1' como en numeración jerárquica).
+  // Ordenar by_standard por standard_number (orden estable jerárquico)
   details.sort((a, b) => compareStandardNumbers(a.standard_number, b.standard_number))
 
-  // total_evaluated: ítems con status diferente a 'pendiente'
+  // total_evaluated: ítems evaluados (con status diferente a 'pendiente')
   const totalEvaluated = counts.cumple + counts.no_cumple + counts.no_aplica
 
-  // Drop helper field _redistD del output final.
   const byStandard: StandardScoreDetail[] = details.map((d) => ({
     standard_id: d.standard_id,
     standard_number: d.standard_number,
@@ -233,7 +305,7 @@ export function calculateScore(standards: Standard[], evaluations: Evaluation[])
  * Compara dos standard_numbers como secuencias jerárquicas: '1.2.10' > '1.2.9'.
  * Cae a comparación lex si algún segmento no es numérico.
  */
-function compareStandardNumbers(a: string, b: string): number {
+export function compareStandardNumbers(a: string, b: string): number {
   const pa = a.split('.')
   const pb = b.split('.')
   const len = Math.max(pa.length, pb.length)

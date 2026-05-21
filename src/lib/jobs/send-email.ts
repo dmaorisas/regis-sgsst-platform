@@ -26,7 +26,14 @@ import type { Job } from 'pg-boss'
 
 const log = createLogger({ module: 'jobs:send_email' })
 
-const KNOWN_TEMPLATES: TemplateName[] = ['welcome', 'score_alert', 'pm_snapshot']
+const KNOWN_TEMPLATES: TemplateName[] = [
+  'welcome',
+  'score_alert',
+  'pm_snapshot',
+  'equipment_expiry',
+  'consultant_weekly_pending',
+  'consultant_weekly_summary',
+]
 
 let registered = false
 

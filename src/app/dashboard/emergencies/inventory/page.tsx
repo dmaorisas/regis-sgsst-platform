@@ -1,13 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import EmergencyAudioUploader from './EmergencyAudioUploader'
+import EmergencyInventory from '../EmergencyInventory'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-export default async function EmergenciesPage() {
+export default async function EmergencyInventoryPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
 
@@ -37,7 +37,7 @@ export default async function EmergenciesPage() {
 
   const { data: company } = await supabase
     .from('companies')
-    .select('razon_social, ciiu_principal')
+    .select('razon_social')
     .eq('id', companyId)
     .single()
 
@@ -52,7 +52,7 @@ export default async function EmergenciesPage() {
         </Link>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Asistente de Planes de Emergencia</h1>
+            <h1 className="text-2xl font-bold">Inventario de Equipos de Emergencia</h1>
             <p className="text-gray-600">
               <span className="rounded-md bg-slate-100 px-2.5 py-1 text-slate-700">
                 {company?.razon_social}
@@ -62,15 +62,8 @@ export default async function EmergenciesPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="rounded-r-md border-l-4 border-red-500 bg-red-50 p-4">
-          <p className="text-sm text-red-800">
-            Sube el archivo de audio (.mp3 o .m4a) de tu nota de voz grabada durante la visita
-            técnica. Whisper transcribirá tus hallazgos y Claude redactará automáticamente el Plan
-            de Acción Correctiva Inmediata.
-          </p>
-        </div>
-        <EmergencyAudioUploader companyId={companyId} />
+      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <EmergencyInventory companyId={companyId} />
       </div>
     </div>
   )

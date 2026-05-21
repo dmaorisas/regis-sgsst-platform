@@ -54,6 +54,14 @@ export async function getBoss(): Promise<PgBoss> {
       log.error({ err }, 'pg-boss error event')
     })
     await boss.start()
+
+    // Crear las colas requeridas por la aplicación (requerido por pg-boss v10+ antes de work/send)
+    await boss.createQueue('send_email')
+    await boss.createQueue('check_equipment_expiry')
+    await boss.createQueue('generate_monthly_logs')
+    await boss.createQueue('consultant_weekly_pending')
+    await boss.createQueue('consultant_weekly_summary')
+
     bossInstance = boss
     return boss
   })()

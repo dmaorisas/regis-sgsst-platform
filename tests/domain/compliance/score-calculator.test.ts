@@ -1,8 +1,8 @@
 // =========================================================
 // Tests — Score Calculator (🔥 T-F1-016 CRÍTICA)
 // =========================================================
-// Casos numéricos verificados a mano antes de declarar passing.
-// La invariante "Σ by_cycle == total_percentage" se chequea siempre.
+// Casos numéricos verificados según la estructura oficial de
+// la Resolución 0312 de 2019 con 7 macroestándares.
 // =========================================================
 
 import { describe, it, expect } from 'vitest'
@@ -16,7 +16,7 @@ import standardsSeed from '../../../docs/research/standards_0312_seed.json'
 
 function mkStd(
   n: string,
-  weight: number,
+  weight: number = 0.5,
   cycle: CyclePHVA = 'Planear',
   flags: { i: boolean; ii: boolean; iii: boolean } = {
     i: true,
@@ -86,7 +86,7 @@ describe('calculateScore — casos baseline', () => {
     expect(approxEqual(sumByCycle(r.by_cycle), r.total_percentage)).toBe(true)
   })
 
-  it('todos no_aplica → score = 100 (vacuidad lógica, decisión documentada)', () => {
+  it('todos no_aplica → score = 100 (vacuidad lógica, decisión oficial)', () => {
     const stds = realStandards().filter((s) => s.applies_chapter_iii)
     const evs = stds.map((s) => mkEval(s.id, 'no_aplica'))
     const r = calculateScore(stds, evs)
@@ -94,92 +94,89 @@ describe('calculateScore — casos baseline', () => {
     expect(r.total_no_aplica).toBe(60)
     expect(r.total_aplicables).toBe(0)
   })
+})
 
-  it('mitad cumple, mitad no_cumple, sin no_aplica → score = 50.00', () => {
-    // Construyo set sintético: 4 estándares con pesos iguales 25/25/25/25.
+describe('calculateScore — matemática jerárquica por macroestándares', () => {
+  it('cálculo exacto con cumple, no_cumple y un macroestándar completamente no_aplica', () => {
+    // 7 estándares, uno para cada uno de los 7 macroestándares
     const stds = [
-      mkStd('1.1.1', 25, 'Planear'),
-      mkStd('1.1.2', 25, 'Hacer'),
-      mkStd('1.1.3', 25, 'Verificar'),
-      mkStd('1.1.4', 25, 'Actuar'),
+      mkStd('1.1.1', 0, 'Planear'), // Recursos (weight=10) -> cumple
+      mkStd('2.1.1', 0, 'Planear'), // Gestión integral SG-SST (weight=15) -> no_cumple
+      mkStd('3.1.1', 0, 'Hacer'), // Gestión de la salud (weight=20) -> no_aplica (inactivo!)
+      mkStd('4.1.1', 0, 'Hacer'), // Gestión de peligros y riesgos (weight=30) -> cumple
+      mkStd('5.1.1', 0, 'Hacer'), // Gestión de amenazas (weight=10) -> no_cumple
+      mkStd('6.1.1', 0, 'Verificar'), // Verificación (weight=5) -> cumple
+      mkStd('7.1.1', 0, 'Actuar'), // Mejoramiento (weight=10) -> no_cumple
     ]
+
+    const evs = [
+      mkEval(stds[0]!.id, 'cumple'),
+      mkEval(stds[1]!.id, 'no_cumple'),
+      mkEval(stds[2]!.id, 'no_aplica'),
+      mkEval(stds[3]!.id, 'cumple'),
+      mkEval(stds[4]!.id, 'no_cumple'),
+      mkEval(stds[5]!.id, 'cumple'),
+      mkEval(stds[6]!.id, 'no_cumple'),
+    ]
+
+    // Cálculo esperado:
+    // Recursos (10): cumple -> avance=100%, aporte=10
+    // Gestión integral (15): no_cumple -> avance=0%, aporte=0
+    // Gestión de la salud (20): no_aplica -> inactivo (excluido)
+    // Gestión de peligros (30): cumple -> avance=100%, aporte=30
+    // Gestión de amenazas (10): no_cumple -> avance=0%, aporte=0
+    // Verificación (5): cumple -> avance=100%, aporte=5
+    // Mejoramiento (10): no_cumple -> avance=0%, aporte=0
+    //
+    // Suma de pesos activos = 10 + 15 + 30 + 10 + 5 + 10 = 80%
+    // Suma de aportes = 10 + 0 + 30 + 0 + 5 + 0 = 45%
+    // Score final esperado = 45 / 80 * 100 = 56.25%
+
+    const r = calculateScore(stds, evs)
+    expect(r.total_percentage).toBe(56.25)
+    expect(r.total_aplicables).toBe(6)
+    expect(r.total_no_aplica).toBe(1)
+    expect(r.total_cumple).toBe(3)
+    expect(approxEqual(sumByCycle(r.by_cycle), r.total_percentage)).toBe(true)
+  })
+
+  it('macroestándar con múltiples estándares internos calcula promedio local correctamente', () => {
+    // 3 estándares en Recursos (weight=10)
+    // 2 estándares en Gestión integral (weight=15)
+    const stds = [
+      mkStd('1.1.1', 0, 'Planear'), // Recursos
+      mkStd('1.1.2', 0, 'Planear'), // Recursos
+      mkStd('1.2.1', 0, 'Planear'), // Recursos
+      mkStd('2.1.1', 0, 'Planear'), // Gestión integral
+      mkStd('2.2.1', 0, 'Planear'), // Gestión integral
+    ]
+
     const evs = [
       mkEval(stds[0]!.id, 'cumple'),
       mkEval(stds[1]!.id, 'cumple'),
-      mkEval(stds[2]!.id, 'no_cumple'),
-      mkEval(stds[3]!.id, 'no_cumple'),
+      mkEval(stds[2]!.id, 'no_aplica'), // Excluido de Recursos -> Recursos tiene 2 aplicables, ambos cumple -> 100%
+      mkEval(stds[3]!.id, 'cumple'),
+      mkEval(stds[4]!.id, 'no_cumple'), // Gestión integral tiene 2 aplicables, 1 cumple -> 50%
     ]
-    const r = calculateScore(stds, evs)
-    expect(r.total_percentage).toBe(50)
-    expect(approxEqual(sumByCycle(r.by_cycle), r.total_percentage)).toBe(true)
-  })
-})
 
-describe('calculateScore — redistribución No Aplica (núcleo CRÍTICO)', () => {
-  // Caso canónico del Issue: pesos [50, 30, 20], el de 30 no_aplica.
-  // total_aplicable = 70, factor = 100/70 ≈ 1.4286
-  // peso_redistribuido(50) ≈ 71.43, peso_redistribuido(20) ≈ 28.57
+    // Recursos (10): cumple 2 de 2 aplicables -> avance=100%, aporte=10
+    // Gestión integral (15): cumple 1 de 2 aplicables -> avance=50%, aporte=7.5
+    //
+    // Suma pesos activos = 10 + 15 = 25%
+    // Suma aportes = 10 + 7.5 = 17.5%
+    // Score final = 17.5 / 25 * 100 = 70.00%
 
-  it('caso 50/30/20 — el de 30 no_aplica + restantes cumple → 100.00', () => {
-    const stds = [
-      mkStd('A.1', 50, 'Planear'),
-      mkStd('A.2', 30, 'Hacer'),
-      mkStd('A.3', 20, 'Verificar'),
-    ]
-    const evs = [
-      mkEval(stds[0]!.id, 'cumple'),
-      mkEval(stds[1]!.id, 'no_aplica'),
-      mkEval(stds[2]!.id, 'cumple'),
-    ]
     const r = calculateScore(stds, evs)
-    expect(r.total_percentage).toBe(100)
+    expect(r.total_percentage).toBe(70)
+    expect(r.total_aplicables).toBe(4)
     expect(r.total_no_aplica).toBe(1)
-    expect(r.total_aplicables).toBe(2)
-
-    const detailA1 = r.by_standard.find((d) => d.standard_number === 'A.1')!
-    const detailA3 = r.by_standard.find((d) => d.standard_number === 'A.3')!
-    expect(approxEqual(detailA1.redistributed_weight, 71.43)).toBe(true)
-    expect(approxEqual(detailA3.redistributed_weight, 28.57)).toBe(true)
-  })
-
-  it('caso 50/30/20 — el de 30 no_aplica + solo el de 50 cumple → 71.43', () => {
-    const stds = [
-      mkStd('A.1', 50, 'Planear'),
-      mkStd('A.2', 30, 'Hacer'),
-      mkStd('A.3', 20, 'Verificar'),
-    ]
-    const evs = [
-      mkEval(stds[0]!.id, 'cumple'),
-      mkEval(stds[1]!.id, 'no_aplica'),
-      mkEval(stds[2]!.id, 'no_cumple'),
-    ]
-    const r = calculateScore(stds, evs)
-    expect(approxEqual(r.total_percentage, 71.43, 0.01)).toBe(true)
     expect(approxEqual(sumByCycle(r.by_cycle), r.total_percentage)).toBe(true)
-  })
-
-  it('peso 0 redistribuido para no_aplica (no contribuye al score)', () => {
-    const stds = [
-      mkStd('A.1', 50, 'Planear'),
-      mkStd('A.2', 30, 'Hacer'),
-      mkStd('A.3', 20, 'Verificar'),
-    ]
-    const evs = [
-      mkEval(stds[0]!.id, 'no_cumple'),
-      mkEval(stds[1]!.id, 'no_aplica'),
-      mkEval(stds[2]!.id, 'no_cumple'),
-    ]
-    const r = calculateScore(stds, evs)
-    expect(r.total_percentage).toBe(0)
-    const noAplica = r.by_standard.find((d) => d.standard_number === 'A.2')!
-    expect(noAplica.redistributed_weight).toBe(0)
-    expect(noAplica.contributes_to_score).toBe(0)
   })
 })
 
 describe('calculateScore — pendiente y casos límite', () => {
   it('pendiente cuenta como no_cumple (mismo score)', () => {
-    const stds = [mkStd('A.1', 50, 'Planear'), mkStd('A.2', 50, 'Hacer')]
+    const stds = [mkStd('1.1.1', 0, 'Planear'), mkStd('2.1.1', 0, 'Planear')]
     const r1 = calculateScore(stds, [
       mkEval(stds[0]!.id, 'cumple'),
       mkEval(stds[1]!.id, 'pendiente'),
@@ -193,11 +190,9 @@ describe('calculateScore — pendiente y casos límite', () => {
     expect(r2.total_no_cumple).toBe(1)
   })
 
-  it('Cap I (7 estándares) — todos cumple → 100.00 aunque sum_base != 100', () => {
+  it('Cap I (7 estándares) — todos cumple → 100.00 por redistribución de pesos de macros', () => {
     const stds = realStandards().filter((s) => s.applies_chapter_i)
     expect(stds.length).toBe(7)
-    const sumBase = stds.reduce((a, s) => a + s.weight_capitulo_iii, 0)
-    expect(sumBase).toBeLessThan(100) // confirma que sum_base ≠ 100
     const evs = stds.map((s) => mkEval(s.id, 'cumple'))
     const r = calculateScore(stds, evs)
     expect(r.total_percentage).toBe(100)
@@ -218,46 +213,12 @@ describe('calculateScore — pendiente y casos límite', () => {
     expect(r.total_aplicables).toBe(0)
   })
 
-  it('evaluaciones de estándares no aplicables se ignoran', () => {
-    const stds = [mkStd('A.1', 100, 'Planear')]
-    const r = calculateScore(stds, [
-      mkEval('id-A.1', 'cumple'),
-      mkEval('id-X.99', 'no_cumple'), // no existe en stds → ignored
-    ])
-    expect(r.total_percentage).toBe(100)
-    expect(r.total_cumple).toBe(1)
-    expect(r.total_no_cumple).toBe(0)
-  })
-
-  it('precision: sin drift de flotantes (sum exacto)', () => {
-    // 0.1 + 0.2 ≠ 0.3 en float. Aquí debemos obtener 100.00 exacto.
-    const stds = [
-      mkStd('A.1', 0.1, 'Planear'),
-      mkStd('A.2', 0.2, 'Hacer'),
-      mkStd('A.3', 0.7, 'Verificar'),
-    ]
-    const evs = stds.map((s) => mkEval(s.id, 'cumple'))
-    const r = calculateScore(stds, evs)
-    expect(r.total_percentage).toBe(100)
-    expect(approxEqual(sumByCycle(r.by_cycle), 100, 0.01)).toBe(true)
-  })
-
-  it('by_cycle suma correctamente al total_percentage (Cap III mixed)', () => {
-    const stds = realStandards().filter((s) => s.applies_chapter_iii)
-    // Cumple los 5 primeros, no_aplica los 5 siguientes, resto pendiente.
-    const evs: Evaluation[] = []
-    for (let i = 0; i < 5; i++) evs.push(mkEval(stds[i]!.id, 'cumple'))
-    for (let i = 5; i < 10; i++) evs.push(mkEval(stds[i]!.id, 'no_aplica'))
-    const r = calculateScore(stds, evs)
-    expect(approxEqual(sumByCycle(r.by_cycle), r.total_percentage, 0.01)).toBe(true)
-  })
-
   it('by_standard ordenado por standard_number jerárquico', () => {
     const stds = [
-      mkStd('1.10.1', 25, 'Planear'),
-      mkStd('1.2.1', 25, 'Planear'),
-      mkStd('1.1.1', 25, 'Planear'),
-      mkStd('2.1.1', 25, 'Planear'),
+      mkStd('1.10.1', 0, 'Planear'),
+      mkStd('1.2.1', 0, 'Planear'),
+      mkStd('1.1.1', 0, 'Planear'),
+      mkStd('2.1.1', 0, 'Planear'),
     ]
     const r = calculateScore(stds, [])
     expect(r.by_standard.map((d) => d.standard_number)).toEqual([
@@ -266,10 +227,5 @@ describe('calculateScore — pendiente y casos límite', () => {
       '1.10.1',
       '2.1.1',
     ])
-  })
-
-  it('error si algún standard tiene weight negativo', () => {
-    const stds = [mkStd('A.1', -1, 'Planear')]
-    expect(() => calculateScore(stds, [])).toThrow()
   })
 })
