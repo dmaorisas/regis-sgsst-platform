@@ -7,6 +7,7 @@
 
 import Link from 'next/link'
 import type { AuthenticatedUser } from '@/lib/auth/get-user-with-roles'
+import type { AccessLevel, ModuleKey } from '@/lib/auth/permissions-config'
 import NotificationBell from '@/components/dashboard/NotificationBell'
 
 const ROLE_LABEL: Record<string, string> = {
@@ -16,12 +17,48 @@ const ROLE_LABEL: Record<string, string> = {
   worker: 'Trabajador',
 }
 
+type NavItem = {
+  moduleKey: ModuleKey
+  href: string
+  label: string
+  className?: string
+}
+
+const EMPRESA_NAV: NavItem[] = [
+  { moduleKey: 'dashboard', href: '/dashboard', label: 'Dashboard' },
+  { moduleKey: 'medical', href: '/dashboard/medical', label: 'Medico' },
+  { moduleKey: 'matrices', href: '/dashboard/matrices', label: 'Matrices GTC-45' },
+  { moduleKey: 'actas', href: '/dashboard/actas', label: 'Actas' },
+  { moduleKey: 'emergencies', href: '/dashboard/emergencies', label: 'Plan Emergencias' },
+  { moduleKey: 'inventory', href: '/dashboard/emergencies/inventory', label: 'Inventario' },
+  { moduleKey: 'documents', href: '/dashboard/documents', label: 'Documentos' },
+  { moduleKey: 'monthly_logs', href: '/dashboard/monthly-logs', label: 'Bitacora' },
+]
+
+const REGIS_NAV: NavItem[] = [
+  {
+    moduleKey: 'portfolio',
+    href: '/regis/dashboard',
+    label: 'Cartera',
+    className: 'font-semibold text-sky-600 hover:text-sky-800',
+  },
+  { moduleKey: 'companies', href: '/regis/companies', label: 'Empresas' },
+  { moduleKey: 'users', href: '/regis/users', label: 'Usuarios' },
+]
+
+function canSee(access: Record<ModuleKey, AccessLevel> | undefined, key: ModuleKey): boolean {
+  if (!access) return true
+  return access[key] !== 'none'
+}
+
 export default function Header({
   user,
   homeHref = '/dashboard',
+  moduleAccess,
 }: {
   user: AuthenticatedUser
   homeHref?: string
+  moduleAccess?: Record<ModuleKey, AccessLevel>
 }) {
   const primaryRole = user.roleNames[0] ?? 'worker'
   return (
@@ -38,52 +75,32 @@ export default function Header({
           </Link>
 
           <nav className="flex items-center gap-4 text-sm font-medium text-slate-600">
-            <Link href="/dashboard" className="hover:text-sky-600">
-              Dashboard
-            </Link>
-            <Link href="/dashboard/medical" className="hover:text-sky-600">
-              Médico
-            </Link>
-            <Link href="/dashboard/matrices" className="hover:text-sky-600">
-              Matrices GTC-45
-            </Link>
-            <Link href="/dashboard/actas" className="hover:text-sky-600">
-              Actas
-            </Link>
-            <Link href="/dashboard/emergencies" className="hover:text-sky-600">
-              Plan Emergencias
-            </Link>
-            <Link href="/dashboard/emergencies/inventory" className="hover:text-sky-600">
-              Inventario
-            </Link>
-            <Link href="/dashboard/documents" className="hover:text-sky-600">
-              Documentos
-            </Link>
-            <Link href="/dashboard/monthly-logs" className="hover:text-sky-600">
-              Bitácora
-            </Link>
-            {user.isRegisStaff && (
+            {EMPRESA_NAV.filter((item) => canSee(moduleAccess, item.moduleKey)).map((item) => (
               <Link
-                href="/regis/dashboard"
-                className="ml-4 border-l border-slate-300 pl-4 font-semibold text-sky-600 hover:text-sky-800"
+                key={item.moduleKey}
+                href={item.href}
+                className={item.className ?? 'hover:text-sky-600'}
               >
-                ← Volver a Cartera
+                {item.label}
               </Link>
-            )}
-            {user.roleNames.includes('regis_admin') && (
+            ))}
+            {user.isRegisStaff && (
               <>
-                <Link
-                  href="/regis/companies"
-                  className="ml-4 border-l border-slate-300 pl-4 hover:text-sky-600"
-                >
-                  Empresas
-                </Link>
-                <Link
-                  href="/regis/users"
-                  className="ml-4 border-l border-slate-300 pl-4 hover:text-sky-600"
-                >
-                  Usuarios
-                </Link>
+                {REGIS_NAV.filter((item) => canSee(moduleAccess, item.moduleKey)).map((item, i) => (
+                  <Link
+                    key={item.moduleKey}
+                    href={item.href}
+                    className={`${i === 0 ? 'ml-4 border-l border-slate-300 pl-4' : ''} ${item.className ?? 'hover:text-sky-600'}`}
+                  >
+                    {i === 0 ? '<- ' : ''}
+                    {item.label}
+                  </Link>
+                ))}
+                {user.roleNames.includes('regis_admin') && (
+                  <Link href="/regis/permissions" className="hover:text-sky-600">
+                    Permisos
+                  </Link>
+                )}
               </>
             )}
             <Link href="/admin/pila-demo" className="ml-4 text-amber-600 hover:text-sky-600">

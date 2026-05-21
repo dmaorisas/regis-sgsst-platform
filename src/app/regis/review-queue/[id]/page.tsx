@@ -5,6 +5,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import { getUserModuleMap } from '@/lib/auth/get-module-access'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import Header from '@/components/dashboard/Header'
 import ReviewItemDetail from '@/components/review-queue/ReviewItemDetail'
@@ -16,6 +17,8 @@ export default async function ReviewItemPage({ params }: { params: { id: string 
   if (!user) redirect('/login')
   if (!user.isRegisStaff) redirect('/dashboard')
 
+  const moduleAccess = await getUserModuleMap(user)
+
   const admin = getSupabaseAdminClient()
   const { data, error } = await admin
     .from('ai_outputs_pending_review')
@@ -26,7 +29,7 @@ export default async function ReviewItemPage({ params }: { params: { id: string 
   if (error) {
     return (
       <div className="min-h-screen bg-slate-50">
-        <Header user={user} homeHref="/regis/dashboard" />
+        <Header user={user} homeHref="/regis/dashboard" moduleAccess={moduleAccess} />
         <main className="mx-auto max-w-3xl px-4 py-8">
           <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-rose-900">
             <h2 className="text-lg font-semibold">Error</h2>
@@ -41,7 +44,7 @@ export default async function ReviewItemPage({ params }: { params: { id: string 
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header user={user} homeHref="/regis/dashboard" />
+      <Header user={user} homeHref="/regis/dashboard" moduleAccess={moduleAccess} />
       <main className="mx-auto max-w-4xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <Link href="/regis/review-queue" className="text-sm text-sky-700 hover:text-sky-900">
           ← Volver a la cola

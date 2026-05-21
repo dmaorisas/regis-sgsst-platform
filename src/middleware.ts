@@ -95,6 +95,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  response.headers.set('x-pathname', path)
   return response
 }
 

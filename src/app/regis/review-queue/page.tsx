@@ -8,6 +8,7 @@
 
 import { redirect } from 'next/navigation'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import { getUserModuleMap } from '@/lib/auth/get-module-access'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import Header from '@/components/dashboard/Header'
 import ReviewItemsList from '@/components/review-queue/ReviewItemsList'
@@ -19,6 +20,8 @@ export default async function ReviewQueuePage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
   if (!user.isRegisStaff) redirect('/dashboard')
+
+  const moduleAccess = await getUserModuleMap(user)
 
   // Usamos admin client porque ya verificamos isRegisStaff arriba; nos
   // ahorramos las RLS policies en la query inicial. Las acciones de
@@ -46,7 +49,7 @@ export default async function ReviewQueuePage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header user={user} homeHref="/regis/dashboard" />
+      <Header user={user} homeHref="/regis/dashboard" moduleAccess={moduleAccess} />
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <div>
           <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Cola de revisión IA</h1>

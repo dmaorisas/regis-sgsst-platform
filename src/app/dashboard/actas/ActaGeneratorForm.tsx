@@ -69,6 +69,9 @@ export default function ActaGeneratorForm({
   // Asistentes seleccionados (IDs de trabajadores)
   const [selectedAttendees, setSelectedAttendees] = useState<string[]>([])
 
+  // Quórum
+  const [quorumCompleto, setQuorumCompleto] = useState<'' | 'si' | 'no'>('')
+
   // Opciones de fuente de datos
   const [sourceType, setSourceType] = useState<'transcription' | 'audio'>('transcription')
   const [transcription, setTranscription] = useState('')
@@ -462,9 +465,30 @@ export default function ActaGeneratorForm({
             </div>
           </div>
 
+          {/* Verificacion de Quorum */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Quorum de la Reunion</label>
+            <select
+              required
+              value={quorumCompleto}
+              onChange={(e) => setQuorumCompleto(e.target.value as '' | 'si' | 'no')}
+              className="mt-1 block w-full rounded-md border border-gray-300 bg-white p-2 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+            >
+              <option value="">-- Seleccionar --</option>
+              <option value="si">Si, se completo el quorum minimo</option>
+              <option value="no">No, no se completo el quorum minimo</option>
+            </select>
+            {quorumCompleto === 'no' && (
+              <p className="mt-2 text-sm font-medium text-red-600">
+                No es posible generar el acta sin quorum minimo. La reunion no tiene validez legal
+                sin la asistencia requerida.
+              </p>
+            )}
+          </div>
+
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
-              Contenido de la Reunión
+              Contenido de la Reunion
             </label>
             <div className="rounded-md border border-gray-200">
               <div className="flex border-b border-gray-200 bg-gray-50">
@@ -616,7 +640,7 @@ export default function ActaGeneratorForm({
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || quorumCompleto !== 'si'}
             className="flex w-full justify-center rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
           >
             {isLoading ? 'Redactando acta con IA...' : 'Generar Acta Profesional'}

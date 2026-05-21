@@ -11,6 +11,7 @@
 
 import { redirect } from 'next/navigation'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import { getUserModuleMap } from '@/lib/auth/get-module-access'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import Header from '@/components/dashboard/Header'
 import PortfolioStats from '@/components/dashboard/PortfolioStats'
@@ -23,6 +24,8 @@ export default async function RegisDashboardPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
   if (!user.isRegisStaff) redirect('/dashboard')
+
+  const moduleAccess = await getUserModuleMap(user)
 
   // Las consultas usan admin client porque cruzamos snapshots ↔ centros ↔
   // companies y la lógica de negocio (resolver "último snapshot por
@@ -169,7 +172,7 @@ export default async function RegisDashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header user={user} homeHref="/regis/dashboard" />
+      <Header user={user} homeHref="/regis/dashboard" moduleAccess={moduleAccess} />
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <div>
           <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Cartera de empresas</h1>

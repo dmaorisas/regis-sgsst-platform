@@ -12,6 +12,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import { getUserModuleMap } from '@/lib/auth/get-module-access'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import Header from '@/components/dashboard/Header'
 import { createLogger } from '@/lib/logger'
@@ -37,6 +38,8 @@ const STATUS_STYLE: Record<string, string> = {
 export default async function StandardDetailPage({ params }: { params: { id: string } }) {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
+
+  const moduleAccess = await getUserModuleMap(user)
 
   const admin = getSupabaseAdminClient()
 
@@ -133,7 +136,11 @@ export default async function StandardDetailPage({ params }: { params: { id: str
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header user={user} homeHref={user.isRegisStaff ? '/regis/dashboard' : '/dashboard'} />
+      <Header
+        user={user}
+        homeHref={user.isRegisStaff ? '/regis/dashboard' : '/dashboard'}
+        moduleAccess={moduleAccess}
+      />
       <main className="mx-auto max-w-5xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <div>
           <Link

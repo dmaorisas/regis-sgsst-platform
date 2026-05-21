@@ -20,6 +20,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
+import { getUserModuleMap } from '@/lib/auth/get-module-access'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import Header from '@/components/dashboard/Header'
@@ -31,6 +32,8 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   const user = await getUserWithRoles()
   if (!user) redirect('/login')
+
+  const moduleAccess = await getUserModuleMap(user)
 
   if (user.companyIds.length === 0 && !user.isRegisStaff) {
     return (
@@ -121,7 +124,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header user={user} />
+      <Header user={user} moduleAccess={moduleAccess} />
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <CompanyCard
           company={{
