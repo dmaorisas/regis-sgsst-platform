@@ -1,3 +1,8 @@
+// ============================================================
+// PROTECTED FILE — Do NOT modify without explicit user approval.
+// Module: Actas (Comites y Actas de Reunion)
+// See: memory/protection_actas_module.md
+// ============================================================
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'

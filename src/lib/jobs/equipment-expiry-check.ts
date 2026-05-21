@@ -53,7 +53,7 @@ export async function runEquipmentExpiryCheck(): Promise<void> {
 
   log.info({ expiryLimit: expiryLimitStr }, 'starting equipment expiry check')
 
-  // Obtener equipos próximos a vencer o vencidos
+  // Obtener equipos próximos a vencer o vencidos (por revision o vida util)
   const { data: equipments, error: eqErr } = await supabase
     .from('emergency_equipment')
     .select(
@@ -62,13 +62,14 @@ export async function runEquipmentExpiryCheck(): Promise<void> {
       tipo,
       codigo_interno,
       fecha_vencimiento,
+      fecha_vencimiento_vida_util,
       company_id,
       companies(razon_social),
       centro_id,
       centros_de_trabajo(nombre)
     `,
     )
-    .lte('fecha_vencimiento', expiryLimitStr)
+    .or(`fecha_vencimiento.lte.${expiryLimitStr},fecha_vencimiento_vida_util.lte.${expiryLimitStr}`)
 
   if (eqErr) {
     log.error({ err: eqErr }, 'failed to fetch equipment for expiry check')
@@ -81,7 +82,13 @@ export async function runEquipmentExpiryCheck(): Promise<void> {
   }
 
   for (const eq of equipments) {
-    const isOverdue = new Date(eq.fecha_vencimiento) <= today
+    const reviewExpiry = new Date(eq.fecha_vencimiento)
+    const vidaUtilExpiry = eq.fecha_vencimiento_vida_util
+      ? new Date(eq.fecha_vencimiento_vida_util)
+      : null
+    const earliestExpiry =
+      vidaUtilExpiry && vidaUtilExpiry < reviewExpiry ? vidaUtilExpiry : reviewExpiry
+    const isOverdue = earliestExpiry <= today
     const newStatus = isOverdue ? 'vencido' : 'alerta_vencimiento'
 
     // 1. Actualizar el estado en la base de datos
@@ -158,9 +165,10 @@ export async function runEquipmentExpiryCheck(): Promise<void> {
     const daysLeft = Math.ceil(
       (new Date(eq.fecha_vencimiento).getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
     )
-    const companyName = (eq.companies as Record<string, unknown>)?.razon_social || 'Empresa Cliente'
+    const companyName =
+      (eq.companies as unknown as Record<string, unknown>)?.razon_social || 'Empresa Cliente'
     const centroName =
-      (eq.centros_de_trabajo as Record<string, unknown>)?.nombre || 'Sede Principal'
+      (eq.centros_de_trabajo as unknown as Record<string, unknown>)?.nombre || 'Sede Principal'
 
     for (const consultant of uniqueConsultants) {
       const user = consultant as Record<string, unknown>

@@ -1,3 +1,8 @@
+// ============================================================
+// PROTECTED FILE — Do NOT modify without explicit user approval.
+// Module: Actas (Comites y Actas de Reunion)
+// See: memory/protection_actas_module.md
+// ============================================================
 'use client'
 
 import { useState } from 'react'

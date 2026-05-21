@@ -87,6 +87,7 @@ describe('runEquipmentExpiryCheck', () => {
         tipo: 'extintor',
         codigo_interno: 'EXT-01',
         fecha_vencimiento: '2026-06-15',
+        fecha_vencimiento_vida_util: null,
         company_id: 'company-a',
         companies: {
           razon_social: 'Empresa Alfa',

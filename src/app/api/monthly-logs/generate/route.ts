@@ -12,14 +12,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    // Solo consultores Regis y administradores pueden disparar/forzar la generación
-    if (!user.isRegisStaff) {
-      return NextResponse.json(
-        { error: 'Permisos insuficientes para generar bitácoras' },
-        { status: 403 },
-      )
-    }
-
     const body = await req.json()
     const { companyId, month } = body
 
@@ -27,12 +19,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Falta companyId o month (YYYY-MM)' }, { status: 400 })
     }
 
-    // Validar formato YYYY-MM
     if (!/^\d{4}-\d{2}$/.test(month)) {
-      return NextResponse.json({ error: 'Formato de mes inválido. Use YYYY-MM' }, { status: 400 })
+      return NextResponse.json({ error: 'Formato de mes invalido. Use YYYY-MM' }, { status: 400 })
     }
 
-    // Validar acceso del usuario a la empresa
     if (!user.companyIds.includes(companyId) && !user.isRegisStaff) {
       return NextResponse.json({ error: 'No tienes acceso a esta empresa' }, { status: 403 })
     }
@@ -40,10 +30,8 @@ export async function POST(req: NextRequest) {
     const adminSupabase = getSupabaseAdminClient()
     const generator = new MonthlyLogGenerator()
 
-    // Generar bitácora
     const generatedData = await generator.generate(companyId, month, adminSupabase)
 
-    // Buscar si ya existe para actualizar o insertar
     const { data: existing } = await adminSupabase
       .from('monthly_logs')
       .select('id')
@@ -94,7 +82,7 @@ export async function POST(req: NextRequest) {
       log: result.data,
     })
   } catch (error: unknown) {
-    console.error('Error generando bitácora mensual:', error)
+    console.error('Error generando bitacora mensual:', error)
     const message = error instanceof Error ? error.message : 'Error interno'
     return NextResponse.json({ error: message }, { status: 500 })
   }

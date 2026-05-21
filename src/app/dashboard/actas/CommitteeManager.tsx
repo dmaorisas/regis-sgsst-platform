@@ -1,3 +1,8 @@
+// ============================================================
+// PROTECTED FILE — Do NOT modify without explicit user approval.
+// Module: Actas (Comites y Actas de Reunion)
+// See: memory/protection_actas_module.md
+// ============================================================
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -92,6 +97,20 @@ export default function CommitteeManager({ companyId, centros }: CommitteeManage
   const [submitSubmitting, setSubmitSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
+  const fetchCommittees = useCallback(async () => {
+    try {
+      setLoading(true)
+      const res = await fetch(`/api/committees?companyId=${companyId}`)
+      if (!res.ok) throw new Error('Error al cargar comités')
+      const data = await res.json()
+      setCommittees(data)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error inesperado')
+    } finally {
+      setLoading(false)
+    }
+  }, [companyId])
+
   useEffect(() => {
     fetchCommittees()
   }, [fetchCommittees])
@@ -122,20 +141,6 @@ export default function CommitteeManager({ companyId, centros }: CommitteeManage
 
     return () => clearTimeout(timer)
   }, [workerSearch, companyId])
-
-  const fetchCommittees = useCallback(async () => {
-    try {
-      setLoading(true)
-      const res = await fetch(`/api/committees?companyId=${companyId}`)
-      if (!res.ok) throw new Error('Error al cargar comités')
-      const data = await res.json()
-      setCommittees(data)
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado')
-    } finally {
-      setLoading(false)
-    }
-  }, [companyId])
 
   // Abrir formulario de creación
   const openCreateForm = () => {
@@ -352,10 +357,10 @@ export default function CommitteeManager({ companyId, centros }: CommitteeManage
                   <div>
                     <h3 className="text-base font-bold text-slate-900">{com.nombre}</h3>
                     <div className="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                      <span>📍 Centro: {com.centro_nombre}</span>
+                      <span>Centro: {com.centro_nombre}</span>
                       {com.fecha_eleccion && (
                         <span>
-                          • 📅 Vigencia: {com.fecha_eleccion} al{' '}
+                          • Vigencia: {com.fecha_eleccion} al{' '}
                           {com.fecha_vigencia_fin || 'Indefinido'}
                         </span>
                       )}

@@ -26,22 +26,20 @@ export default function MonthlyLogsList({
 }) {
   const supabase = createSupabaseBrowserClient()
 
-  // State
   const [logs, setLogs] = useState<MonthlyLog[]>(initialLogs)
   const [expandedLogId, setExpandedLogId] = useState<string | null>(
     initialLogs.length > 0 ? initialLogs[0]!.id : null,
   )
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
-  // Selection of month to generate manually
   const currentYear = new Date().getFullYear()
   const currentMonthNum = new Date().getMonth() + 1
   const [selectMonth, setSelectMonth] = useState(
     `${currentYear}-${String(currentMonthNum).padStart(2, '0')}`,
   )
 
-  // Edit State
   const [editingLogId, setEditingLogId] = useState<string | null>(null)
   const [editCompleted, setEditCompleted] = useState('')
   const [editPending, setEditPending] = useState('')
@@ -49,7 +47,6 @@ export default function MonthlyLogsList({
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  // Handle Manual/Preliminary Generation
   const handleGenerateLog = async () => {
     setIsGenerating(true)
     setGenerationError(null)
@@ -62,15 +59,13 @@ export default function MonthlyLogsList({
 
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.error || 'Error al generar la bitácora')
+        throw new Error(data.error || 'Error al generar la bitacora')
       }
 
-      // Add to state or update existing
       const updatedLog = data.log as MonthlyLog
       setLogs((prev) => {
         const filtered = prev.filter((l) => l.id !== updatedLog.id && l.month !== updatedLog.month)
         const newLogs = [updatedLog, ...filtered]
-        // Sort descending by month
         return newLogs.sort((a, b) => b.month.localeCompare(a.month))
       })
       setExpandedLogId(updatedLog.id)
@@ -81,7 +76,6 @@ export default function MonthlyLogsList({
     }
   }
 
-  // Handle Start Edit
   const handleStartEdit = (log: MonthlyLog) => {
     setEditingLogId(log.id)
     setEditCompleted(log.completed_summary)
@@ -90,7 +84,6 @@ export default function MonthlyLogsList({
     setSaveError(null)
   }
 
-  // Handle Save Edit
   const handleSaveEdit = async (logId: string) => {
     setIsSaving(true)
     setSaveError(null)
@@ -118,12 +111,36 @@ export default function MonthlyLogsList({
     }
   }
 
-  // Handle Print / Export
+  const handleDownloadPdf = async (log: MonthlyLog) => {
+    setDownloadingId(log.id)
+    try {
+      const response = await fetch(`/api/monthly-logs/${log.id}/pdf`)
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({ error: 'Error descargando PDF' }))
+        throw new Error(errData.error || 'Error descargando PDF')
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `bitacora-sgsst-${log.month}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error al descargar el PDF')
+    } finally {
+      setDownloadingId(null)
+    }
+  }
+
   const handlePrint = (log: MonthlyLog) => {
     const printContent = `
       <html>
         <head>
-          <title>Bitácora de Cumplimiento SST - ${log.month}</title>
+          <title>Bitacora de Cumplimiento SST - ${log.month}</title>
           <style>
             body { font-family: -apple-system, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
             h1 { font-size: 24px; border-bottom: 2px solid #0284c7; padding-bottom: 8px; color: #0f172a; margin-bottom: 4px; }
@@ -141,27 +158,27 @@ export default function MonthlyLogsList({
           </style>
         </head>
         <body>
-          <h1>Bitácora Mensual SG-SST</h1>
-          <h2>Periodo: ${log.month} | Autogenerado por la Plataforma Regis</h2>
-          
+          <h1>Bitacora Mensual SG-SST</h1>
+          <h2>Periodo: ${log.month} | Plataforma Regis</h2>
+
           <div class="section">
             <span class="badge completed">Completado / Logros del Periodo</span>
             <div>${simpleMarkdownToHtml(log.completed_summary)}</div>
           </div>
-          
+
           <div class="section">
             <span class="badge pending">Pendientes / Alertas Activas</span>
             <div>${simpleMarkdownToHtml(log.pending_summary)}</div>
           </div>
-          
+
           <div class="section">
-            <span class="badge next">Plan de Acción / Siguiente Periodo</span>
+            <span class="badge next">Plan de Accion / Siguiente Periodo</span>
             <div>${simpleMarkdownToHtml(log.next_month_plan)}</div>
           </div>
-          
+
           <hr />
           <div class="footer">
-            Reporte oficial del Sistema de Gestión de Seguridad y Salud en el Trabajo. Generado el ${new Date().toLocaleDateString()}.
+            Reporte oficial del Sistema de Gestion de Seguridad y Salud en el Trabajo. Generado el ${new Date().toLocaleDateString()}.
           </div>
           <script>window.print();</script>
         </body>
@@ -175,7 +192,6 @@ export default function MonthlyLogsList({
     }
   }
 
-  // Format month to friendly name (e.g. 2026-05 => Mayo 2026)
   const formatFriendlyMonth = (m: string) => {
     const [year, monthNum] = m.split('-')
     const months = [
@@ -198,97 +214,94 @@ export default function MonthlyLogsList({
 
   return (
     <div className="space-y-6">
-      {/* 1. Header & Manual Generation Trigger */}
-      {isRegisStaff && (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">Generar Bitácora Mensual</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Forzar o previsualizar el resumen del mes actual basado en los avances de la
-                plataforma.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <select
-                value={selectMonth}
-                onChange={(e) => setSelectMonth(e.target.value)}
-                disabled={isGenerating}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50"
-              >
-                {/* Generate options for current and past 3 months */}
-                {Array.from({ length: 4 }).map((_, i) => {
-                  const d = new Date()
-                  d.setMonth(d.getMonth() - i)
-                  const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-                  return (
-                    <option key={val} value={val}>
-                      {formatFriendlyMonth(val)}
-                    </option>
-                  )
-                })}
-              </select>
-
-              <button
-                onClick={handleGenerateLog}
-                disabled={isGenerating}
-                className="flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:opacity-50"
-              >
-                {isGenerating ? (
-                  <>
-                    <svg
-                      className="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Generando...
-                  </>
-                ) : (
-                  <>🤖 Generar por IA</>
-                )}
-              </button>
-            </div>
+      {/* Generation Controls */}
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Generar Bitacora Mensual</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Generar el resumen del mes basado en los avances registrados en la plataforma.
+            </p>
           </div>
 
-          {generationError && (
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {generationError}
-            </div>
-          )}
-        </div>
-      )}
+          <div className="flex items-center gap-3">
+            <select
+              value={selectMonth}
+              onChange={(e) => setSelectMonth(e.target.value)}
+              disabled={isGenerating}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50"
+            >
+              {Array.from({ length: 4 }).map((_, i) => {
+                const d = new Date()
+                d.setMonth(d.getMonth() - i)
+                const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+                return (
+                  <option key={val} value={val}>
+                    {formatFriendlyMonth(val)}
+                  </option>
+                )
+              })}
+            </select>
 
-      {/* 2. Logs List */}
+            <button
+              onClick={handleGenerateLog}
+              disabled={isGenerating}
+              className="flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:opacity-50"
+            >
+              {isGenerating ? (
+                <>
+                  <svg
+                    className="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Generando...
+                </>
+              ) : (
+                'Generar por IA'
+              )}
+            </button>
+          </div>
+        </div>
+
+        {generationError && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {generationError}
+          </div>
+        )}
+      </div>
+
+      {/* Logs List */}
       <div className="space-y-4">
         {logs.length === 0 ? (
           <div className="rounded-xl border border-slate-200 bg-white px-6 py-12 text-center">
-            <span className="text-3xl">📅</span>
             <h3 className="mt-4 text-sm font-semibold text-slate-900">
-              No hay bitácoras generadas
+              No hay bitacoras generadas
             </h3>
             <p className="mt-1 text-sm text-slate-500">
-              Las bitácoras mensuales se generan automáticamente al finalizar cada mes.
+              Las bitacoras mensuales se generan automaticamente al finalizar cada mes o puede
+              generarlas manualmente con el boton anterior.
             </p>
           </div>
         ) : (
           logs.map((log) => {
             const isExpanded = expandedLogId === log.id
             const isEditing = editingLogId === log.id
+            const isDownloading = downloadingId === log.id
 
             return (
               <div
@@ -299,7 +312,7 @@ export default function MonthlyLogsList({
                     : 'border-slate-200 shadow-sm hover:border-slate-300'
                 }`}
               >
-                {/* Card Header (Accordion Summary) */}
+                {/* Card Header */}
                 <div
                   onClick={() => !isEditing && setExpandedLogId(isExpanded ? null : log.id)}
                   className={`flex items-center justify-between p-5 ${
@@ -307,7 +320,21 @@ export default function MonthlyLogsList({
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">📊</span>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100">
+                      <svg
+                        className="h-5 w-5 text-slate-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                    </div>
                     <div>
                       <h3 className="text-base font-semibold text-slate-900">
                         {formatFriendlyMonth(log.month)}
@@ -319,10 +346,51 @@ export default function MonthlyLogsList({
                   </div>
 
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    {/* Download PDF */}
+                    <button
+                      onClick={() => handleDownloadPdf(log)}
+                      disabled={isDownloading}
+                      className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+                      title="Descargar PDF"
+                    >
+                      {isDownloading ? (
+                        <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Print */}
                     <button
                       onClick={() => handlePrint(log)}
                       className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
-                      title="Imprimir / Exportar a PDF"
+                      title="Imprimir"
                     >
                       <svg
                         className="h-5 w-5"
@@ -339,11 +407,12 @@ export default function MonthlyLogsList({
                       </svg>
                     </button>
 
+                    {/* Edit (Regis staff only) */}
                     {isRegisStaff && !isEditing && (
                       <button
                         onClick={() => handleStartEdit(log)}
                         className="rounded-lg p-1.5 text-sky-600 transition hover:bg-sky-50 hover:text-sky-800"
-                        title="Editar Bitácora"
+                        title="Editar Bitacora"
                       >
                         <svg
                           className="h-5 w-5"
@@ -361,6 +430,7 @@ export default function MonthlyLogsList({
                       </button>
                     )}
 
+                    {/* Expand/Collapse */}
                     {!isEditing && (
                       <button
                         onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
@@ -386,7 +456,7 @@ export default function MonthlyLogsList({
                   </div>
                 </div>
 
-                {/* Card Details Panel */}
+                {/* Card Details */}
                 {isExpanded && (
                   <div className="space-y-6 border-t border-slate-100 p-6">
                     {saveError && (
@@ -396,11 +466,10 @@ export default function MonthlyLogsList({
                     )}
 
                     {isEditing ? (
-                      /* Edit Mode Form */
                       <div className="space-y-5">
                         <div>
                           <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-green-700">
-                            ✔️ Logros y Completados (Markdown)
+                            Logros y Completados (Markdown)
                           </label>
                           <textarea
                             value={editCompleted}
@@ -412,7 +481,7 @@ export default function MonthlyLogsList({
 
                         <div>
                           <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-red-700">
-                            ⚠️ Pendientes y Alertas (Markdown)
+                            Pendientes y Alertas (Markdown)
                           </label>
                           <textarea
                             value={editPending}
@@ -424,7 +493,7 @@ export default function MonthlyLogsList({
 
                         <div>
                           <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-sky-700">
-                            📅 Plan de Trabajo Siguiente Mes (Markdown)
+                            Plan de Trabajo Siguiente Mes (Markdown)
                           </label>
                           <textarea
                             value={editNextPlan}
@@ -473,9 +542,8 @@ export default function MonthlyLogsList({
                         </div>
                       </div>
                     ) : (
-                      /* Display Mode */
                       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                        {/* Section: Completed */}
+                        {/* Completed */}
                         <div className="space-y-4 rounded-xl border border-green-100 bg-green-50/30 p-5">
                           <div className="flex items-center gap-2 border-b border-green-100 pb-2">
                             <span className="text-green-600">
@@ -505,7 +573,7 @@ export default function MonthlyLogsList({
                           />
                         </div>
 
-                        {/* Section: Pending */}
+                        {/* Pending */}
                         <div className="space-y-4 rounded-xl border border-red-100 bg-red-50/20 p-5">
                           <div className="flex items-center gap-2 border-b border-red-100 pb-2">
                             <span className="text-red-500">
@@ -524,7 +592,7 @@ export default function MonthlyLogsList({
                               </svg>
                             </span>
                             <h4 className="text-sm font-bold uppercase tracking-wider text-red-800">
-                              Novedades y Alertas
+                              Pendientes y Alertas
                             </h4>
                           </div>
                           <div
@@ -535,7 +603,7 @@ export default function MonthlyLogsList({
                           />
                         </div>
 
-                        {/* Section: Next Month Plan */}
+                        {/* Next Month */}
                         <div className="space-y-4 rounded-xl border border-sky-100 bg-sky-50/20 p-5">
                           <div className="flex items-center gap-2 border-b border-sky-100 pb-2">
                             <span className="text-sky-600">

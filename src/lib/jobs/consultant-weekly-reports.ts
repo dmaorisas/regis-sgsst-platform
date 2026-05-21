@@ -116,12 +116,16 @@ async function getConsultantsWithCompanies() {
 
   for (const role of activeRoles) {
     const userId = role.user_id
-    const user = role.users
+    const user = role.users as unknown as {
+      id: string
+      nombre_completo: string
+      email: string
+    } | null
     if (!user) continue
 
     if (!userMap.has(userId)) {
       userMap.set(userId, {
-        user: { id: user.id, nombre: user.nombre_completo as string, email: user.email as string },
+        user: { id: user.id, nombre: user.nombre_completo, email: user.email },
         companyIds: new Set<string>(),
         globalOrgs: new Set<string>(),
       })
@@ -140,7 +144,7 @@ async function getConsultantsWithCompanies() {
     companies: Array<{ id: string; razon_social: string }>
   }> = []
 
-  for (const entry of userMap.values()) {
+  for (const entry of Array.from(userMap.values())) {
     const finalCompanies: Array<{ id: string; razon_social: string }> = []
 
     // Si tiene acceso global a alguna organización, traer todas sus empresas

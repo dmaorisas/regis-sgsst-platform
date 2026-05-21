@@ -41,9 +41,9 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null
     const workerId = formData.get('worker_id') as string | null
     const companyId = formData.get('company_id') as string | null
-    const type = formData.get('type') as string | null
+    const examType = formData.get('type') as string | null
 
-    if (!file || !workerId || !companyId || !type) {
+    if (!file || !workerId || !companyId || !examType) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -51,41 +51,54 @@ export async function POST(req: NextRequest) {
     const fileExt = file.name.split('.').pop()
     const fileName = `${companyId}/${workerId}/${Date.now()}.${fileExt}`
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('medical_exams_secure')
-      .upload(fileName, file)
-
-    if (uploadError) {
-      // Si el bucket no existe en local, simulamos subida para continuar
-      console.warn('Storage upload error (might be missing bucket):', uploadError)
-    }
-
-    const filePath = uploadData?.path || fileName
-
-    // 2. Convert PDF to Base64 for Claude
-    const arrayBuffer = await file.arrayBuffer()
-    const base64 = Buffer.from(arrayBuffer).toString('base64')
-
-    // 3. Extract using Claude
-    // Usamos el Service Role para tener acceso total a ai_usage y Claude
     const supabaseAdmin = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { cookies: { getAll: () => [], setAll: () => {} } },
     )
 
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from('medical_exams_secure')
+      .upload(fileName, file)
+
+    if (uploadError) {
+      console.warn('Storage upload warning (bucket may not exist):', uploadError.message)
+    }
+
+    const fileUrl = uploadData?.path || fileName
+
+    // 2. Convert PDF to Base64 for AI extraction
+    const arrayBuffer = await file.arrayBuffer()
+    const base64 = Buffer.from(arrayBuffer).toString('base64')
+
+    // 3. Extract recommendations using LLM (provider-agnostic)
     const extractor = MedicalExtractor.create(supabaseAdmin)
     const extractionResult = await extractor.extractFromPdf(base64)
 
-    // 4. Save to Database
-    const { data: examData, error: examError } = await supabase
+    // Separate restrictions from recommendations for DB storage
+    const restrictions = extractionResult.recommendations
+      .filter((r) => r.type === 'restriccion')
+      .map((r) => ({ text: r.text, duration_days: r.duration_days }))
+
+    const recommendations = extractionResult.recommendations
+      .filter((r) => r.type === 'recomendacion' || r.type === 'reubicacion')
+      .map((r) => ({ text: r.text, type: r.type, duration_days: r.duration_days }))
+
+    // 4. Insert exam record — columns match actual DB schema
+    const examFields = extractionResult.fields
+    const { data: examData, error: examError } = await supabaseAdmin
       .from('medical_exams')
       .insert({
         worker_id: workerId,
         company_id: companyId,
-        file_path_storage: filePath,
-        exam_date: new Date().toISOString().split('T')[0],
-        type: type,
+        exam_type: examType,
+        exam_date: examFields.fecha || new Date().toISOString().split('T')[0],
+        ips_name: examFields.eps,
+        concept: restrictions.length > 0 ? 'apto_con_restricciones' : 'apto',
+        file_url: fileUrl,
+        restrictions: restrictions.length > 0 ? restrictions : null,
+        recommendations: recommendations.length > 0 ? recommendations : null,
+        extracted_data: extractionResult,
       })
       .select()
       .single()
@@ -94,6 +107,7 @@ export async function POST(req: NextRequest) {
       throw new Error(`Error insertando examen: ${examError.message}`)
     }
 
+    // 5. Insert individual recommendations into detail table
     if (extractionResult.recommendations.length > 0) {
       const recommendationsToInsert = extractionResult.recommendations.map((r) => ({
         exam_id: examData.id,
@@ -102,18 +116,19 @@ export async function POST(req: NextRequest) {
         duration_days: r.duration_days,
       }))
 
-      const { error: recError } = await supabase
+      const { error: recError } = await supabaseAdmin
         .from('medical_recommendations')
         .insert(recommendationsToInsert)
 
       if (recError) {
-        console.error('Error insertando recomendaciones:', recError)
+        console.error('Error insertando recomendaciones:', recError.message)
       }
     }
 
     return NextResponse.json({
       success: true,
       exam: examData,
+      fields: extractionResult.fields,
       extracted: extractionResult.recommendations,
     })
   } catch (error: unknown) {

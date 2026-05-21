@@ -22,12 +22,9 @@ import { cookies } from 'next/headers'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
-import { SnapshotsRepository } from '@/infrastructure/repositories/snapshots-repository'
 import Header from '@/components/dashboard/Header'
 import CompanyCard from '@/components/dashboard/CompanyCard'
 import StandardsChecklistTable from '@/components/dashboard/StandardsChecklistTable'
-
-import type { Snapshot } from '@/domain/compliance/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -122,11 +119,6 @@ export default async function DashboardPage() {
     status: r.status as 'cumple' | 'no_cumple' | 'no_aplica' | 'pendiente',
   }))
 
-  // Snapshot (optional — dashboard works without it)
-  const snapshotsRepo = new SnapshotsRepository(admin)
-  const snapshot: Snapshot | null = await snapshotsRepo.getLatestByCentro(mainCentro.id)
-  const _counts = snapshot ? countersFor(snapshot) : null
-
   return (
     <div className="min-h-screen bg-slate-50">
       <Header user={user} />
@@ -154,14 +146,6 @@ export default async function DashboardPage() {
       </main>
     </div>
   )
-}
-
-function countersFor(s: Snapshot) {
-  const c = { cumple: 0, no_cumple: 0, no_aplica: 0, pendiente: 0 }
-  for (const d of s.by_standard) {
-    c[d.status] += 1
-  }
-  return c
 }
 
 function errorView(msg: string) {

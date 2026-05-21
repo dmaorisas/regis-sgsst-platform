@@ -28,7 +28,7 @@ interface User {
 
 interface UserManagementClientProps {
   companies: Company[]
-  currentUser: unknown
+  currentUser: { app_user_id: string }
 }
 
 const ROLE_LABEL: Record<string, string> = {

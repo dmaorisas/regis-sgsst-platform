@@ -7,11 +7,20 @@ CREATE TABLE IF NOT EXISTS public.medical_exams (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     worker_id UUID NOT NULL REFERENCES public.workers(id) ON DELETE CASCADE,
     company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
-    file_path_storage TEXT NOT NULL,
+    exam_type TEXT NOT NULL CHECK (exam_type IN ('ingreso', 'periodico', 'egreso', 'post_incapacidad')),
     exam_date DATE NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('ingreso', 'periodico', 'egreso', 'post_incapacidad')),
+    ips_name TEXT,
+    concept TEXT,
+    restrictions JSONB,
+    recommendations JSONB,
+    next_exam_date DATE,
+    file_url TEXT,
+    extraction_confidence NUMERIC,
+    extracted_data JSONB,
+    retention_until DATE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS idx_medical_exams_worker ON public.medical_exams(worker_id);

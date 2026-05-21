@@ -1,3 +1,8 @@
+// ============================================================
+// PROTECTED FILE — Do NOT modify without explicit user approval.
+// Module: Actas (Comites y Actas de Reunion)
+// See: memory/protection_actas_module.md
+// ============================================================
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -438,7 +443,7 @@ export default function ActaGeneratorForm({
                         <div className="flex-1">
                           <div className="text-sm font-medium text-gray-900">{attendee.name}</div>
                           <div className="text-xs text-gray-500">
-                            🏢 {attendee.cargo} | 🏅{' '}
+                            {attendee.cargo} |{' '}
                             <span className="font-semibold uppercase text-sky-700">
                               {attendee.rol}
                             </span>
@@ -468,14 +473,14 @@ export default function ActaGeneratorForm({
                   onClick={() => setSourceType('transcription')}
                   className={`flex-1 px-4 py-2 text-sm font-medium ${sourceType === 'transcription' ? 'border-b-2 border-emerald-500 bg-white text-emerald-700' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                  📝 Pegar Transcripción
+                  Pegar Transcripcion
                 </button>
                 <button
                   type="button"
                   onClick={() => setSourceType('audio')}
                   className={`flex-1 px-4 py-2 text-sm font-medium ${sourceType === 'audio' ? 'border-b-2 border-emerald-500 bg-white text-emerald-700' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                  🎙️ Subir Audio / Video
+                  Subir Audio / Video
                 </button>
               </div>
 
@@ -493,7 +498,7 @@ export default function ActaGeneratorForm({
                   <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 py-6">
                     {audioFile ? (
                       <div className="text-center">
-                        <div className="mb-2 text-3xl">🎵</div>
+                        <div className="mb-2 text-3xl text-gray-400">Audio</div>
                         <p className="text-sm font-medium text-gray-900">{audioFile.name}</p>
                         <button
                           type="button"
@@ -505,7 +510,7 @@ export default function ActaGeneratorForm({
                       </div>
                     ) : (
                       <>
-                        <div className="mb-2 text-4xl">📁</div>
+                        <div className="mb-2 text-sm font-medium text-gray-400">Archivo</div>
                         <p className="mb-3 px-4 text-center text-sm text-gray-500">
                           Sube la grabación de tu reunión (MP3, MP4, WAV). La IA la escuchará y hará
                           el acta.
@@ -535,7 +540,7 @@ export default function ActaGeneratorForm({
             </div>
           </div>
 
-          {/* ⚙️ Configuración Avanzada de IA / Directrices de Redacción */}
+          {/* Configuracion Avanzada de IA / Directrices de Redaccion */}
           <div className="mb-4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300">
             <button
               type="button"
@@ -543,7 +548,7 @@ export default function ActaGeneratorForm({
               className="flex w-full items-center justify-between bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
             >
               <span className="flex items-center gap-2">
-                ⚙️ Configuración Avanzada de IA (Opcional)
+                Configuracion Avanzada de IA (Opcional)
               </span>
               <span className="text-xs text-gray-400">
                 {isConfigExpanded ? 'Ocultar ▲' : 'Mostrar ▼'}
@@ -573,7 +578,7 @@ export default function ActaGeneratorForm({
                     }}
                     className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
                   >
-                    ⚖️ Tono Legal/HSEQ
+                    Tono Legal/HSEQ
                   </button>
                   <button
                     type="button"
@@ -584,7 +589,7 @@ export default function ActaGeneratorForm({
                     }}
                     className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100"
                   >
-                    🎯 Enfocar en Compromisos
+                    Enfocar en Compromisos
                   </button>
                   <button
                     type="button"
@@ -595,14 +600,14 @@ export default function ActaGeneratorForm({
                     }}
                     className="rounded-full border border-purple-100 bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700 transition-colors hover:bg-purple-100"
                   >
-                    📋 Resumen Ejecutivo Breve
+                    Resumen Ejecutivo Breve
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomGuidelines('')}
                     className="ml-auto rounded-full border border-red-100 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100"
                   >
-                    🗑️ Limpiar
+                    Limpiar
                   </button>
                 </div>
               </div>
@@ -646,7 +651,7 @@ export default function ActaGeneratorForm({
                 onClick={() => setIsSignatureModalOpen(true)}
                 className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
               >
-                ✍️ Enviar a Firma
+                Enviar a Firma
               </button>
             </div>
           )}
@@ -656,9 +661,7 @@ export default function ActaGeneratorForm({
           <div className="flex h-full flex-1 flex-col">
             {documentStatus === 'EN_FIRMA' && (
               <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-4">
-                <h3 className="mb-2 font-semibold text-amber-800">
-                  ⏳ Documento en proceso de firma
-                </h3>
+                <h3 className="mb-2 font-semibold text-amber-800">Documento en proceso de firma</h3>
                 <p className="mb-3 text-sm text-amber-700">
                   El acta ha sido bloqueada y enviada a los siguientes firmantes:
                 </p>
@@ -691,17 +694,17 @@ export default function ActaGeneratorForm({
             {documentStatus === 'FIRMADA' && (
               <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-4">
                 <h3 className="mb-2 font-semibold text-emerald-800">
-                  ✅ Documento firmado exitosamente
+                  Documento firmado exitosamente
                 </h3>
                 <p className="mb-3 text-sm text-emerald-700">
                   Todos los participantes han completado su firma electrónica legal.
                 </p>
                 <div className="flex gap-3">
                   <button className="flex items-center rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-emerald-700">
-                    📄 Descargar PDF Firmado
+                    Descargar PDF Firmado
                   </button>
                   <button className="flex items-center rounded-md border border-emerald-600 bg-white px-3 py-1.5 text-sm font-medium text-emerald-700 shadow-sm hover:bg-emerald-50">
-                    📜 Descargar Certificado
+                    Descargar Certificado
                   </button>
                 </div>
                 <div className="mt-4 border-t border-emerald-200 pt-3">
@@ -721,7 +724,7 @@ export default function ActaGeneratorForm({
             <div
               className={`flex flex-1 flex-col items-center justify-center rounded-md border bg-white p-8 ${documentStatus !== 'BORRADOR' ? 'pointer-events-none opacity-70' : ''}`}
             >
-              <div className="mb-4 text-6xl">📄</div>
+              <div className="mb-4 text-lg font-bold text-gray-300">DOCX</div>
               <h3 className="mb-2 text-lg font-bold text-gray-900">¡Acta Generada con Éxito!</h3>
               <p className="mb-6 max-w-md text-center text-sm text-gray-500">
                 La inteligencia artificial ha redactado el resumen de la reunión y ha rellenado tu
@@ -731,7 +734,7 @@ export default function ActaGeneratorForm({
                 onClick={handleDownloadWord}
                 className="flex items-center gap-2 rounded-md border border-transparent bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-emerald-700"
               >
-                ⬇️ Descargar Documento Word (.docx)
+                Descargar Documento Word (.docx)
               </button>
             </div>
           </div>
@@ -745,7 +748,7 @@ export default function ActaGeneratorForm({
       {/* Historial de Actas en la parte inferior */}
       <div className="mt-8 rounded-lg border bg-white p-6 shadow-sm lg:col-span-2">
         <h3 className="mb-6 flex items-center gap-2 border-b pb-3 text-lg font-bold text-gray-800">
-          📜 Historial de Actas Generadas para esta Empresa
+          Historial de Actas Generadas para esta Empresa
         </h3>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -753,7 +756,7 @@ export default function ActaGeneratorForm({
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b pb-2">
               <h4 className="flex items-center gap-2 font-semibold text-emerald-800">
-                🛡️ Actas Comité COPASST
+                Actas Comite COPASST
               </h4>
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
                 {
@@ -810,7 +813,7 @@ export default function ActaGeneratorForm({
                               }}
                               className="ml-auto flex items-center gap-1 text-[11px] font-bold text-emerald-600 underline hover:text-emerald-800"
                             >
-                              📥 Descargar Word
+                              Descargar Word
                             </button>
                           </td>
                         </tr>
@@ -829,7 +832,7 @@ export default function ActaGeneratorForm({
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b pb-2">
               <h4 className="flex items-center gap-2 font-semibold text-blue-800">
-                🤝 Actas Comité de Convivencia
+                Actas Comite de Convivencia
               </h4>
               <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-800">
                 {
@@ -884,7 +887,7 @@ export default function ActaGeneratorForm({
                               }}
                               className="ml-auto flex items-center gap-1 text-[11px] font-bold text-blue-600 underline hover:text-blue-800"
                             >
-                              📥 Descargar Word
+                              Descargar Word
                             </button>
                           </td>
                         </tr>
@@ -1006,7 +1009,7 @@ export default function ActaGeneratorForm({
                           className="mt-6 rounded-md p-2 text-red-500 hover:bg-red-50"
                           title="Eliminar firmante"
                         >
-                          🗑️
+                          X
                         </button>
                       )}
                     </div>
@@ -1032,7 +1035,7 @@ export default function ActaGeneratorForm({
                 onClick={handleSendToSign}
                 className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
               >
-                ✈️ Confirmar y Enviar
+                Confirmar y Enviar
               </button>
             </div>
           </div>

@@ -16,6 +16,7 @@ interface Equipment {
   ubicacion: string | null
   fecha_ultima_revision: string
   fecha_vencimiento: string
+  fecha_vencimiento_vida_util: string | null
   estado: 'operativo' | 'alerta_vencimiento' | 'vencido'
   centro_id: string | null
   centros_de_trabajo?: {
@@ -23,27 +24,30 @@ interface Equipment {
   } | null
 }
 
+const TIPO_LABELS: Record<string, string> = {
+  extintor: 'Extintor',
+  botiquin: 'Botiquin',
+  camilla: 'Camilla',
+  otro: 'Otro',
+}
+
 export default function EmergencyInventory({ companyId }: { companyId: string }) {
   const supabase = createSupabaseBrowserClient()
 
-  // State
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([])
   const [centros, setCentros] = useState<Centro[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitLoading, setIsSubmitLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [centroFilter, setCentroFilter] = useState('all')
 
-  // Form Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<Equipment | null>(null)
 
-  // Form Fields
   const [tipo, setTipo] = useState<'extintor' | 'botiquin' | 'camilla' | 'otro'>('extintor')
   const [codigoInterno, setCodigoInterno] = useState('')
   const [descripcion, setDescripcion] = useState('')
@@ -53,9 +57,9 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
   )
   const [isManualExpiry, setIsManualExpiry] = useState(false)
   const [fechaVencimiento, setFechaVencimiento] = useState('')
+  const [fechaVidaUtil, setFechaVidaUtil] = useState('')
   const [centroId, setCentroId] = useState('')
 
-  // Calculate default expiration
   const calculateExpiry = useCallback((type: string, revisionDate: string): string => {
     if (!revisionDate) return ''
     const date = new Date(revisionDate + 'T00:00:00')
@@ -68,13 +72,12 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     } else if (type === 'camilla') {
       date.setFullYear(date.getFullYear() + 2)
     } else {
-      date.setFullYear(date.getFullYear() + 1) // default 1 year
+      date.setFullYear(date.getFullYear() + 1)
     }
 
     return date.toISOString().split('T')[0] || ''
   }, [])
 
-  // Auto calculate expiration when type or revision date changes
   useEffect(() => {
     if (!isManualExpiry) {
       const calculated = calculateExpiry(tipo, fechaUltimaRevision)
@@ -82,32 +85,36 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     }
   }, [tipo, fechaUltimaRevision, isManualExpiry, calculateExpiry])
 
-  // Determine status from expiration date
   const determineStatus = (
-    expiryDateStr: string,
+    reviewExpiryStr: string,
+    vidaUtilStr: string | null,
   ): 'operativo' | 'alerta_vencimiento' | 'vencido' => {
-    if (!expiryDateStr) return 'operativo'
-
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const expiry = new Date(expiryDateStr + 'T00:00:00')
-    expiry.setHours(0, 0, 0, 0)
+    const dates: Date[] = []
+    if (reviewExpiryStr) dates.push(new Date(reviewExpiryStr + 'T00:00:00'))
+    if (vidaUtilStr) dates.push(new Date(vidaUtilStr + 'T00:00:00'))
 
-    const diffTime = expiry.getTime() - today.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    if (dates.length === 0) return 'operativo'
 
-    if (diffDays <= 0) return 'vencido'
-    if (diffDays <= 30) return 'alerta_vencimiento'
+    for (const d of dates) {
+      const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      if (diffDays <= 0) return 'vencido'
+    }
+
+    for (const d of dates) {
+      const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      if (diffDays <= 30) return 'alerta_vencimiento'
+    }
+
     return 'operativo'
   }
 
-  // Load Initial Data
   const loadData = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
-      // 1. Fetch Centers
       const { data: centrosData, error: centrosError } = await supabase
         .from('centros_de_trabajo')
         .select('id, nombre')
@@ -117,7 +124,6 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
       if (centrosError) throw centrosError
       setCentros(centrosData || [])
 
-      // 2. Fetch Equipment List
       const { data: equipmentData, error: eqError } = await supabase
         .from('emergency_equipment')
         .select(
@@ -129,6 +135,7 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
           ubicacion,
           fecha_ultima_revision,
           fecha_vencimiento,
+          fecha_vencimiento_vida_util,
           estado,
           centro_id,
           centros_de_trabajo(nombre)
@@ -150,7 +157,6 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     loadData()
   }, [loadData])
 
-  // Open Add Modal
   const handleOpenAddModal = () => {
     setEditingItem(null)
     setTipo('extintor')
@@ -159,11 +165,11 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     setUbicacion('')
     setFechaUltimaRevision(new Date().toISOString().split('T')[0] || '')
     setIsManualExpiry(false)
+    setFechaVidaUtil('')
     setCentroId(centros[0]?.id || '')
     setIsModalOpen(true)
   }
 
-  // Open Edit Modal
   const handleOpenEditModal = (item: Equipment) => {
     setEditingItem(item)
     setTipo(item.tipo)
@@ -172,22 +178,22 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     setUbicacion(item.ubicacion || '')
     setFechaUltimaRevision(item.fecha_ultima_revision)
 
-    // Check if expiry date matches default calculation to set manual toggle
     const defaultCalculated = calculateExpiry(item.tipo, item.fecha_ultima_revision)
     const isManual = item.fecha_vencimiento !== defaultCalculated
     setIsManualExpiry(isManual)
     setFechaVencimiento(item.fecha_vencimiento)
+    setFechaVidaUtil(item.fecha_vencimiento_vida_util || '')
     setCentroId(item.centro_id || '')
     setIsModalOpen(true)
   }
 
-  // Handle Save
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitLoading(true)
     setError(null)
 
-    const status = determineStatus(fechaVencimiento)
+    const vidaUtil = fechaVidaUtil || null
+    const status = determineStatus(fechaVencimiento, vidaUtil)
 
     const payload = {
       company_id: companyId,
@@ -198,12 +204,12 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
       ubicacion: ubicacion.trim() || null,
       fecha_ultima_revision: fechaUltimaRevision,
       fecha_vencimiento: fechaVencimiento,
+      fecha_vencimiento_vida_util: vidaUtil,
       estado: status,
     }
 
     try {
       if (editingItem) {
-        // Update
         const { error: updErr } = await supabase
           .from('emergency_equipment')
           .update(payload)
@@ -211,7 +217,6 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
 
         if (updErr) throw updErr
       } else {
-        // Insert
         const { error: insErr } = await supabase.from('emergency_equipment').insert(payload)
 
         if (insErr) throw insErr
@@ -226,9 +231,8 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     }
   }
 
-  // Handle Delete
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de que deseas eliminar este equipo del inventario?')) return
+    if (!confirm('Estas seguro de que deseas eliminar este equipo del inventario?')) return
 
     setError(null)
     try {
@@ -241,7 +245,6 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     }
   }
 
-  // Filter Equipment List
   const filteredList = equipmentList.filter((item) => {
     const matchesSearch =
       item.codigo_interno.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -255,7 +258,6 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     return matchesSearch && matchesType && matchesStatus && matchesCentro
   })
 
-  // Statistics counters
   const stats = {
     total: equipmentList.length,
     operativos: equipmentList.filter((e) => e.estado === 'operativo').length,
@@ -263,9 +265,14 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
     vencidos: equipmentList.filter((e) => e.estado === 'vencido').length,
   }
 
+  const formatDate = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-')
+    return `${d}/${m}/${y}`
+  }
+
   return (
     <div className="space-y-6">
-      {/* Stats Summary Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <div className="text-sm font-medium text-slate-500">Total Equipos</div>
@@ -276,7 +283,7 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
           <div className="mt-2 text-3xl font-bold text-emerald-900">{stats.operativos}</div>
         </div>
         <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-5 shadow-sm">
-          <div className="text-sm font-medium text-amber-700">Próximos a Vencer</div>
+          <div className="text-sm font-medium text-amber-700">Proximos a Vencer</div>
           <div className="mt-2 text-3xl font-bold text-amber-900">{stats.alerta}</div>
         </div>
         <div className="rounded-lg border border-rose-200 bg-rose-50/50 p-5 shadow-sm">
@@ -287,41 +294,33 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
 
       {error && (
         <div className="rounded-md border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
-      {/* Toolbar / Filters */}
+      {/* Filters */}
       <div className="flex flex-col gap-4 rounded-lg border bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-4">
-          {/* Search bar */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Buscar por código, ubicación..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-md border border-slate-200 px-3 py-2 pl-9 text-sm focus:border-red-500 focus:outline-none"
-            />
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-              🔍
-            </div>
-          </div>
+          <input
+            type="text"
+            placeholder="Buscar por codigo, ubicacion..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
+          />
 
-          {/* Type Filter */}
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
           >
             <option value="all">Todos los Tipos</option>
-            <option value="extintor">🧯 Extintor</option>
-            <option value="botiquin">🩹 Botiquín</option>
-            <option value="camilla">🚑 Camilla</option>
-            <option value="otro">🛠️ Otro</option>
+            <option value="extintor">Extintor</option>
+            <option value="botiquin">Botiquin</option>
+            <option value="camilla">Camilla</option>
+            <option value="otro">Otro</option>
           </select>
 
-          {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -329,11 +328,10 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
           >
             <option value="all">Todos los Estados</option>
             <option value="operativo">Operativo</option>
-            <option value="alerta_vencimiento">Próximo a vencer</option>
+            <option value="alerta_vencimiento">Proximo a vencer</option>
             <option value="vencido">Vencido</option>
           </select>
 
-          {/* Center Filter */}
           <select
             value={centroFilter}
             onChange={(e) => setCentroFilter(e.target.value)}
@@ -352,11 +350,11 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
           onClick={handleOpenAddModal}
           className="rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-red-700"
         >
-          ➕ Registrar Equipo
+          + Registrar Equipo
         </button>
       </div>
 
-      {/* Main Table */}
+      {/* Table */}
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
         {isLoading ? (
           <div className="flex h-32 flex-col items-center justify-center text-slate-400">
@@ -365,20 +363,20 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
           </div>
         ) : filteredList.length === 0 ? (
           <div className="flex h-32 flex-col items-center justify-center text-sm italic text-slate-400">
-            No se encontraron equipos registrados que coincidan con la búsqueda.
+            No se encontraron equipos registrados que coincidan con la busqueda.
           </div>
         ) : (
           <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
             <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="px-6 py-3">Código</th>
-                <th className="px-6 py-3">Tipo</th>
-                <th className="px-6 py-3">Centro de Trabajo</th>
-                <th className="px-6 py-3">Ubicación</th>
-                <th className="px-6 py-3">Última Revisión</th>
-                <th className="px-6 py-3">Fecha Vencimiento</th>
-                <th className="px-6 py-3">Estado</th>
-                <th className="px-6 py-3 text-right">Acciones</th>
+                <th className="px-4 py-3">Codigo</th>
+                <th className="px-4 py-3">Tipo</th>
+                <th className="px-4 py-3">Ubicacion</th>
+                <th className="px-4 py-3">Ultima Revision</th>
+                <th className="px-4 py-3">Venc. Revision</th>
+                <th className="px-4 py-3">Venc. Vida Util</th>
+                <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
@@ -388,23 +386,22 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
 
                 return (
                   <tr key={item.id} className="transition-colors hover:bg-slate-50/50">
-                    <td className="whitespace-nowrap px-6 py-4 font-mono font-bold text-slate-900">
+                    <td className="whitespace-nowrap px-4 py-3 font-mono font-bold text-slate-900">
                       {item.codigo_interno}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 capitalize">
-                      {item.tipo === 'extintor' && '🧯 Extintor'}
-                      {item.tipo === 'botiquin' && '🩹 Botiquín'}
-                      {item.tipo === 'camilla' && '🚑 Camilla'}
-                      {item.tipo === 'otro' && '🛠️ Otro'}
+                    <td className="whitespace-nowrap px-4 py-3">
+                      {TIPO_LABELS[item.tipo] || item.tipo}
                     </td>
-                    <td className="px-6 py-4 text-slate-600">
-                      {item.centros_de_trabajo?.nombre || 'No asignado'}
+                    <td className="px-4 py-3 text-slate-600">
+                      <div>{item.centros_de_trabajo?.nombre || 'No asignado'}</div>
+                      {item.ubicacion && (
+                        <div className="text-xs text-slate-400">{item.ubicacion}</div>
+                      )}
                     </td>
-                    <td className="px-6 py-4 text-slate-600">{item.ubicacion || '—'}</td>
-                    <td className="whitespace-nowrap px-6 py-4 text-slate-600">
-                      {item.fecha_ultima_revision}
+                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                      {formatDate(item.fecha_ultima_revision)}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="whitespace-nowrap px-4 py-3">
                       <span
                         className={
                           isOverdue
@@ -414,10 +411,25 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                               : 'text-slate-600'
                         }
                       >
-                        {item.fecha_vencimiento}
+                        {formatDate(item.fecha_vencimiento)}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="whitespace-nowrap px-4 py-3">
+                      {item.fecha_vencimiento_vida_util ? (
+                        <span
+                          className={
+                            new Date(item.fecha_vencimiento_vida_util + 'T00:00:00') <= new Date()
+                              ? 'font-bold text-red-600'
+                              : 'text-slate-600'
+                          }
+                        >
+                          {formatDate(item.fecha_vencimiento_vida_util)}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300">--</span>
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3">
                       {item.estado === 'operativo' && (
                         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
                           Operativo
@@ -425,7 +437,7 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                       )}
                       {item.estado === 'alerta_vencimiento' && (
                         <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-                          Próximo a Vencer
+                          Proximo a Vencer
                         </span>
                       )}
                       {item.estado === 'vencido' && (
@@ -434,7 +446,7 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                         </span>
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right">
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
                       <div className="flex justify-end gap-3">
                         <button
                           onClick={() => handleOpenEditModal(item)}
@@ -467,10 +479,9 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
             </h3>
 
             <form onSubmit={handleSave} className="space-y-4">
-              {/* Internal Code */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Código Interno *
+                  Codigo Interno *
                 </label>
                 <input
                   type="text"
@@ -482,7 +493,6 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                 />
               </div>
 
-              {/* Type & Center in a grid */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -495,10 +505,10 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                     }
                     className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
                   >
-                    <option value="extintor">🧯 Extintor</option>
-                    <option value="botiquin">🩹 Botiquín</option>
-                    <option value="camilla">🚑 Camilla</option>
-                    <option value="otro">🛠️ Otro</option>
+                    <option value="extintor">Extintor</option>
+                    <option value="botiquin">Botiquin</option>
+                    <option value="camilla">Camilla</option>
+                    <option value="otro">Otro</option>
                   </select>
                 </div>
 
@@ -522,15 +532,14 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                 </div>
               </div>
 
-              {/* Location & Last Revision Date */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Ubicación Específica
+                    Ubicacion Especifica
                   </label>
                   <input
                     type="text"
-                    placeholder="Ej: Piso 2, Cafetería"
+                    placeholder="Ej: Piso 2, Cafeteria"
                     value={ubicacion}
                     onChange={(e) => setUbicacion(e.target.value)}
                     className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
@@ -539,7 +548,7 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
 
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Última Revisión *
+                    Ultima Revision *
                   </label>
                   <input
                     type="date"
@@ -551,11 +560,11 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                 </div>
               </div>
 
-              {/* Expiration date with manual override toggle */}
+              {/* Vencimiento Revision Periodica */}
               <div className="space-y-3 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Fecha de Vencimiento
+                    Vencimiento Revision Periodica
                   </span>
                   <label className="flex cursor-pointer items-center gap-1.5 text-xs text-slate-600">
                     <input
@@ -578,22 +587,39 @@ export default function EmergencyInventory({ companyId }: { companyId: string })
                 />
                 {!isManualExpiry && (
                   <p className="text-xs italic text-slate-500">
-                    Calculado automáticamente:
-                    {tipo === 'extintor' && ' +1 Año (Extintor)'}
-                    {tipo === 'botiquin' && ' +6 Meses (Botiquín)'}
-                    {tipo === 'camilla' && ' +2 Años (Camilla)'}
-                    {tipo === 'otro' && ' +1 Año (Otro)'}
+                    Calculado automaticamente:
+                    {tipo === 'extintor' && ' +1 Ano (Extintor)'}
+                    {tipo === 'botiquin' && ' +6 Meses (Botiquin)'}
+                    {tipo === 'camilla' && ' +2 Anos (Camilla)'}
+                    {tipo === 'otro' && ' +1 Ano (Otro)'}
                   </p>
                 )}
               </div>
 
-              {/* Description */}
+              {/* Vencimiento Vida Util */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Descripción / Observaciones
+                  Vencimiento Vida Util del Articulo
+                </label>
+                <input
+                  type="date"
+                  value={fechaVidaUtil}
+                  onChange={(e) => setFechaVidaUtil(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
+                />
+                <p className="mt-1 text-xs text-slate-400">
+                  Fecha en que el articulo debe ser reemplazado por completo. Dejar vacio si no
+                  aplica.
+                </p>
+              </div>
+
+              {/* Descripcion */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Observaciones
                 </label>
                 <textarea
-                  placeholder="Detalles sobre el equipo, estado físico, marca, etc."
+                  placeholder="Detalles sobre el equipo, estado fisico, marca, etc."
                   value={descripcion}
                   onChange={(e) => setDescripcion(e.target.value)}
                   rows={2}

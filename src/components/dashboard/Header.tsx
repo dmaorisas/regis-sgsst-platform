@@ -89,6 +89,12 @@ export default function Header({
             <Link href="/admin/pila-demo" className="ml-4 text-amber-600 hover:text-sky-600">
               Demo PILA
             </Link>
+            <Link
+              href="/dashboard/demo-automatizaciones"
+              className="text-emerald-600 hover:text-emerald-800"
+            >
+              Automatizaciones
+            </Link>
           </nav>
         </div>
 

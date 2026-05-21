@@ -201,7 +201,7 @@ function getMacroStandardName(stdNum: string): string {
 
 const STATUS_STYLE: Record<
   string,
-  { bg: string; text: string; border: string; icon: React.ComponentType<{ className?: string }> }
+  { bg: string; text: string; border: string; icon: React.ElementType }
 > = {
   cumple: {
     bg: 'bg-emerald-50/60',

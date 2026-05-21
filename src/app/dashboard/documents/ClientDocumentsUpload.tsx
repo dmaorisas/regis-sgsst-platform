@@ -16,12 +16,18 @@ const REQUIRED_CATEGORIES = [
   { id: 'otros', name: 'Otros Documentos', color: 'bg-gray-100 text-gray-800' },
 ]
 
+interface StorageFile {
+  name: string
+  created_at: string | null
+  metadata?: { size: number } | null
+}
+
 export default function ClientDocumentsUpload({
   companyId,
   initialFiles,
 }: {
   companyId: string
-  initialFiles: unknown[]
+  initialFiles: StorageFile[]
 }) {
   const [isUploading, setIsUploading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -170,7 +176,7 @@ export default function ClientDocumentsUpload({
             {validFiles.map((file) => {
               const parts = file.name.split('---')
               const catId = parts.length > 1 ? parts[0] : 'otros'
-              const realName = parts.length > 1 ? parts[1].replace(/^\d+_/, '') : file.name
+              const realName = parts.length > 1 ? parts[1]!.replace(/^\d+_/, '') : file.name
               const category =
                 REQUIRED_CATEGORIES.find((c) => c.id === catId) ||
                 REQUIRED_CATEGORIES[REQUIRED_CATEGORIES.length - 1]!
@@ -189,8 +195,8 @@ export default function ClientDocumentsUpload({
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-slate-900">{realName}</span>
                       <span className="text-xs text-slate-500">
-                        {(file.metadata?.size / 1024).toFixed(1)} KB •{' '}
-                        {new Date(file.created_at).toLocaleDateString()}
+                        {((file.metadata?.size ?? 0) / 1024).toFixed(1)} KB •{' '}
+                        {file.created_at ? new Date(file.created_at).toLocaleDateString() : ''}
                       </span>
                     </div>
                   </div>

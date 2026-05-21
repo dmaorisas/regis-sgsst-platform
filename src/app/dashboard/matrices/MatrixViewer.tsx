@@ -122,7 +122,7 @@ export default function MatrixViewer({ companyId }: { companyId: string }) {
                   Analizando industria y generando matriz...
                 </>
               ) : (
-                'PROCESAR MATRIZ GTC-45 (v2.2)'
+                'PROCESAR MATRIZ GTC-45'
               )}
             </button>
             {error && <p className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</p>}

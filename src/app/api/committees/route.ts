@@ -1,3 +1,8 @@
+// ============================================================
+// PROTECTED FILE — Do NOT modify without explicit user approval.
+// Module: Actas (Comites y Actas de Reunion)
+// See: memory/protection_actas_module.md
+// ============================================================
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import { getUserWithRoles } from '@/lib/auth/get-user-with-roles'
@@ -87,7 +92,11 @@ export async function GET(req: NextRequest) {
 
     // 4. Mapear e integrar datos
     const membersWithDetails = (members || []).map((m) => {
-      const w = m.workers as { nombres: string; apellidos: string; cedula: string } | null
+      const w = m.workers as unknown as {
+        nombres: string
+        apellidos: string
+        cedula: string
+      } | null
       return {
         id: m.id,
         committee_id: m.committee_id,
@@ -102,7 +111,7 @@ export async function GET(req: NextRequest) {
     })
 
     const result = committees.map((c) => {
-      const cCentro = c.centros_de_trabajo as { nombre: string } | null
+      const cCentro = c.centros_de_trabajo as unknown as { nombre: string } | null
       return {
         ...c,
         centro_nombre: cCentro?.nombre || 'General',

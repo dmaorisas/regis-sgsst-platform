@@ -1,18 +1,13 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { GroqFallbackClient } from './groq-client'
+import { createLLMProvider } from './llm-provider'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export class MatrixGenerator {
-  private anthropic: Anthropic
-
-  constructor() {
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    })
-  }
-
   async generateMatrixForIndustry(companyName: string, industryDescription: string) {
-    const prompt = `Actúa como un Consultor Senior en Seguridad y Salud en el Trabajo de Colombia, experto en la norma GTC-45.
-    
+    const systemPrompt =
+      'Eres una API que solo devuelve JSON válido. No incluyes markdown ni saludos.'
+
+    const userPrompt = `Actúa como un Consultor Senior en Seguridad y Salud en el Trabajo de Colombia, experto en la norma GTC-45.
+
 Necesito que generes una matriz básica de identificación de peligros y valoración de riesgos para la siguiente empresa:
 - Nombre: ${companyName}
 - Actividad Económica / Código CIIU: ${industryDescription}
@@ -38,45 +33,26 @@ REGLAS CRÍTICAS (Mitigación de Riesgos Legales - Decreto 1072 de 2015):
 
 Retorna ÚNICAMENTE el objeto JSON sin markdown, sin texto extra.`
 
-    let responseText = ''
+    const provider = createLLMProvider(getSupabaseAdminClient())
+    const result = await provider.chat({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      max_tokens: 4000,
+      temperature: 0,
+      agent_id: 'matrix-gtc45',
+      module: 'matrices',
+    })
 
     try {
-      const response = await this.anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20240620',
-        max_tokens: 4000,
-        system: 'Eres una API que solo devuelve JSON válido. No incluyes markdown ni saludos.',
-        messages: [{ role: 'user', content: prompt }],
-      })
-      responseText = response.content[0]?.type === 'text' ? response.content[0].text : '{}'
-    } catch (e: unknown) {
-      const err = e as { message?: string; status?: number }
-      if (
-        err?.message?.includes('balance') ||
-        err?.status === 402 ||
-        err?.status === 403 ||
-        err?.status === 400 ||
-        String(err).includes('balance')
-      ) {
-        console.warn('Fallback a Groq para MatrixGenerator')
-        const groq = new GroqFallbackClient()
-        responseText = await groq.generateText(
-          'Eres una API que solo devuelve JSON válido. No incluyes markdown ni saludos.',
-          prompt,
-        )
-      } else {
-        throw e
-      }
-    }
-
-    try {
-      // Robust cleaning to extract JSON from markdown or text garbage
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-      const cleanJson = jsonMatch ? jsonMatch[0] : responseText
+      const jsonMatch = result.text.match(/\{[\s\S]*\}/)
+      const cleanJson = jsonMatch ? jsonMatch[0] : result.text
       const parsed = JSON.parse(cleanJson)
       return parsed.matriz || []
     } catch (e) {
       console.error('Error parsing AI JSON:', e)
-      console.log('Raw response was:', responseText)
+      console.log('Raw response was:', result.text)
       throw new Error('La IA no devolvió un JSON válido para la matriz.')
     }
   }

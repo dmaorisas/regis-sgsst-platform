@@ -49,7 +49,7 @@ export default async function RegisDashboardPage() {
   const { data: companies, error: cErr } = await admin
     .from('companies')
     .select(
-      'id, razon_social, nit, ciudad, capitulo_aplicable, numero_trabajadores, centros_de_trabajo(id)',
+      'id, razon_social, nit, ciudad, capitulo_aplicable, numero_trabajadores, centros_de_trabajo(id, created_at)',
     )
     .eq('regis_org_id', orgId)
     .is('deleted_at', null)
@@ -69,72 +69,94 @@ export default async function RegisDashboardPage() {
     )
   }
 
-  // Para cada empresa: resolver último snapshot del centro principal.
-  // OPTIMIZACIÓN: Evitar N+1 queries. Extraer los IDs principales y hacer una sola consulta.
+  // Misma lógica que el dashboard de empresa:
+  // - Centro principal = el primero por created_at ASC (no por UUID)
+  // - % siempre calculado en tiempo real desde standard_evaluations (nunca desde snapshots)
+  // Esto garantiza que la cartera sea un espejo exacto de lo que muestra cada empresa.
   type WithCentros = (typeof companies)[number] & {
-    centros_de_trabajo: { id: string }[] | null
-  }
-  
-  const rows: CompanyRow[] = []
-  const principalIds: string[] = []
-  
-  for (const comp of companies as WithCentros[]) {
-    const centros = comp.centros_de_trabajo ?? []
-    if (centros.length > 0) {
-      const ids = centros.map((c) => c.id).sort()
-      principalIds.push(ids[0])
-    }
+    centros_de_trabajo: { id: string; created_at: string }[] | null
   }
 
-  // Cargar todos los snapshots de los centros principales en 1 sola consulta
-  const latestPctByCentro = new Map<string, number>()
-  if (principalIds.length > 0) {
-    const { data: allSnaps } = await admin
-      .from('evaluation_snapshots')
-      .select('centro_id, total_percentage, snapshot_date, created_at')
-      .in('centro_id', principalIds)
-      // Traemos todos y filtramos en JS. Las evaluaciones son 1 al año aprox, por lo que el volumen es manejable.
-    
-    if (allSnaps && allSnaps.length > 0) {
-      // Ordenar por snapshot_date desc, created_at desc
-      allSnaps.sort((a, b) => {
-        const dateA = new Date(a.snapshot_date || a.created_at).getTime()
-        const dateB = new Date(b.snapshot_date || b.created_at).getTime()
-        return dateB - dateA
+  // 1. Identificar centro principal de cada empresa (mismo criterio que /dashboard)
+  type PrincipalEntry = { centroId: string; chapter: string; companyIdx: number }
+  const principalEntries: PrincipalEntry[] = []
+
+  for (let i = 0; i < companies.length; i++) {
+    const comp = companies[i] as WithCentros
+    const centros = (comp.centros_de_trabajo ?? [])
+      .slice()
+      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    if (centros.length > 0) {
+      principalEntries.push({
+        centroId: centros[0]!.id,
+        chapter: (comp.capitulo_aplicable as string | null) ?? 'III',
+        companyIdx: i,
       })
-      
-      // El primero que encontremos por centro será el más reciente
-      for (const snap of allSnaps) {
-        if (!latestPctByCentro.has(snap.centro_id) && snap.total_percentage !== null) {
-          latestPctByCentro.set(snap.centro_id, Number(snap.total_percentage))
-        }
+    }
+  }
+
+  const principalIds = principalEntries.map((e) => e.centroId)
+
+  // 2. Cargar evaluaciones y estándares en 2 queries paralelas (batch, sin N+1)
+  const pctByCompanyIdx = new Map<number, number>()
+
+  if (principalIds.length > 0) {
+    const [{ data: allStandards }, { data: allEvals }] = await Promise.all([
+      admin
+        .from('standards_0312')
+        .select(
+          'id, standard_number, cycle_phva, weight_capitulo_iii, applies_chapter_i, applies_chapter_ii, applies_chapter_iii',
+        ),
+      admin
+        .from('standard_evaluations')
+        .select('centro_id, standard_id, status')
+        .in('centro_id', principalIds)
+        .is('deleted_at', null),
+    ])
+
+    const evalsByCentro = new Map<string, Array<{ standard_id: string; status: string }>>()
+    for (const ev of allEvals ?? []) {
+      if (!evalsByCentro.has(ev.centro_id)) evalsByCentro.set(ev.centro_id, [])
+      evalsByCentro.get(ev.centro_id)!.push(ev)
+    }
+
+    // 3. Calcular % con la misma fórmula que StandardsChecklistTable
+    for (const { centroId, chapter, companyIdx } of principalEntries) {
+      const evals = evalsByCentro.get(centroId) ?? []
+      if (evals.length === 0) continue
+
+      const chapterCol = `applies_chapter_${chapter.toLowerCase()}` as
+        | 'applies_chapter_i'
+        | 'applies_chapter_ii'
+        | 'applies_chapter_iii'
+
+      const standards = (allStandards ?? [])
+        .filter((s) => s[chapterCol])
+        .map((s) => ({
+          id: s.id as string,
+          standard_number: s.standard_number as string,
+        }))
+
+      try {
+        const pct = computeLiveScore(standards, evals, chapter)
+        pctByCompanyIdx.set(companyIdx, pct)
+      } catch {
+        // datos inválidos → mantener null para esa empresa
       }
     }
   }
 
-  for (const comp of companies as WithCentros[]) {
-    const centros = comp.centros_de_trabajo ?? []
-    let pct: number | null = null
-    
-    if (centros.length > 0) {
-      const ids = centros.map((c) => c.id).sort()
-      const principalId = ids[0]
-      if (latestPctByCentro.has(principalId)) {
-        pct = latestPctByCentro.get(principalId)!
-      }
-    }
-    
-    rows.push({
-      id: comp.id as string,
-      razon_social: comp.razon_social as string,
-      nit: comp.nit as string,
-      ciudad: (comp.ciudad as string | null) ?? null,
-      capitulo_aplicable: (comp.capitulo_aplicable as 'I' | 'II' | 'III' | null) ?? null,
-      numero_trabajadores: comp.numero_trabajadores as number,
-      total_percentage: pct,
-      centros_count: centros.length,
-    })
-  }
+  // 4. Construir filas
+  const rows: CompanyRow[] = (companies as WithCentros[]).map((comp, i) => ({
+    id: comp.id as string,
+    razon_social: comp.razon_social as string,
+    nit: comp.nit as string,
+    ciudad: (comp.ciudad as string | null) ?? null,
+    capitulo_aplicable: (comp.capitulo_aplicable as 'I' | 'II' | 'III' | null) ?? null,
+    numero_trabajadores: comp.numero_trabajadores as number,
+    total_percentage: pctByCompanyIdx.get(i) ?? null,
+    centros_count: (comp.centros_de_trabajo ?? []).length,
+  }))
 
   // KPIs
   const evaluated = rows.filter((r) => r.total_percentage !== null)
@@ -167,4 +189,93 @@ export default async function RegisDashboardPage() {
       </main>
     </div>
   )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Réplica exacta de StandardsChecklistTable.totalScore para uso server-side.
+// Misma fórmula, mismos overrides por capítulo, mismos shared links (Cap. I).
+// ─────────────────────────────────────────────────────────────────────────────
+const MACRO_WEIGHTS = [
+  { name: 'Recursos', weight: 10 },
+  { name: 'Gestión integral SG-SST', weight: 15 },
+  { name: 'Gestión de la salud', weight: 20 },
+  { name: 'Gestión de peligros y riesgos', weight: 30 },
+  { name: 'Gestión de amenazas', weight: 10 },
+  { name: 'Verificación', weight: 5 },
+  { name: 'Mejoramiento', weight: 10 },
+] as const
+
+const MACRO_OVERRIDE_BY_CHAPTER: Record<string, Record<string, string>> = {
+  I: { '3.2.2': 'Verificación' },
+  II: { '3.2.2': 'Verificación' },
+  III: {},
+}
+
+const SHARED_LINKS_BY_CHAPTER: Record<string, Record<string, string[]>> = {
+  I: {
+    '4.1.2': ['Gestión de amenazas'],
+    '4.2.1': ['Gestión de amenazas'],
+    '3.2.2': ['Mejoramiento'],
+  },
+  II: {},
+  III: {},
+}
+
+function getDefaultMacro(stdNum: string): string {
+  if (stdNum.startsWith('1.1.') || stdNum.startsWith('1.2.')) return 'Recursos'
+  if (stdNum.startsWith('2.')) return 'Gestión integral SG-SST'
+  if (stdNum.startsWith('3.')) return 'Gestión de la salud'
+  if (stdNum.startsWith('4.')) return 'Gestión de peligros y riesgos'
+  if (stdNum.startsWith('5.')) return 'Gestión de amenazas'
+  if (stdNum.startsWith('6.')) return 'Verificación'
+  if (stdNum.startsWith('7.')) return 'Mejoramiento'
+  return 'Otros'
+}
+
+function computeLiveScore(
+  standards: Array<{ id: string; standard_number: string }>,
+  evals: Array<{ standard_id: string; status: string }>,
+  chapter: string,
+): number {
+  const statusMap = new Map(evals.map((e) => [e.standard_id, e.status]))
+  const overrides = MACRO_OVERRIDE_BY_CHAPTER[chapter] ?? {}
+  const sharedLinks = SHARED_LINKS_BY_CHAPTER[chapter] ?? {}
+  const stdByNumber = new Map(standards.map((s) => [s.standard_number, s]))
+
+  // Asignar cada estándar a su macro primaria (con overrides por capítulo)
+  type Entry = { id: string; macro: string }
+  const entries: Entry[] = []
+
+  for (const std of standards) {
+    const primaryMacro = overrides[std.standard_number] ?? getDefaultMacro(std.standard_number)
+    entries.push({ id: std.id, macro: primaryMacro })
+  }
+
+  // Agregar entradas extra por shared links (Cap. I)
+  for (const [stdNum, linkedMacros] of Object.entries(sharedLinks)) {
+    const std = stdByNumber.get(stdNum)
+    if (!std) continue
+    for (const linked of linkedMacros) {
+      // Solo agregar si no es ya el primary macro de este estándar
+      const primary = overrides[stdNum] ?? getDefaultMacro(stdNum)
+      if (linked !== primary) {
+        entries.push({ id: std.id, macro: linked })
+      }
+    }
+  }
+
+  // Calcular score: misma fórmula que StandardsChecklistTable.totalScore
+  // applicable = total estándares en el macro (SIN filtrar no_aplica del denominador)
+  let sumAportes = 0
+  let wActive = 0
+
+  for (const { name, weight } of MACRO_WEIGHTS) {
+    const macroEntries = entries.filter((e) => e.macro === name)
+    if (macroEntries.length === 0) continue
+    const cumple = macroEntries.filter((e) => statusMap.get(e.id) === 'cumple').length
+    sumAportes += weight * (cumple / macroEntries.length)
+    wActive += weight
+  }
+
+  return wActive > 0 ? (sumAportes / wActive) * 100 : 0
 }

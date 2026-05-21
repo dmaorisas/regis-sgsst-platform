@@ -2,6 +2,35 @@
 
 import { useState, useEffect, useRef } from 'react'
 
+interface ExamFields {
+  fecha: string | null
+  nombre_trabajador: string | null
+  cedula: string | null
+  eps: string | null
+  cargo: string | null
+  edad: number | null
+  peso: string | null
+  fecha_nacimiento: string | null
+  dependencia: string | null
+  en_tratamiento_medico: string | null
+  sede: string | null
+  tipo_vinculacion_laboral: string | null
+  nombre_jefe_inmediato: string | null
+  diagnostico: string | null
+  tipo_tratamiento: string | null
+  funciones_cargo: string | null
+  recomendaciones_medico_laborales: string | null
+  observaciones: string | null
+  compromiso_funcionario: string | null
+  compromiso_entidad: string | null
+}
+
+interface Recommendation {
+  text: string
+  type: string
+  duration_days: number | null
+}
+
 export default function MedicalExamUploader({ companyId }: { companyId: string }) {
   const [file, setFile] = useState<File | null>(null)
 
@@ -23,9 +52,9 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
 
   const [examType, setExamType] = useState('ingreso')
   const [isUploading, setIsUploading] = useState(false)
-  const [results, setResults] = useState<
-    { text: string; type: string; duration_days: number | null }[] | null
-  >(null)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+  const [results, setResults] = useState<Recommendation[] | null>(null)
+  const [extractedFields, setExtractedFields] = useState<ExamFields | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -69,6 +98,7 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
     setIsUploading(true)
     setError(null)
     setResults(null)
+    setExtractedFields(null)
 
     try {
       const formData = new FormData()
@@ -89,12 +119,75 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
       }
 
       setResults(data.extracted)
+      setExtractedFields(data.fields || null)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error interno')
     } finally {
       setIsUploading(false)
     }
   }
+
+  const handleDownloadReport = async () => {
+    if (!extractedFields || !results) return
+
+    setIsGeneratingPdf(true)
+    try {
+      const response = await fetch('/api/medical-exams/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: extractedFields,
+          recommendations: results,
+        }),
+      })
+
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.error || 'Error generando reporte')
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      const workerName = (extractedFields.nombre_trabajador || 'trabajador').replace(/\s+/g, '_')
+      a.href = url
+      a.download = `GTH-F-56_${workerName}_${new Date().toISOString().slice(0, 10)}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error generando reporte PDF')
+    } finally {
+      setIsGeneratingPdf(false)
+    }
+  }
+
+  const FIELD_LABELS: [keyof ExamFields, string][] = [
+    ['fecha', 'Fecha del examen'],
+    ['nombre_trabajador', 'Nombre del trabajador'],
+    ['cedula', 'Cedula'],
+    ['eps', 'EPS'],
+    ['cargo', 'Cargo'],
+    ['edad', 'Edad'],
+    ['peso', 'Peso'],
+    ['fecha_nacimiento', 'Fecha de nacimiento'],
+    ['dependencia', 'Dependencia'],
+    ['en_tratamiento_medico', 'En tratamiento medico'],
+    ['sede', 'Sede'],
+    ['tipo_vinculacion_laboral', 'Tipo de vinculacion laboral'],
+    ['nombre_jefe_inmediato', 'Nombre del jefe inmediato'],
+  ]
+
+  const TEXT_BLOCK_LABELS: [keyof ExamFields, string][] = [
+    ['diagnostico', 'Diagnostico'],
+    ['tipo_tratamiento', 'Tipo de tratamiento'],
+    ['funciones_cargo', 'Funciones del cargo'],
+    ['recomendaciones_medico_laborales', 'Recomendaciones medico laborales'],
+    ['observaciones', 'Observaciones'],
+    ['compromiso_funcionario', 'Compromiso de funcionario'],
+    ['compromiso_entidad', 'Compromiso de la entidad'],
+  ]
 
   return (
     <div className="space-y-8">
@@ -125,7 +218,7 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
               <div>
                 <input
                   type="text"
-                  placeholder="Buscar por cédula o nombre..."
+                  placeholder="Buscar por cedula o nombre..."
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value)
@@ -178,7 +271,7 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
               className="block w-full rounded-lg border border-slate-300 bg-[#fbf8fa] px-4 py-3 text-sm transition-colors focus:border-[#1e293b] focus:ring-[#1e293b]"
             >
               <option value="ingreso">Ingreso</option>
-              <option value="periodico">Periódico</option>
+              <option value="periodico">Periodico</option>
               <option value="egreso">Egreso</option>
               <option value="post_incapacidad">Post Incapacidad</option>
             </select>
@@ -246,7 +339,7 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
 
       {error && (
         <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -257,10 +350,91 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
         </div>
       )}
 
+      {/* ── Extracted Fields ── */}
+      {extractedFields && (
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <div className="mb-6 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-[#1e293b]">Campos Extraidos del Examen</h3>
+            <button
+              type="button"
+              onClick={handleDownloadReport}
+              disabled={isGeneratingPdf}
+              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Generando PDF...
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Descargar Reporte GTH-F-56
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Data fields grid */}
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+            <table className="min-w-full divide-y divide-slate-200">
+              <tbody className="divide-y divide-slate-100">
+                {FIELD_LABELS.map(([key, label]) => {
+                  const value = extractedFields[key]
+                  return (
+                    <tr key={key}>
+                      <td className="whitespace-nowrap bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-600">
+                        {label}
+                      </td>
+                      <td className="px-4 py-2.5 text-sm text-[#1e293b]">
+                        {value != null ? (
+                          String(value)
+                        ) : (
+                          <span className="text-slate-400">No identificado</span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Text blocks */}
+          <div className="mt-6 space-y-4">
+            {TEXT_BLOCK_LABELS.map(([key, label]) => {
+              const value = extractedFields[key]
+              return (
+                <div key={key} className="overflow-hidden rounded-lg border border-slate-200">
+                  <div className="bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    {label}
+                  </div>
+                  <div className="px-4 py-3 text-sm leading-relaxed text-[#1e293b]">
+                    {value ? (
+                      String(value)
+                    ) : (
+                      <span className="text-slate-400">No identificado en el examen</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Recommendations List ── */}
       {results && (
-        <div className="animate-in fade-in mt-8 border-t border-slate-200 pt-8 duration-500">
+        <div className="border-t border-slate-200 pt-8">
           <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-[#1e293b]">
-            Resultados del Análisis IA
+            Recomendaciones y Restricciones
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600">
               {results.length}
             </span>
@@ -282,7 +456,7 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
                 ></path>
               </svg>
               <p className="font-medium text-[#065f46]">
-                El trabajador está APTO sin restricciones médicas operativas.
+                El trabajador esta APTO sin restricciones medicas operativas.
               </p>
             </div>
           ) : (
@@ -325,7 +499,7 @@ export default function MedicalExamUploader({ companyId }: { companyId: string }
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                           ></path>
                         </svg>
-                        {rec.duration_days} días
+                        {rec.duration_days} dias
                       </span>
                     )}
                   </div>
